@@ -7,14 +7,16 @@ let globalGameConfig = {
     type: Phaser.WEBGL,
     width: 1600,
     height: 1024,
-    backgroundColor: 0xCCCCCC,
+    backgroundColor: 0xDDDDDD,
     physics: {
         default: "arcade",
         arcade: {
-            debug: false
+            debug: true
         }
     },
+    scale: {mode: Phaser.Scale.FIT},
     scene: [Menu, WallsDemo, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo]
+    //scene: [MovementAndAimingDemo]
 }
 
 let globalGame = new Phaser.Game(globalGameConfig);
