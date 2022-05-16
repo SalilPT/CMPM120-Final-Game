@@ -34,7 +34,6 @@ class MovementAndAimingDemo extends Phaser.Scene {
         this.captureMovementKeycodes(this.movKeyKeycodes);
 
         this.movKeyObjects = this.input.keyboard.addKeys(this.movKeyKeycodes);
-        console.log(this.movKeyObjects);
 
         // List of movement keys, in order that they were pressed
         this.movActionList = [];
