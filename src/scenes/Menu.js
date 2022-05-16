@@ -6,6 +6,7 @@ class Menu extends Phaser.Scene {
     create() {
         let demoSceneTransitionTextConfig = {color: "black", fontSize: "36px", stroke: "white", strokeThickness: 0};
         // Make buttons or keybinds to go to demo scenes
+
         this.MovementDemButton = this.add.rectangle(globalGameConfig.width/4, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
         this.PuzzleDemoButton = this.add.rectangle(globalGameConfig.width/2, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
         this.WallsDemoButton = this.add.rectangle(globalGameConfig.width/1.33, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
@@ -29,13 +30,15 @@ class Menu extends Phaser.Scene {
         this.WallsDemoButton.on("pointerdown", () =>{
             this.scene.start("wallsDemoScene");
         })
-
+      
         this.input.keyboard.on("keydown", (event) => {
             let keyCodeStr = event.keyCode.toString();
-            console.log(Phaser.Input.Keyboard.KeyCodes.TWO.toString())
             switch(keyCodeStr) {
                 case Phaser.Input.Keyboard.KeyCodes.TWO.toString():
                     this.scene.start("movementAndAimingDemoScene");
+                    break;
+                case Phaser.Input.Keyboard.KeyCodes.FOUR.toString():
+                    this.scene.start("puzzleDemoScene");
                     break;
             }
         }, this);
