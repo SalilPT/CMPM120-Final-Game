@@ -11,9 +11,9 @@ class Menu extends Phaser.Scene {
         this.PuzzleDemoButton = this.add.rectangle(globalGameConfig.width/2, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
         this.WallsDemoButton = this.add.rectangle(globalGameConfig.width/1.33, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
         
-        this.add.text(globalGameConfig.width/4, globalGameConfig.height/2, "Movement/\nAiming Demo", demoSceneTransitionTextConfig).setOrigin(0.5);
-        this.add.text(globalGameConfig.width/2, globalGameConfig.height/2, "Puzzle Demo", demoSceneTransitionTextConfig).setOrigin(0.5);
-        this.add.text(globalGameConfig.width/1.33, globalGameConfig.height/2, "Walls Demo", demoSceneTransitionTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width/4, globalGameConfig.height/2, "Movement/\nAiming Demo\n(working)", demoSceneTransitionTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width/2, globalGameConfig.height/2, "Puzzle Demo\n(in progress)", demoSceneTransitionTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width/1.33, globalGameConfig.height/2, "Walls Demo\n(in progress)", demoSceneTransitionTextConfig).setOrigin(0.5);
 
         this.MovementDemButton.setInteractive();
         this.PuzzleDemoButton.setInteractive();
