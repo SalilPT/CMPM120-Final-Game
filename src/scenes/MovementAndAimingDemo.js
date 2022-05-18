@@ -59,7 +59,7 @@ class MovementAndAimingDemo extends Phaser.Scene {
         /////
 
         // Shooting stuff
-        this.playerBulletGroup = this.add.group({});
+        this.playerBulletGroup = this.add.group();
         this.input.on("pointerdown", () => {
             let newPlayerBullet = this.physics.add.sprite(this.playerChar.x, this.playerChar.y, "playerSprite").setOrigin(0.5);
             this.playerBulletGroup.add(newPlayerBullet);

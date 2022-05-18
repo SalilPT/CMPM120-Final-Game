@@ -46,6 +46,11 @@ class PlayerMovementManager {
 
     // Re-map all of the movement action keycodes to new ones 
     bindAllMovementKeys(movKeyKeycodesMap, removeOldKeyObjs = true) {
+        // Don't need to do anything
+        if (this.movKeyKeycodes == movKeyKeycodesMap) {
+            return;
+        }
+
         this.removeCaptureMovementKeycodes(this.movKeyKeycodes);
         if (removeOldKeyObjs) {
             for (const keyObj of Object.values(this.movKeyObjects || null)) {
