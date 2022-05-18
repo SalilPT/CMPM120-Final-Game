@@ -7,7 +7,7 @@
   <image source="bulletHellTileSet.png" width="512" height="64"/>
   <tile id="7">
    <properties>
-    <property name="colides" type="bool" value="true"/>
+    <property name="collides" type="bool" value="true"/>
    </properties>
   </tile>
  </tileset>

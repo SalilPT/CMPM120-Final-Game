@@ -79,7 +79,7 @@
                  "id":7,
                  "properties":[
                         {
-                         "name":"colides",
+                         "name":"collides",
                          "type":"bool",
                          "value":true
                         }]
