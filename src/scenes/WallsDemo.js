@@ -14,7 +14,7 @@ class WallsDemo extends Phaser.Scene {
     }
 
     create() {
-        
+        // mainly following the the Tiledplatform scene from the Nathan's mappy example to handle collisions 
         // add tilemap
         const map = this.add.tilemap("tileMap");
         // set a tileset for the map
