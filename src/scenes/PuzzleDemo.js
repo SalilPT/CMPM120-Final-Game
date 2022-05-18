@@ -26,7 +26,16 @@ class PuzzleDemo extends Phaser.Scene {
         this.pickupKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.pickupKey.on("down", () => {
             this.pickUpPiece();
-        })
+        });
+
+
+
+
+
+        // Other stuff
+        let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
+        this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
+        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
     }
 
     update() {
@@ -41,6 +50,7 @@ class PuzzleDemo extends Phaser.Scene {
             return;
         }
         if (Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, closestPiece.body.center) <= this.piecePickupRange) {
+            this.pieceInventory.add(closestPiece);
             this.scatteredPiecesGroup.remove(closestPiece);
             closestPiece.setVisible(false);
         }

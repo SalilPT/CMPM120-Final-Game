@@ -7,7 +7,7 @@ let globalGameConfig = {
     type: Phaser.WEBGL,
     width: 1600,
     height: 1024,
-    backgroundColor: 0xDDDDDD,
+    backgroundColor: 0xAAAAAA,
     physics: {
         default: "arcade",
         arcade: {
