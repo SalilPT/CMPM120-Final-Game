@@ -20,15 +20,14 @@ class WallsDemo extends Phaser.Scene {
         // set a tileset for the map
         const tileset = map.addTilesetImage("bulletHellTileSet", "bTileSet");
         // create seperate layers for walls and floor tiles
-        const wallLayer = map.createLayer("Walls", tileset, 0, 0);
         const floorLayer = map.createLayer("Floor", tileset, 0, 0);
-
+        const wallLayer = map.createLayer("Walls", tileset, 0, 0);
         // set collision based on the "collision" property that is set in the Tiled software
         wallLayer.setCollisionByProperty({
             collides: true
         });
 
-        this.bouncyobject = this.physics.add.sprite(globalGameConfig.width/2, globalGameConfig.height/2, "bSpritesheet", 4);
+        this.bouncyobject = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 4);
         this.bouncyobject.setVelocityX(200);
         this.bouncyobject.body.setCollideWorldBounds(true);
 
