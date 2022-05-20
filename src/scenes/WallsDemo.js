@@ -6,37 +6,30 @@ class WallsDemo extends Phaser.Scene {
     preload(){
         this.load.image("wall", "./assets/Metal Wall 1 temp.png");
         this.load.spritesheet("bSpritesheet", "./assets/bulletHellTileSet.png", {frameWidth: 64, frameHeight:64}); // tile sheet
-
-        // load tileset that is used by the tile map
+        // load tileset that is used by the tile map and load jsonfile used by the tilemap
         this.load.image("bTileSet", "./assets/bulletHellTileSet.png"); // tile sheet
-        //load jsonfile used by the tilemap
         this.load.tilemapTiledJSON("tileMap", "./assets/bulletHellMap.json");    // Tiled JSON file
     }
 
     create() {
-        // mainly following the the Tiledplatform scene from the Nathan's mappy example to handle collisions 
-        // add tilemap
+        // mainly followed Nathan Altice's mappy example for collisions using tile maps
         const map = this.add.tilemap("tileMap");
-        // set a tileset for the map
+        // set a tileset for the map and its corresponding layers
         const tileset = map.addTilesetImage("bulletHellTileSet", "bTileSet");
-        // create seperate layers for walls and floor tiles
         const floorLayer = map.createLayer("Floor", tileset, 0, 0);
         const wallLayer = map.createLayer("Walls", tileset, 0, 0);
         // set collision based on the "collision" property that is set in the Tiled software
         wallLayer.setCollisionByProperty({
             collides: true
         });
-
+        // create a player
+        this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 4);
+        this.jebPlayer.body.setCollideWorldBounds(true);
+        //create the collider and instance of the movement manager
+        this.physics.add.collider(this.jebPlayer, wallLayer);
         this.movementMan = new PlayerMovementManager(this);
-        this,this.movementMan.setMovSpd(200);
-
-        this.tempPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 4);
-        this.tempPlayer.setVelocityX(200);
-        this.tempPlayer.body.setCollideWorldBounds(true);
-
-        this.physics.add.collider(this.tempPlayer, wallLayer);
-
-
+        this,this.movementMan.setMovSpd(300);
+        // changing scenes debubgger
         let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
         this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
@@ -44,7 +37,7 @@ class WallsDemo extends Phaser.Scene {
 
     update(){
         let movVector = this.movementMan.getMovementVector();
-        this.tempPlayer.body.setVelocity(movVector.x, movVector.y);
+        this.jebPlayer.body.setVelocity(movVector.x, movVector.y);
 
     }
 }
