@@ -23,7 +23,7 @@ class WallsDemo extends Phaser.Scene {
             collides: true
         });
         // create a player
-        this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 4);
+        this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 2);
         this.jebPlayer.body.setCollideWorldBounds(true);
         //create the collider and instance of the movement manager
         this.physics.add.collider(this.jebPlayer, wallLayer);
