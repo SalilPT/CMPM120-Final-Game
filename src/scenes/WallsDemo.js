@@ -27,15 +27,24 @@ class WallsDemo extends Phaser.Scene {
             collides: true
         });
 
-        this.bouncyobject = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 4);
-        this.bouncyobject.setVelocityX(200);
-        this.bouncyobject.body.setCollideWorldBounds(true);
+        this.movementMan = new PlayerMovementManager(this);
+        this,this.movementMan.setMovSpd(200);
 
-        this.physics.add.collider(this.bouncyobject, wallLayer);
+        this.tempPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 4);
+        this.tempPlayer.setVelocityX(200);
+        this.tempPlayer.body.setCollideWorldBounds(true);
+
+        this.physics.add.collider(this.tempPlayer, wallLayer);
 
 
         let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
         this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+    }
+
+    update(){
+        let movVector = this.movementMan.getMovementVector();
+        this.tempPlayer.body.setVelocity(movVector.x, movVector.y);
+
     }
 }
