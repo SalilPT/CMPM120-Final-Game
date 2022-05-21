@@ -22,5 +22,6 @@ class Menu extends Phaser.Scene {
         this.add.text(globalGameConfig.width/4, globalGameConfig.height/2, "Movement/\nAiming Demo\n(working)", demoSceneTransitionTextConfig).setOrigin(0.5);
         this.add.text(globalGameConfig.width/2, globalGameConfig.height/2, "Puzzle Demo\n(in progress)", demoSceneTransitionTextConfig).setOrigin(0.5);
         this.add.text(globalGameConfig.width/1.33, globalGameConfig.height/2, "Walls Demo\n(working)", demoSceneTransitionTextConfig).setOrigin(0.5);            
+
     }
 }

@@ -1,6 +1,6 @@
-class WallsDemo extends Phaser.Scene {
+class Tutorial extends Phaser.Scene {
     constructor() {
-        super("wallsDemoScene");
+        super("tutorialScene");
     }
     
     preload(){
@@ -25,10 +25,11 @@ class WallsDemo extends Phaser.Scene {
         // create a player
         this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 2);
         this.jebPlayer.body.setCollideWorldBounds(true);
+        this.jebPlayer.setCircle(32); // make collsion into circle shape
         //create the collider and instance of the movement manager
         this.physics.add.collider(this.jebPlayer, wallLayer);
         this.movementMan = new PlayerMovementManager(this);
-        this,this.movementMan.setMovSpd(300);
+        this.movementMan.setMovSpd(300);
         // changing scenes debubgger
         let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
