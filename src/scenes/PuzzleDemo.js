@@ -6,9 +6,14 @@ class PuzzleDemo extends Phaser.Scene {
     preload() {
         this.load.image("playerSprite", "./assets/Jeb Temp.png");
         this.load.image("keySprite", "./assets/Key Temp.png");
+        this.load.image("background", "./assets/Metal Plating 1 64x64.png");
     }
 
     create() {
+        // Background
+        this.background = this.add.tileSprite(0, 0, globalGame.config.width, globalGame.config.height, "background").setOrigin(0);
+        this.background.setDepth(-1000);
+
         this.movManager = new PlayerMovementManager(this);
         this.movManager.setMovSpd(400);
         // Player stuff
@@ -16,24 +21,39 @@ class PuzzleDemo extends Phaser.Scene {
         this.playerChar.setCollideWorldBounds(true);
 
         // Puzzle piece stuff
-        this.piecePickupRange = 300;
-        this.pieceInventory = new Phaser.Structs.List(this);
-        this.scatteredPiecesGroup = this.add.group();
-        this.pickupPieceExample = this.physics.add.sprite(globalGame.config.width/2, globalGame.config.height/2 + 96, "keySprite").setOrigin(0.5);
-        this.scatteredPiecesGroup.add(this.pickupPieceExample);
+        //this.piecePickupRange = 64;
+        //this.pieceInventory = new Phaser.Structs.List(this);
+        //this.scatteredPiecesGroup = this.add.group();
+        //this.pickupPieceExample = this.physics.add.sprite(globalGame.config.width/2, globalGame.config.height/2 + 96, "keySprite").setOrigin(0.5);
+        //this.scatteredPiecesGroup.add(this.pickupPieceExample);
 
         this.input.keyboard.addCapture(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.pickupKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.pickupKey.on("down", () => {
-            this.pickUpPiece();
+            //this.pickUpPiece();
+            this.controlsTextObj.destroy();
         });
 
-
+        this.puzManager = new PuzzleManager(this, {playerChar: this.playerChar});
+        let thing = this.puzManager.interactKeyObj;
+        this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
+        this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
+        let seqIndex = this.puzManager.addSequence();
+        let newPiece = new PuzzlePiece({
+            scene: this,
+            x: 600,
+            y: 800,
+            texture: "keySprite"
+        }).setOrigin(0);
+        newPiece.sequenceNumber = 1;
+        this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+        this.puzManager.attachDebugTextToSequenceGroup(seqIndex);
 
 
 
         // Other stuff
         let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
+        this.controlsTextObj = this.add.text(this.playerChar.x, this.playerChar.y - 64, "Controls: WASD to move, SPACE to pick up/place down", debugTextConfig).setOrigin(0.5);
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
         this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
     }

@@ -7,6 +7,7 @@
     <title>Document</title>
 
     <style>
+        /* Horizontally and vertically center the game */
         canvas {
             display: block;
             margin: auto;
@@ -14,18 +15,31 @@
     </style>
 </head>
 <body>
-     <!-- Include source code files here -->
+    <!--
+    =====
+    Include source code files here
+    =====
+    -->
+
+    <!--Phaser 3 Framework-->
     <script src="./lib/phaser.js"></script>
 
-    <script src="./src/scene-helpers/PlayerMovementManager.js"></script>
-    <script src="./src/scene-helpers/CustomSceneUtils.js"></script>
+    <!--Prefabs files-->
+    <script src="./src/prefabs/PuzzlePiece.js"></script>
 
+    <!--Scene Helper Files-->
+    <script src="./src/scene-helpers/CustomSceneUtils.js"></script>
+    <script src="./src/scene-helpers/PlayerMovementManager.js"></script>
+    <script src="./src/scene-helpers/PuzzleManager.js"></script>
+
+    <!--Scene Files-->
     <script src="./src/scenes/Menu.js"></script>
     <script src="./src/scenes/WallsDemo.js"></script>
     <script src="./src/scenes/MovementAndAimingDemo.js"></script>
     <script src="./src/scenes/LevelGenDemo.js"></script>
     <script src="./src/scenes/PuzzleDemo.js"></script>
 
+    <!--main.js-->
     <script src="./src/main.js"></script>
 </body>
 </html>
