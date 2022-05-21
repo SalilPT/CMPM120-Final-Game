@@ -15,7 +15,7 @@ let globalGameConfig = {
         }
     },
     scale: {mode: Phaser.Scale.FIT},
-    scene: [Menu, WallsDemo, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo]
+    scene: [Menu, Tutorial, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo]
     //scene: [MovementAndAimingDemo]
 }
 

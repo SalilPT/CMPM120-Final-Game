@@ -9,15 +9,15 @@ class Menu extends Phaser.Scene {
 
         this.MovementDemButton = this.add.rectangle(globalGameConfig.width/4, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
         this.PuzzleDemoButton = this.add.rectangle(globalGameConfig.width/2, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
-        this.WallsDemoButton = this.add.rectangle(globalGameConfig.width/1.33, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
+        this.tutorialButton = this.add.rectangle(globalGameConfig.width/1.33, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x6666ff);
         
         this.add.text(globalGameConfig.width/4, globalGameConfig.height/2, "Movement/\nAiming Demo\n(working)", demoSceneTransitionTextConfig).setOrigin(0.5);
         this.add.text(globalGameConfig.width/2, globalGameConfig.height/2, "Puzzle Demo\n(in progress)", demoSceneTransitionTextConfig).setOrigin(0.5);
-        this.add.text(globalGameConfig.width/1.33, globalGameConfig.height/2, "Walls Demo\n(working)", demoSceneTransitionTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width/1.33, globalGameConfig.height/2, "Tutorial\n(working)", demoSceneTransitionTextConfig).setOrigin(0.5);
 
         this.MovementDemButton.setInteractive();
         this.PuzzleDemoButton.setInteractive();
-        this.WallsDemoButton.setInteractive();
+        this.tutorialButton.setInteractive();
 
         this.MovementDemButton.on("pointerdown", () =>{
             this.scene.start("movementAndAimingDemoScene");
@@ -27,8 +27,8 @@ class Menu extends Phaser.Scene {
             this.scene.start("puzzleDemoScene");
         })
 
-        this.WallsDemoButton.on("pointerdown", () =>{
-            this.scene.start("wallsDemoScene");
+        this.tutorialButton.on("pointerdown", () =>{
+            this.scene.start("tutorialScene");
         })
       
         this.input.keyboard.on("keydown", (event) => {
