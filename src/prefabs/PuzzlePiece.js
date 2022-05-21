@@ -5,12 +5,19 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
         // Properties
         this.sequenceIndex;
         // The number in the sequence that this piece will represent, NOT the index of its sequence
-        this.sequenceNum;
-
-        console.log(this.body);
+        this.numInSequence;
+        // Has this piece been placed in its corresponding hole?
+        this.placedInHole = false;
         
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
         params.scene.physics.add.existing(this);
+    }
+
+    /*
+    Public methods
+    */
+    changeToInHoleSprite() {
+
     }
 }

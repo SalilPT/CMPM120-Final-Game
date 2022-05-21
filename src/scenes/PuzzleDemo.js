@@ -5,7 +5,8 @@ class PuzzleDemo extends Phaser.Scene {
 
     preload() {
         this.load.image("playerSprite", "./assets/Jeb Temp.png");
-        this.load.image("keySprite", "./assets/Key Temp.png");
+        this.load.image("puzPieceSprite", "./assets/Key Temp.png");
+        this.load.image("puzHoleSprite", "./assets/Enemy Temp.png");
         this.load.image("background", "./assets/Metal Plating 1 64x64.png");
     }
 
@@ -43,11 +44,14 @@ class PuzzleDemo extends Phaser.Scene {
             scene: this,
             x: 600,
             y: 800,
-            texture: "keySprite"
+            texture: "puzPieceSprite"
         }).setOrigin(0);
-        newPiece.sequenceNumber = 1;
+        newPiece.numInSequence = 1;
         this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
-        this.puzManager.attachDebugTextToSequenceGroup(seqIndex);
+        let newPuzHole = this.physics.add.sprite(640, 640, "puzHoleSprite");
+        newPuzHole.numInSequence = 1;
+        this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+        this.puzManager.attachDebugTextToSeqObjs(seqIndex);
 
 
 

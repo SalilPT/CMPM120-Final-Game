@@ -10,13 +10,20 @@ class PuzzleManager {
 
         // A base object that will be copied and added to the list of sequences that this puzzle manager will keep track of.
         this.SEQUENCE_BASE_OBJECT = {
-            // A reference to a group of PuzzlePiece game objects would be the value here
-            group: null,
+            // An array of PuzzlePiece game objects
+            pieces: [],
             // An array of points that each correspond to the top left of a hole that's aligned to the grid.
             holes: [],
-            // The index of the next piece to be placed in this sequence. When the sequence is completed, the value becomes -1.
-            nextPieceIndex: 0
+            // A reference to a group of PuzzlePiece game objects would be the value here
+            group: null,
+            // The index of the next piece to be placed in this sequence.
+            nextPieceIndex: 0,
+            // Is this sequence completed?
+            isCompleted: false
         }
+
+        this.PUZZLE_PIECE_Z_INDEX = this.playerChar.depth - 1;
+        this.PUZZLE_HOLE_Z_INDEX = this.PUZZLE_PIECE_Z_INDEX - 1;
 
         this.INTERACT_KEY_DOWN_CALLBACK = () => {
             console.log("Interact key pressed");
@@ -26,6 +33,9 @@ class PuzzleManager {
                 if (Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, closestPuzPiece.getCenter()) > this.maxPickUpDist) {
                     return;
                 }
+                if (closestPuzPiece.placedInHole) {
+                    return;
+                }
 
                 this.#pickUpPuzzlePiece(closestPuzPiece);
             }
@@ -33,7 +43,7 @@ class PuzzleManager {
                 // Create ghost piece
                 const tempGhostPiecePos = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
                 this.ghostPuzzlePiece = this.parentScene.add.sprite(tempGhostPiecePos.x, tempGhostPiecePos.y, this.currHeldPuzPiece.texture).setOrigin(0);
-                this.ghostPuzzlePiece.alpha = 0.5;
+                this.ghostPuzzlePiece.setAlpha(0.5);
                 this.ghostPuzzlePieceUpdateTimer = this.parentScene.time.addEvent({
                     delay: 1000/60,
                     callback: () => {
@@ -47,26 +57,31 @@ class PuzzleManager {
         }
 
         this.INTERACT_KEY_UP_CALLBACK = () => {
+            // Not currently holding a puzzle piece
             if (this.currHeldPuzPiece == null) {
                 return;
             }
+            // Releasing key from picking up a puzzle piece
             if (!this.canPlaceCurrHeldPiece) {
                 this.canPlaceCurrHeldPiece = true;
+                return;
+            }
+        
+            // Remove ghost piece
+            this.parentScene.time.removeEvent(this.ghostPuzzlePieceUpdateTimer);
+            this.ghostPuzzlePieceUpdateTimer.destroy();
+            this.ghostPuzzlePiece.destroy();
+            // Place the currently held piece
+            // If near corresponding hole, place puzzle piece in it
+            let correspondingHole = this.getCorrespondingHole(this.currHeldPuzPiece);
+            if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceIndex].nextPieceIndex
+                && Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, correspondingHole.getCenter()) <= this.maxHolePlacementDist) {
+                this.#placePuzzlePiece(this.currHeldPuzPiece, correspondingHole);
             }
             else {
-                // Remove ghost piece
-                this.parentScene.time.removeEvent(this.ghostPuzzlePieceUpdateTimer);
-                this.ghostPuzzlePieceUpdateTimer.destroy();
-                this.ghostPuzzlePiece.destroy();
-                // Place the currently held piece
-                // TODO: If near corresponding hole, place puzzle piece in it
-                const placementPoint = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
-                this.currHeldPuzPiece.setPosition(placementPoint.x, placementPoint.y);
-                this.currHeldPuzPiece.setDepth(this.playerChar.depth - 1);
-                this.currHeldPuzPiece.setVisible(true);
-                this.currHeldPuzPiece = null;
-                this.canPlaceCurrHeldPiece = false;
+                this.#placePuzzlePiece(this.currHeldPuzPiece);
             }
+        
         }
        
         /*
@@ -89,11 +104,13 @@ class PuzzleManager {
             topLeftY: 0,
         }
 
-        // An array that will hold one or more references to a group of puzzle pieces.
+        // An array that will hold sequence objects.
         this.sequences = [];
 
         // The maximum distance in pixels that the player can pick up a puzzle piece
         this.maxPickUpDist = 128;
+
+        this.maxHolePlacementDist = 128;
 
     }
 
@@ -111,34 +128,68 @@ class PuzzleManager {
         return this.sequences.length - 1;
     }
 
+    addHoleToSeq(holeToAdd, seqIndex = 0) {
+        let holesOfSequence = this.sequences[seqIndex].holes;
+        for (const hole of holesOfSequence) {
+            if (hole.numInSequence == holeToAdd.numInSequence) {
+                console.warn(`Puzzle hole was not added to sequence with index ${seqIndex} because of conflicting sequence numbers!`,
+                "Puzzle hole: " + pieceToAdd);
+                return;
+            }
+        }
+
+        Phaser.Utils.Array.Add(holesOfSequence, holeToAdd);
+        // Sort the holes array of the sequence in ascending order of each hole's number in the sequence
+        holesOfSequence.sort((hole1, hole2) => {return hole1.numInSequence - hole2.numInSequence});
+
+        holeToAdd.sequenceIndex = seqIndex;
+        holeToAdd.body.checkCollision.none = true;
+        holeToAdd.setDepth(this.PUZZLE_HOLE_Z_INDEX);
+    }
+
     addPuzzlePieceToSeq(pieceToAdd, seqIndex = 0) {
         let groupOfSequence = this.sequences[seqIndex].group;
+        let piecesOfSequence = this.sequences[seqIndex].pieces;
         // Check whether or not a piece with the same sequence number already exists in the group
-        for (const piece of groupOfSequence.getChildren()) {
-            if (piece.seqNumber == pieceToAdd.seqNumber) {
+        for (const piece of piecesOfSequence) {
+            if (piece.numInSequence == pieceToAdd.numInSequence) {
                 console.warn(`Puzzle piece was not added to sequence group with index ${seqIndex} because of conflicting sequence numbers!`,
-                "puzzle piece: " + pieceToAdd);
+                "Puzzle piece: " + pieceToAdd);
                 return;
             }
         }
 
         groupOfSequence.add(pieceToAdd);
+        Phaser.Utils.Array.Add(piecesOfSequence, pieceToAdd);
+        // Sort the pieces array of the sequence in ascending order of each piece's number in the sequence
+        piecesOfSequence.sort((piece1, piece2) => {return piece1.numInSequence - piece2.numInSequence});
+
         pieceToAdd.sequenceIndex = seqIndex;
         pieceToAdd.body.checkCollision.none = true;
+        pieceToAdd.setDepth(this.PUZZLE_PIECE_Z_INDEX);
     }
     
-    attachDebugTextToSequenceGroup(groupIndex) {
-        let debugTextObjs = [];
-        const piecesList = this.sequences[groupIndex].group.getChildren();
+    attachDebugTextToSeqObjs(seqIndex) {
+        let pieceDebugTextObjs = [];
+        let holeDebugTextObjs = [];
+        const piecesList = this.sequences[seqIndex].pieces;
         for (const piece of piecesList) {
-            const newTextObj = this.parentScene.add.text(piece.getCenter().x, piece.getCenter().y, `seqIndex: ${piece.sequenceIndex}\nseqNumber: ${piece.sequenceNumber}`, {color: "white", fontFamily: "Verdana", fontSize: "36px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
-            debugTextObjs.push(newTextObj);
+            const newTextObj = this.parentScene.add.text(piece.getCenter().x, piece.getCenter().y, `[PIECE]\nseqIndex: ${piece.sequenceIndex}\nnumInSequence: ${piece.numInSequence}`, {color: "white", fontFamily: "Verdana", fontSize: "24px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
+            pieceDebugTextObjs.push(newTextObj);
+        }
+        const holesList = this.sequences[seqIndex].holes;
+        for (const hole of holesList) {
+            const newTextObj = this.parentScene.add.text(hole.getCenter().x, hole.getCenter().y, `[HOLE]\nseqIndex: ${hole.sequenceIndex}\nnumInSequence: ${hole.numInSequence}`, {color: "white", fontFamily: "Verdana", fontSize: "24px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
+            holeDebugTextObjs.push(newTextObj);
         }
         this.parentScene.time.addEvent({
             delay: 1000/60,
             callback: () => {
-                for (let i in debugTextObjs) {
-                    debugTextObjs[i].setPosition(piecesList[i].getCenter().x, piecesList[i].getCenter().y);
+                for (let i in pieceDebugTextObjs) {
+                    pieceDebugTextObjs[i].setPosition(piecesList[i].getCenter().x, piecesList[i].getCenter().y);
+                }
+                for (let i in holeDebugTextObjs) {
+                    holeDebugTextObjs[i].setPosition(holesList[i].getCenter().x, holesList[i].getCenter().y);
                 }
             },
             loop: true
@@ -159,9 +210,7 @@ class PuzzleManager {
         this.interactKeyObj = this.parentScene.input.keyboard.addKey(newKeycode);
         this.interactKeyObj.on("down", this.INTERACT_KEY_DOWN_CALLBACK, this);
         this.interactKeyObj.on("up", this.INTERACT_KEY_UP_CALLBACK, this);
-        this.parentScene.input.keyboard.addCapture(newKeycode);
-        console.log("hmm");
-        
+        this.parentScene.input.keyboard.addCapture(newKeycode);        
     }
 
     getCurrentlyHeldPiece() {
@@ -172,12 +221,25 @@ class PuzzleManager {
     getClosestPuzzlePiece() {
         let piecesList = [];
         for (const seq of this.sequences) {
-            Phaser.Utils.Array.Add(piecesList, seq.group.getChildren());
+            Phaser.Utils.Array.Add(piecesList, seq.pieces);
         }
         
         let closestPiece = this.parentScene.physics.closest(this.playerChar.body.center, piecesList);
         return closestPiece;
-    }    
+    }
+
+    getCorrespondingHole(puzPiece) {
+        const result = this.sequences[puzPiece.sequenceIndex].holes[puzPiece.numInSequence - 1];
+        if (result == undefined) {
+            console.warn("The corresponding hole for that piece doesn't exist!");
+            return;
+        }
+        if (result.numInSequence != puzPiece.numInSequence) {
+            console.warn(`The current structure of sequence with index ${puzPiece.sequenceIndex} is invalid for get the corresponding hole!`);
+            return;
+        }
+        return result;
+    }
 
     /*
     Private methods
@@ -192,6 +254,30 @@ class PuzzleManager {
     #pickUpPuzzlePiece(puzPiece) {
         puzPiece.setVisible(false);
         this.currHeldPuzPiece = puzPiece;
-        // TODO: maybe want to emit event that piece was picked up
+        // TODO: maybe want to emit event that piece was picked up to alert the UI and sound manager
+    }
+
+    #placePuzzlePiece(puzPiece, targetHole = null) {
+        if (targetHole != null) {
+            console.log(targetHole)
+            puzPiece.setPosition(targetHole.getTopLeft().x, targetHole.getTopLeft().y);
+            puzPiece.changeToInHoleSprite();
+            puzPiece.placedInHole = true;
+            
+            let parentSeq = this.sequences[puzPiece.sequenceIndex]
+            parentSeq.nextPieceIndex += 1;
+            if (parentSeq.nextPieceIndex == parentSeq.pieces.length) {
+                parentSeq.completed = true;
+            }
+        }
+        else {
+            const placementPoint = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
+            this.currHeldPuzPiece.setPosition(placementPoint.x, placementPoint.y);
+        }
+
+        puzPiece.setVisible(true);
+        this.currHeldPuzPiece = null;
+        this.canPlaceCurrHeldPiece = false;
+        // TODO: maybe want to emit event that piece was placed to alert the UI and sound manager
     }
 }
