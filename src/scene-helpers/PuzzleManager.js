@@ -47,8 +47,16 @@ class PuzzleManager {
                 this.ghostPuzzlePieceUpdateTimer = this.parentScene.time.addEvent({
                     delay: 1000/60,
                     callback: () => {
-                        // TODO: If near corresponding hole, make ghost puzzle piece automatically be at hole
-                        const placementPoint = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
+                        // If near corresponding hole, make ghost puzzle piece automatically be at hole
+                        let correspondingHole = this.getCorrespondingHole(this.currHeldPuzPiece);
+                        let placementPoint;
+                        if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceIndex].nextPieceIndex
+                            && Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, correspondingHole.getCenter()) <= this.maxHolePlacementDist) {
+                            placementPoint = new Phaser.Geom.Point(correspondingHole.x, correspondingHole.y);
+                        }
+                        else {
+                            placementPoint = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
+                        }
                         this.ghostPuzzlePiece.setPosition(placementPoint.x, placementPoint.y);
                     },
                     loop: true
@@ -110,7 +118,7 @@ class PuzzleManager {
         // The maximum distance in pixels that the player can pick up a puzzle piece
         this.maxPickUpDist = 128;
 
-        this.maxHolePlacementDist = 128;
+        this.maxHolePlacementDist = 160;
 
     }
 
@@ -169,7 +177,7 @@ class PuzzleManager {
         pieceToAdd.setDepth(this.PUZZLE_PIECE_Z_INDEX);
     }
     
-    attachDebugTextToSeqObjs(seqIndex) {
+    attachDebugTextToSeq(seqIndex) {
         let pieceDebugTextObjs = [];
         let holeDebugTextObjs = [];
         const piecesList = this.sequences[seqIndex].pieces;
