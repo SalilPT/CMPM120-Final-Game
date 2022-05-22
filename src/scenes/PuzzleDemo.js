@@ -5,7 +5,8 @@ class PuzzleDemo extends Phaser.Scene {
 
     preload() {
         this.load.image("playerSprite", "./assets/Jeb Temp.png");
-        this.load.image("keySprite", "./assets/Key Temp.png");
+        this.load.image("puzPieceSprite", "./assets/Key Temp.png");
+        this.load.image("puzHoleSprite", "./assets/Enemy Temp.png");
         this.load.image("background", "./assets/Metal Plating 1 64x64.png");
     }
 
@@ -15,17 +16,10 @@ class PuzzleDemo extends Phaser.Scene {
         this.background.setDepth(-1000);
 
         this.movManager = new PlayerMovementManager(this);
-        this.movManager.setMovSpd(400);
+        this.movManager.setMovSpd(600);
         // Player stuff
         this.playerChar = this.physics.add.sprite(globalGame.config.width/2, globalGame.config.height/2, "playerSprite").setOrigin(0.5);
         this.playerChar.setCollideWorldBounds(true);
-
-        // Puzzle piece stuff
-        //this.piecePickupRange = 64;
-        //this.pieceInventory = new Phaser.Structs.List(this);
-        //this.scatteredPiecesGroup = this.add.group();
-        //this.pickupPieceExample = this.physics.add.sprite(globalGame.config.width/2, globalGame.config.height/2 + 96, "keySprite").setOrigin(0.5);
-        //this.scatteredPiecesGroup.add(this.pickupPieceExample);
 
         this.input.keyboard.addCapture(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.pickupKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -38,16 +32,39 @@ class PuzzleDemo extends Phaser.Scene {
         let thing = this.puzManager.interactKeyObj;
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
+        // Make one sequence
         let seqIndex = this.puzManager.addSequence();
-        let newPiece = new PuzzlePiece({
-            scene: this,
-            x: 600,
-            y: 800,
-            texture: "keySprite"
-        }).setOrigin(0);
-        newPiece.sequenceNumber = 1;
-        this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
-        this.puzManager.attachDebugTextToSequenceGroup(seqIndex);
+        for (let i = 1; i < 5 + 1; i++) {
+            let newPiece = new PuzzlePiece({
+                scene: this,
+                x: 128*i,
+                y: 800 + 64 * Math.pow(-1, i),
+                texture: "puzPieceSprite"
+            }).setOrigin(0);
+            newPiece.numInSequence = i;
+            this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+            let newPuzHole = this.physics.add.sprite(128*i, 128 + 64 * Math.pow(-1, i), "puzHoleSprite").setOrigin(0);
+            newPuzHole.numInSequence = i;
+            this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+        }
+        this.puzManager.attachDebugTextToSeq(seqIndex);
+
+        // Make another sequence
+        seqIndex = this.puzManager.addSequence();
+        for (let i = 1; i < 5 + 1; i++) {
+            let newPiece = new PuzzlePiece({
+                scene: this,
+                x: 768 + 128*i,
+                y: 800 + 64 * Math.pow(-1, i),
+                texture: "puzPieceSprite"
+            }).setOrigin(0);
+            newPiece.numInSequence = i;
+            this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+            let newPuzHole = this.physics.add.sprite(768 + 128*i, 128 + 64 * Math.pow(-1, i), "puzHoleSprite").setOrigin(0);
+            newPuzHole.numInSequence = i;
+            this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+        }
+        this.puzManager.attachDebugTextToSeq(seqIndex);
 
 
 
@@ -61,18 +78,5 @@ class PuzzleDemo extends Phaser.Scene {
     update() {
         let movVector = this.movManager.getMovementVector();
         this.playerChar.body.setVelocity(movVector.x, movVector.y);
-    }
-
-    pickUpPiece() {
-        // Since pieces won't move on their own, using their game objects instead of their physics bodies here is fine
-        let closestPiece = this.physics.closest(this.playerChar.body.center, this.scatteredPiecesGroup.getChildren());
-        if (closestPiece == null) {
-            return;
-        }
-        if (Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, closestPiece.body.center) <= this.piecePickupRange) {
-            this.pieceInventory.add(closestPiece);
-            this.scatteredPiecesGroup.remove(closestPiece);
-            closestPiece.setVisible(false);
-        }
     }
 }
