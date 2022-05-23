@@ -267,15 +267,15 @@ class PuzzleManager {
 
     #placePuzzlePiece(puzPiece, targetHole = null) {
         if (targetHole != null) {
-            console.log(targetHole)
             puzPiece.setPosition(targetHole.getTopLeft().x, targetHole.getTopLeft().y);
             puzPiece.changeToInHoleSprite();
             puzPiece.placedInHole = true;
             
-            let parentSeq = this.sequences[puzPiece.sequenceIndex]
+            let parentSeq = this.sequences[puzPiece.sequenceIndex];
             parentSeq.nextPieceIndex += 1;
+            // If this piece was the last in the sequence, update the isCompleted property of the sequence
             if (parentSeq.nextPieceIndex == parentSeq.pieces.length) {
-                parentSeq.completed = true;
+                parentSeq.isCompleted = true;
             }
         }
         else {
@@ -286,6 +286,6 @@ class PuzzleManager {
         puzPiece.setVisible(true);
         this.currHeldPuzPiece = null;
         this.canPlaceCurrHeldPiece = false;
-        // TODO: maybe want to emit event that piece was placed to alert the UI and sound manager
+        // TODO: maybe want to emit event that piece was placed to alert the UI and sound managers
     }
 }
