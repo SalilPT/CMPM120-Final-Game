@@ -7,6 +7,8 @@ class Tutorial extends Phaser.Scene {
         //visual assets
         this.load.image("wall", "./assets/Metal Wall 1 temp.png");
         this.load.spritesheet("bSpritesheet", "./assets/bulletHellTileSet.png", {frameWidth: 64, frameHeight:64}); // tile sheet
+        this.load.image("puzPieceSprite", "./assets/Key Temp.png");
+        this.load.image("puzHoleSprite", "./assets/Enemy Temp.png");
         // load tileset that is used by the tile map and load jsonfile used by the tilemap
         this.load.image("bTileSet", "./assets/bulletHellTileSet.png"); // tile sheet
         this.load.tilemapTiledJSON("tileMap", "./assets/bulletHellMap.json");    // Tiled JSON file
@@ -22,6 +24,7 @@ class Tutorial extends Phaser.Scene {
         const tileset = map.addTilesetImage("bulletHellTileSet", "bTileSet");
         const floorLayer = map.createLayer("Floor", tileset, 0, 0);
         const wallLayer = map.createLayer("Walls", tileset, 0, 0);
+        floorLayer.setDepth(-2); // change as needed, note:puzzle piece sprite is 1 less than player depth, and keyhole is 2 less
         // set collision based on the "collision" property that is set in the Tiled software
         wallLayer.setCollisionByProperty({
             collides: true
@@ -29,7 +32,7 @@ class Tutorial extends Phaser.Scene {
         // create a player
         this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 2);
         this.jebPlayer.body.setCollideWorldBounds(true);
-        this.jebPlayer.setCircle(32); // make collsion into circle shape
+        this.jebPlayer.setCircle(this.textures.getFrame("bSpritesheet", 2).width/2); // make collsion into circle shape
         //create the collider and instance of the movement manager
         this.collidesWithWalls = this.physics.add.group();
         this.collidesWithWalls.add(this.jebPlayer);
@@ -53,7 +56,28 @@ class Tutorial extends Phaser.Scene {
             newPlayerBullet.setScale(0.5);
             this.sound.play("shootingSFX");
         });
-
+        //code based on the puzzle demo
+        this.puzzleMan = new PuzzleManager(this, {playerChar: this.jebPlayer});
+        //let thing = this.puzzleMan.interactKeyObj;
+        this.puzzleMan.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
+        this.puzzleMan.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
+        // Make a sequence
+        let seqIndex = this.puzzleMan.addSequence();
+        for (let i = 1; i < 4 + 1; i++) {
+            let newPiece = new PuzzlePiece({
+                scene: this,
+                x: 128*i,
+                y: 800 + 64 * Math.pow(-1, i),
+                texture: "bSpritesheet",
+                frame: 4
+            }).setOrigin(0);
+            newPiece.numInSequence = i;
+            this.puzzleMan.addPuzzlePieceToSeq(newPiece, seqIndex);
+            let newPuzHole = this.physics.add.sprite(128*i, 128 + 64 * Math.pow(-1, i), "bSpritesheet", 0).setOrigin(0);
+            newPuzHole.numInSequence = i;
+            this.puzzleMan.addHoleToSeq(newPuzHole, seqIndex);
+        }
+        this.puzzleMan.attachDebugTextToSeq(seqIndex);
     }
 
     update(){
