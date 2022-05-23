@@ -5,7 +5,7 @@ class PlayerMovementManager {
         /*
         Constants
         */
-        this.CONFLICTING_MOV_KEYS = {
+        this.CONFLICTING_MOV_ACTIONS = {
             "up": "down",
             "right": "left",
             "down": "up",
@@ -38,7 +38,7 @@ class PlayerMovementManager {
         // Create an object containing movement actions mapped to key objects
         this.movKeyObjects = this.parentScene.input.keyboard.addKeys(this.movKeyKeycodes, true);
 
-        // Store previous movement inputs
+        // Store currently held movement inputs in the order that they were pressed
         this.movActionList = [];
 
         this.movSpd = this.DEFAULT_MOVEMENT_SPEED;
@@ -78,7 +78,7 @@ class PlayerMovementManager {
         // Prioritize only the most recent inputs
         for (const movAction of this.movActionList.slice().reverse()) {
             if (!conflictingEntries.has(movAction)) {
-                conflictingEntries.add(this.CONFLICTING_MOV_KEYS[movAction]);
+                conflictingEntries.add(this.CONFLICTING_MOV_ACTIONS[movAction]);
                 resultingVector.add(this.ACTIONS_TO_VECTORS[movAction]);
                 numDifferentDirs += 1;
             }
