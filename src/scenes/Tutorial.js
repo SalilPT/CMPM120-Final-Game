@@ -29,26 +29,32 @@ class Tutorial extends Phaser.Scene {
         wallLayer.setCollisionByProperty({
             collides: true
         });
+        //collision group
+        this.anythingAndWalls = this.physics.add.group(); // group to keep things inside the walls
         // create a player
         this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "bSpritesheet", 2);
         this.jebPlayer.body.setCollideWorldBounds(true);
         this.jebPlayer.setCircle(this.textures.getFrame("bSpritesheet", 2).width/2); // make collsion into circle shape
+        this.anythingAndWalls.add(this.jebPlayer);
+
         //create the collider and instance of the movement manager
-        this.collidesWithWalls = this.physics.add.group();
-        this.collidesWithWalls.add(this.jebPlayer);
-        this.physics.add.collider(this.collidesWithWalls, wallLayer);
+        this.physics.add.collider(this.anythingAndWalls, wallLayer, (object1) => {
+            if(object1 != this.jebPlayer){ // check it is not player sprite
+                object1.destroy();
+            }
+        });
         this.movementMan = new PlayerMovementManager(this);
-        this.movementMan.setMovSpd(300);
+        this.movementMan.setMovSpd(400);
+
         // changing scenes debubgger
         let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
         this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+
         //code based off the shooting demo
-        this.playerBulletGroup = this.add.group();
         this.input.on("pointerdown", () => {
             let newPlayerBullet = this.physics.add.sprite(this.jebPlayer.x, this.jebPlayer.y, "bSpritesheet", 4).setOrigin(0.5);
-            this.playerBulletGroup.add(newPlayerBullet);
-            this.collidesWithWalls.add(newPlayerBullet);
+            this.anythingAndWalls.add(newPlayerBullet);
             let fireAngle = Phaser.Math.Angle.Between(this.jebPlayer.body.center.x, this.jebPlayer.body.center.y, this.input.activePointer.worldX, this.input.activePointer.worldY);
             fireAngle = Phaser.Math.RadToDeg(fireAngle);
             let fireVector = this.physics.velocityFromAngle(fireAngle, 250);
@@ -56,6 +62,7 @@ class Tutorial extends Phaser.Scene {
             newPlayerBullet.setScale(0.5);
             this.sound.play("shootingSFX");
         });
+
         //code based on the puzzle demo
         this.puzzleMan = new PuzzleManager(this, {playerChar: this.jebPlayer});
         //let thing = this.puzzleMan.interactKeyObj;
