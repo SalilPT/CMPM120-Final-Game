@@ -36,8 +36,8 @@ class Tutorial extends Phaser.Scene {
                 object1.destroy();
             }
         });
-        this.movementMan = new PlayerMovementManager(this);
-        this.movementMan.setMovSpd(400);
+        this.movManager = new PlayerMovementManager(this);
+        this.movManager.setMovSpd(400);
         // changing scenes debubgger
         let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
@@ -54,31 +54,31 @@ class Tutorial extends Phaser.Scene {
             this.sound.play("shootingSFX");
         });
         //code based on the puzzle demo
-        this.puzzleMan = new PuzzleManager(this, {playerChar: this.jebPlayer});
-        //let thing = this.puzzleMan.interactKeyObj;
-        this.puzzleMan.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
-        this.puzzleMan.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
+        this.puzManager = new PuzzleManager(this, {playerChar: this.jebPlayer});
+        //let thing = this.puzManager.interactKeyObj;
+        this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
+        this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make a sequence
-        let seqIndex = this.puzzleMan.addSequence();
+        let seqIndex = this.puzManager.addSequence();
         for (let i = 1; i < 4 + 1; i++) {
             let newPiece = new PuzzlePiece({
                 scene: this,
                 x: 128*i,
                 y: 800 + 64 * Math.pow(-1, i),
                 texture: "gameAtlas",
-                frame: "Key Temp.png"
+                frame: "puzzlePiece" + i + ".png"
             }).setOrigin(0);
             newPiece.numInSequence = i;
-            this.puzzleMan.addPuzzlePieceToSeq(newPiece, seqIndex);
-            let newPuzHole = this.physics.add.sprite(128*i, 128 + 64 * Math.pow(-1, i), "gameAtlas", "Enemy Temp.png").setOrigin(0);
+            this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+            let newPuzHole = this.physics.add.sprite(128*i, 128 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
             newPuzHole.numInSequence = i;
-            this.puzzleMan.addHoleToSeq(newPuzHole, seqIndex);
+            this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
         }
-        this.puzzleMan.attachDebugTextToSeq(seqIndex);
+
     }
 
     update(){
-        let movVector = this.movementMan.getMovementVector();
+        let movVector = this.movManager.getMovementVector();
         this.jebPlayer.body.setVelocity(movVector.x, movVector.y);
 
     }
