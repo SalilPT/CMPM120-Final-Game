@@ -23,8 +23,9 @@ class Tutorial extends Phaser.Scene {
         wallLayer.setCollisionByProperty({
             collides: true
         });
-        //collision group
+        //groups
         this.anythingAndWalls = this.physics.add.group(); // group to keep things inside the walls
+        this.puzzleSlotgroup = this.physics.add.group(); // group to house the puzzle pieces
         // create a player
         this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "gameAtlas", "jeb legs temp.png");
         this.jebPlayer.body.setCollideWorldBounds(true);
@@ -63,17 +64,28 @@ class Tutorial extends Phaser.Scene {
         for (let i = 1; i < 4 + 1; i++) {
             let newPiece = new PuzzlePiece({
                 scene: this,
-                x: 128*i,
-                y: 800 + 64 * Math.pow(-1, i),
+                x: 320*i,
+                y: 768 + 64 * Math.pow(-1, i),
                 texture: "gameAtlas",
                 frame: "puzzlePiece" + i + ".png"
             }).setOrigin(0);
             newPiece.numInSequence = i;
             this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
-            let newPuzHole = this.physics.add.sprite(128*i, 128 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
+            let newPuzHole = this.physics.add.sprite(320*i, 192 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
+            this.puzzleSlotgroup.add(newPuzHole); 
             newPuzHole.numInSequence = i;
             this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+            
         }
+        // glowing slots tween
+        let puzPieceBlinkingTween = this.tweens.add({
+            targets: this.puzzleSlotgroup.getChildren(),
+            alpha: { from: 0.70, to: 1 },
+            //ease: 'Sine.easeInOut',
+            duration: 500,
+            repeat: -1,
+            yoyo: true,
+        });
 
     }
 
