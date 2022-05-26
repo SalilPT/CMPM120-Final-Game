@@ -78,14 +78,15 @@ class Tutorial extends Phaser.Scene {
             
         }
         // glowing slots tween
-        let puzPieceBlinkingTween = this.tweens.add({
+        this.tweens.add({
             targets: this.puzzleSlotgroup.getChildren(),
-            alpha: { from: 0.70, to: 1 },
+            alpha: { from: 0.20, to: 0.50 },
             //ease: 'Sine.easeInOut',
-            duration: 500,
+            duration: 1000,
             repeat: -1,
             yoyo: true,
         });
+
 
     }
 
