@@ -221,10 +221,6 @@ class PuzzleManager {
         this.parentScene.input.keyboard.addCapture(newKeycode);        
     }
 
-    getCurrentlyHeldPiece() {
-        return this.currHeldPuzPiece;
-    }
-
     // Return the closest puzzle piece to the player
     getClosestPuzzlePiece() {
         let piecesList = [];
@@ -243,10 +239,14 @@ class PuzzleManager {
             return;
         }
         if (result.numInSequence != puzPiece.numInSequence) {
-            console.warn(`The current structure of sequence with index ${puzPiece.sequenceIndex} is invalid for get the corresponding hole!`);
+            console.warn(`The current structure of sequence with index ${puzPiece.sequenceIndex} is invalid for getting the corresponding hole!`);
             return;
         }
         return result;
+    }
+
+    getCurrentlyHeldPiece() {
+        return this.currHeldPuzPiece;
     }
 
     /*

@@ -1,0 +1,28 @@
+[
+    {
+        "color": "#ffa0a0a4",
+        "name": "TestFloorType",
+        "properties": [
+            {
+                "name": "TestColorProperty",
+                "type": "color",
+                "value": "#ffff0000"
+            },
+            {
+                "name": "TestFloatProperty",
+                "type": "float",
+                "value": 3.14
+            },
+            {
+                "name": "TestNumberProperty",
+                "type": "int",
+                "value": 69
+            },
+            {
+                "name": "TestTrueProperty",
+                "type": "bool",
+                "value": true
+            }
+        ]
+    }
+]

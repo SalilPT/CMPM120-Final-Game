@@ -8,9 +8,40 @@ class PuzzleDemo extends Phaser.Scene {
         this.load.image("puzPieceSprite", "./assets/Key Temp.png");
         this.load.image("puzHoleSprite", "./assets/Enemy Temp.png");
         this.load.image("background", "./assets/Metal Plating 1 64x64.png");
+
+        // Testing tilemap
+        this.load.tilemapTiledJSON("testTileMap", "./assets/tilemap-testing/tilePropertiesTest.json");
+        this.load.json("testObjectTypes", "./assets/tilemap-testing/objectTypesTest.json");
     }
 
     create() {
+        /* Tile testing stuff */
+        const testMap = this.add.tilemap("testTileMap");
+        console.log(testMap);
+        const testTileset = testMap.getTileset("bulletHellTileSet");
+        console.log("Tileset: ", testTileset);
+        const objectTypeData = this.cache.json.get("testObjectTypes");
+        console.log("Object type data: ", objectTypeData);
+        // The idea here is to loop through every tile in the tilemap's specified object layer and 
+        // create a new object based on the "type" field of the tile object. Do this by 
+        // referencing the corresponding object types file from the project to find out what 
+        // properties every tile with a certain type is supposed to have.
+        let objLayer = testMap.getObjectLayer("testObjectLayer");
+        for (let obj of objLayer.objects) {
+            console.log("Properties assigned to every instance of this tile (doesn't use object types): ", testTileset.getTileProperties(obj.gid));
+            // Using the global ID of the current tile (located on an object layer), get the current tile's corresponding data from the tileset object.
+            // Then, get the "type" property of the corresponding data. This will be the object type of the current tile.
+            const objType = testTileset.getTileData(obj.gid).type;
+            console.log(objType);
+            // Loop through the array of object types objects that was exported from Tiled. Find the one that applies to the current tile.
+            const objTypePropertiesObj = objectTypeData.find((obj) => {return obj.name == objType});
+            // Finally, get the properties of the object type object.
+            // This will be the properties that this tile has because of its type that was defined in Tiled.
+            const objTypeProperties = objTypePropertiesObj.properties;
+            console.log("Inherited properties of current tile: ", objTypeProperties);
+        }
+        /**/
+        
         // Background
         this.background = this.add.tileSprite(0, 0, globalGame.config.width, globalGame.config.height, "background").setOrigin(0);
         this.background.setDepth(-1000);
