@@ -86,8 +86,10 @@ class Tutorial extends Phaser.Scene {
             
         }
         //tutorial text
-        this.add.text(globalGameConfig.width/4, globalGameConfig.height/1, "W\nA S D\n\nFor Movement", tuTextConfig).setOrigin(0.5, 1);
+        this.add.text(globalGameConfig.width/4, this.jebPlayer.y, "W\nA S D\nFor Movement", tuTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width/2, 768 + 64, "Spacebar to pick up/drop pieces", tuTextConfig).setOrigin(0.5, 1);
         this.add.text(globalGameConfig.width/1.4, globalGameConfig.height/1, "Click to Fire", tuTextConfig).setOrigin(0.5, 1);
+        
         // glowing slots tween
         this.tweens.add({
             targets: this.puzzleSlotgroup.getChildren(),
