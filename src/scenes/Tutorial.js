@@ -12,6 +12,14 @@ class Tutorial extends Phaser.Scene {
     }
 
     create() {
+        let tuTextConfig = {
+            fontFamily: "Courier",
+            fontSize: "50px",
+            color: "#ffffff",
+            align: "center",
+            stroke: "#000000",
+            strokeThickness:5,
+        };
         // mainly followed Nathan Altice's mappy example for collisions using tile maps
         const map = this.add.tilemap("tileMap");
         // set a tileset for the map and its corresponding layers
@@ -23,8 +31,9 @@ class Tutorial extends Phaser.Scene {
         wallLayer.setCollisionByProperty({
             collides: true
         });
-        //collision group
+        //groups
         this.anythingAndWalls = this.physics.add.group(); // group to keep things inside the walls
+        this.puzzleSlotgroup = this.physics.add.group(); // group to house the puzzle pieces
         // create a player
         this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "gameAtlas", "jeb legs temp.png");
         this.jebPlayer.body.setCollideWorldBounds(true);
@@ -36,12 +45,12 @@ class Tutorial extends Phaser.Scene {
                 object1.destroy();
             }
         });
-        this.movementMan = new PlayerMovementManager(this);
-        this.movementMan.setMovSpd(400);
+        this.movManager = new PlayerMovementManager(this);
+        this.movManager.setMovSpd(400);
         // changing scenes debubgger
-        let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
-        this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
-        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+        //let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
+        //this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
+        //this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
         //code based off the shooting demo
         this.input.on("pointerdown", () => {
             let newPlayerBullet = this.physics.add.sprite(this.jebPlayer.x, this.jebPlayer.y, "gameAtlas", "Key Temp.png").setOrigin(0.5);
@@ -54,31 +63,44 @@ class Tutorial extends Phaser.Scene {
             this.sound.play("shootingSFX");
         });
         //code based on the puzzle demo
-        this.puzzleMan = new PuzzleManager(this, {playerChar: this.jebPlayer});
-        //let thing = this.puzzleMan.interactKeyObj;
-        this.puzzleMan.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
-        this.puzzleMan.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
+        this.puzManager = new PuzzleManager(this, {playerChar: this.jebPlayer});
+        //let thing = this.puzManager.interactKeyObj;
+        this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
+        this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make a sequence
-        let seqIndex = this.puzzleMan.addSequence();
+        let seqIndex = this.puzManager.addSequence();
         for (let i = 1; i < 4 + 1; i++) {
             let newPiece = new PuzzlePiece({
                 scene: this,
-                x: 128*i,
-                y: 800 + 64 * Math.pow(-1, i),
+                x: 320*i,
+                y: 768 + 64 * Math.pow(-1, i),
                 texture: "gameAtlas",
-                frame: "Key Temp.png"
+                frame: "puzzlePiece" + i + ".png"
             }).setOrigin(0);
             newPiece.numInSequence = i;
-            this.puzzleMan.addPuzzlePieceToSeq(newPiece, seqIndex);
-            let newPuzHole = this.physics.add.sprite(128*i, 128 + 64 * Math.pow(-1, i), "gameAtlas", "Enemy Temp.png").setOrigin(0);
+            this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+            let newPuzHole = this.physics.add.sprite(320*i, 192 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
+            this.puzzleSlotgroup.add(newPuzHole); 
             newPuzHole.numInSequence = i;
-            this.puzzleMan.addHoleToSeq(newPuzHole, seqIndex);
+            this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+            
         }
-        this.puzzleMan.attachDebugTextToSeq(seqIndex);
+        //tutorial text
+        this.add.text(globalGameConfig.width/4, globalGameConfig.height/1, "W\nA S D\n\nFor Movement", tuTextConfig).setOrigin(0.5, 1);
+        this.add.text(globalGameConfig.width/1.4, globalGameConfig.height/1, "Click to Fire", tuTextConfig).setOrigin(0.5, 1);
+        // glowing slots tween
+        this.tweens.add({
+            targets: this.puzzleSlotgroup.getChildren(),
+            alpha: { from: 0.20, to: 0.50 },
+            //ease: 'Sine.easeInOut',
+            duration: 1000,
+            repeat: -1,
+            yoyo: true,
+        });
     }
 
     update(){
-        let movVector = this.movementMan.getMovementVector();
+        let movVector = this.movManager.getMovementVector();
         this.jebPlayer.body.setVelocity(movVector.x, movVector.y);
 
     }
