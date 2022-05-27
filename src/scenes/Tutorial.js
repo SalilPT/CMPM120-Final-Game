@@ -12,6 +12,14 @@ class Tutorial extends Phaser.Scene {
     }
 
     create() {
+        let tuTextConfig = {
+            fontFamily: "Courier",
+            fontSize: "50px",
+            color: "#ffffff",
+            align: "center",
+            stroke: "#000000",
+            strokeThickness:5,
+        };
         // mainly followed Nathan Altice's mappy example for collisions using tile maps
         const map = this.add.tilemap("tileMap");
         // set a tileset for the map and its corresponding layers
@@ -40,9 +48,9 @@ class Tutorial extends Phaser.Scene {
         this.movManager = new PlayerMovementManager(this);
         this.movManager.setMovSpd(400);
         // changing scenes debubgger
-        let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
-        this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
-        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+        //let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
+        //this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
+        //this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
         //code based off the shooting demo
         this.input.on("pointerdown", () => {
             let newPlayerBullet = this.physics.add.sprite(this.jebPlayer.x, this.jebPlayer.y, "gameAtlas", "Key Temp.png").setOrigin(0.5);
@@ -77,6 +85,9 @@ class Tutorial extends Phaser.Scene {
             this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
             
         }
+        //tutorial text
+        this.add.text(globalGameConfig.width/4, globalGameConfig.height/1, "W\nA S D\n\nFor Movement", tuTextConfig).setOrigin(0.5, 1);
+        this.add.text(globalGameConfig.width/1.4, globalGameConfig.height/1, "Click to Fire", tuTextConfig).setOrigin(0.5, 1);
         // glowing slots tween
         this.tweens.add({
             targets: this.puzzleSlotgroup.getChildren(),
@@ -86,8 +97,6 @@ class Tutorial extends Phaser.Scene {
             repeat: -1,
             yoyo: true,
         });
-
-
     }
 
     update(){
