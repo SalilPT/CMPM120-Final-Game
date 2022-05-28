@@ -3,7 +3,7 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
         super(params.scene, params.x, params.y, params.texture, params.frame);
         
         // Properties
-        this.sequenceIndex;
+        this.sequenceName;
         // The number in the sequence that this piece will represent, NOT the index of its sequence
         this.numInSequence;
         // Has this piece been placed in its corresponding hole?

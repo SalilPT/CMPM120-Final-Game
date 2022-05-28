@@ -50,7 +50,7 @@ class PuzzleManager {
                         // If near corresponding hole, make ghost puzzle piece automatically be at hole
                         let correspondingHole = this.getCorrespondingHole(this.currHeldPuzPiece);
                         let placementPoint;
-                        if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceIndex].nextPieceIndex
+                        if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceName].nextPieceIndex
                             && Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, correspondingHole.getCenter()) <= this.maxHolePlacementDist) {
                             placementPoint = new Phaser.Geom.Point(correspondingHole.x, correspondingHole.y);
                         }
@@ -82,7 +82,7 @@ class PuzzleManager {
             // Place the currently held piece
             // If near corresponding hole, place puzzle piece in it
             let correspondingHole = this.getCorrespondingHole(this.currHeldPuzPiece);
-            if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceIndex].nextPieceIndex
+            if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceName].nextPieceIndex
                 && Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, correspondingHole.getCenter()) <= this.maxHolePlacementDist) {
                 this.#placePuzzlePiece(this.currHeldPuzPiece, correspondingHole);
             }
@@ -113,7 +113,7 @@ class PuzzleManager {
         }
 
         // An array that will hold sequence objects.
-        this.sequences = [];
+        this.sequences = {};
 
         // The maximum distance in pixels that the player can pick up a puzzle piece
         this.maxPickUpDist = 128;
@@ -126,21 +126,27 @@ class PuzzleManager {
     Public Methods
     */
 
-    // Adds a group for puzzle pieces to the scene and returns the index of the new sequence object containing the new group
-    addSequence() {
+    // Adds a group for puzzle pieces to the scene and returns the new object containing the new group
+    addSequence(newSeqName) {
+        // Check whether or not the sequence already exists
+        if (Phaser.Utils.Objects.HasValue(this.sequences, newSeqName)) {
+            console.warn(`A sequence with the name "${newSeqName}" already exists!`);
+            return;
+        }
+        
         let newSeqGroup = this.parentScene.add.group();
         // Create a new object that's a copy of the base object
         let newSeqObj = Phaser.Utils.Objects.DeepCopy(this.SEQUENCE_BASE_OBJECT);
         newSeqObj.group = newSeqGroup;
-        Phaser.Utils.Array.Add(this.sequences, newSeqObj);
-        return this.sequences.length - 1;
+        this.sequences[newSeqName] = newSeqObj;
+        return newSeqObj;
     }
 
-    addHoleToSeq(holeToAdd, seqIndex = 0) {
-        let holesOfSequence = this.sequences[seqIndex].holes;
+    addHoleToSeq(holeToAdd, seqName) {
+        let holesOfSequence = this.sequences[seqName].holes;
         for (const hole of holesOfSequence) {
             if (hole.numInSequence == holeToAdd.numInSequence) {
-                console.warn(`Puzzle hole was not added to sequence with index ${seqIndex} because of conflicting sequence numbers!`,
+                console.warn(`Puzzle hole was not added to sequence with name "${seqName}" because of conflicting numbers in sequence!`,
                 "Puzzle hole: " + pieceToAdd);
                 return;
             }
@@ -150,18 +156,18 @@ class PuzzleManager {
         // Sort the holes array of the sequence in ascending order of each hole's number in the sequence
         holesOfSequence.sort((hole1, hole2) => {return hole1.numInSequence - hole2.numInSequence});
 
-        holeToAdd.sequenceIndex = seqIndex;
+        holeToAdd.sequenceName = seqName;
         holeToAdd.body.checkCollision.none = true;
         holeToAdd.setDepth(this.PUZZLE_HOLE_Z_INDEX);
     }
 
-    addPuzzlePieceToSeq(pieceToAdd, seqIndex = 0) {
-        let groupOfSequence = this.sequences[seqIndex].group;
-        let piecesOfSequence = this.sequences[seqIndex].pieces;
+    addPuzzlePieceToSeq(pieceToAdd, seqName) {
+        let groupOfSequence = this.sequences[seqName].group;
+        let piecesOfSequence = this.sequences[seqName].pieces;
         // Check whether or not a piece with the same sequence number already exists in the group
         for (const piece of piecesOfSequence) {
             if (piece.numInSequence == pieceToAdd.numInSequence) {
-                console.warn(`Puzzle piece was not added to sequence group with index ${seqIndex} because of conflicting sequence numbers!`,
+                console.warn(`Puzzle piece was not added to sequence group with name ${seqName} because of conflicting sequence numbers!`,
                 "Puzzle piece: " + pieceToAdd);
                 return;
             }
@@ -172,22 +178,22 @@ class PuzzleManager {
         // Sort the pieces array of the sequence in ascending order of each piece's number in the sequence
         piecesOfSequence.sort((piece1, piece2) => {return piece1.numInSequence - piece2.numInSequence});
 
-        pieceToAdd.sequenceIndex = seqIndex;
+        pieceToAdd.sequenceName = seqName;
         pieceToAdd.body.checkCollision.none = true;
         pieceToAdd.setDepth(this.PUZZLE_PIECE_Z_INDEX);
     }
     
-    attachDebugTextToSeq(seqIndex) {
+    attachDebugTextToSeq(seqName) {
         let pieceDebugTextObjs = [];
         let holeDebugTextObjs = [];
-        const piecesList = this.sequences[seqIndex].pieces;
+        const piecesList = this.sequences[seqName].pieces;
         for (const piece of piecesList) {
-            const newTextObj = this.parentScene.add.text(piece.getCenter().x, piece.getCenter().y, `[PIECE]\nseqIndex: ${piece.sequenceIndex}\nnumInSequence: ${piece.numInSequence}`, {color: "white", fontFamily: "Verdana", fontSize: "24px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
+            const newTextObj = this.parentScene.add.text(piece.getCenter().x, piece.getCenter().y, `[PIECE]\nseqName: ${piece.sequenceName}\nnumInSequence: ${piece.numInSequence}`, {color: "white", fontFamily: "Verdana", fontSize: "24px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
             pieceDebugTextObjs.push(newTextObj);
         }
-        const holesList = this.sequences[seqIndex].holes;
+        const holesList = this.sequences[seqName].holes;
         for (const hole of holesList) {
-            const newTextObj = this.parentScene.add.text(hole.getCenter().x, hole.getCenter().y, `[HOLE]\nseqIndex: ${hole.sequenceIndex}\nnumInSequence: ${hole.numInSequence}`, {color: "white", fontFamily: "Verdana", fontSize: "24px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
+            const newTextObj = this.parentScene.add.text(hole.getCenter().x, hole.getCenter().y, `[HOLE]\nseqName: ${hole.sequenceName}\nnumInSequence: ${hole.numInSequence}`, {color: "white", fontFamily: "Verdana", fontSize: "24px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
             holeDebugTextObjs.push(newTextObj);
         }
         this.parentScene.time.addEvent({
@@ -221,14 +227,10 @@ class PuzzleManager {
         this.parentScene.input.keyboard.addCapture(newKeycode);        
     }
 
-    getCurrentlyHeldPiece() {
-        return this.currHeldPuzPiece;
-    }
-
     // Return the closest puzzle piece to the player
     getClosestPuzzlePiece() {
         let piecesList = [];
-        for (const seq of this.sequences) {
+        for (const seq of Object.values(this.sequences)) {
             Phaser.Utils.Array.Add(piecesList, seq.pieces);
         }
         
@@ -237,16 +239,20 @@ class PuzzleManager {
     }
 
     getCorrespondingHole(puzPiece) {
-        const result = this.sequences[puzPiece.sequenceIndex].holes[puzPiece.numInSequence - 1];
+        const result = this.sequences[puzPiece.sequenceName].holes[puzPiece.numInSequence - 1];
         if (result == undefined) {
             console.warn("The corresponding hole for that piece doesn't exist!");
             return;
         }
         if (result.numInSequence != puzPiece.numInSequence) {
-            console.warn(`The current structure of sequence with index ${puzPiece.sequenceIndex} is invalid for get the corresponding hole!`);
+            console.warn(`The current structure of sequence with name ${puzPiece.sequenceName} is invalid for getting the corresponding hole!`);
             return;
         }
         return result;
+    }
+
+    getCurrentlyHeldPiece() {
+        return this.currHeldPuzPiece;
     }
 
     /*
@@ -271,7 +277,7 @@ class PuzzleManager {
             puzPiece.changeToInHoleSprite();
             puzPiece.placedInHole = true;
             
-            let parentSeq = this.sequences[puzPiece.sequenceIndex];
+            let parentSeq = this.sequences[puzPiece.sequenceName];
             parentSeq.nextPieceIndex += 1;
             // If this piece was the last in the sequence, update the isCompleted property of the sequence
             if (parentSeq.nextPieceIndex == parentSeq.pieces.length) {
