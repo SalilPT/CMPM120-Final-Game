@@ -64,7 +64,8 @@ class PuzzleDemo extends Phaser.Scene {
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make one sequence
-        let seqIndex = this.puzManager.addSequence();
+        let seqName = "sequence1";
+        this.puzManager.addSequence(seqName);
         for (let i = 1; i < 5 + 1; i++) {
             let newPiece = new PuzzlePiece({
                 scene: this,
@@ -73,15 +74,16 @@ class PuzzleDemo extends Phaser.Scene {
                 texture: "puzPieceSprite"
             }).setOrigin(0);
             newPiece.numInSequence = i;
-            this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+            this.puzManager.addPuzzlePieceToSeq(newPiece, seqName);
             let newPuzHole = this.physics.add.sprite(128*i, 128 + 64 * Math.pow(-1, i), "puzHoleSprite").setOrigin(0);
             newPuzHole.numInSequence = i;
-            this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+            this.puzManager.addHoleToSeq(newPuzHole, seqName);
         }
-        this.puzManager.attachDebugTextToSeq(seqIndex);
+        this.puzManager.attachDebugTextToSeq(seqName);
 
         // Make another sequence
-        seqIndex = this.puzManager.addSequence();
+        seqName = "sequence2"
+        this.puzManager.addSequence(seqName);
         for (let i = 1; i < 5 + 1; i++) {
             let newPiece = new PuzzlePiece({
                 scene: this,
@@ -90,12 +92,12 @@ class PuzzleDemo extends Phaser.Scene {
                 texture: "puzPieceSprite"
             }).setOrigin(0);
             newPiece.numInSequence = i;
-            this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+            this.puzManager.addPuzzlePieceToSeq(newPiece, seqName);
             let newPuzHole = this.physics.add.sprite(768 + 128*i, 128 + 64 * Math.pow(-1, i), "puzHoleSprite").setOrigin(0);
             newPuzHole.numInSequence = i;
-            this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+            this.puzManager.addHoleToSeq(newPuzHole, seqName);
         }
-        this.puzManager.attachDebugTextToSeq(seqIndex);
+        this.puzManager.attachDebugTextToSeq(seqName);
 
 
 
