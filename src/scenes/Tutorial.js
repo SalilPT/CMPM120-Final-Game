@@ -82,7 +82,7 @@ class Tutorial extends Phaser.Scene {
             let newPuzHole = this.physics.add.sprite(320*i, 192 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
             this.puzzleSlotgroup.add(newPuzHole); 
             newPuzHole.numInSequence = i;
-            this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+            this.puzManager.addPuzzleHoleToSeq(newPuzHole, seqIndex);
             
         }
         //tutorial text

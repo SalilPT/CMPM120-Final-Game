@@ -22,6 +22,22 @@ class PuzzleManager {
             isCompleted: false
         }
 
+        // This puzzle manager can generate an entire puzzle using a tilemap exported from Tiled. 
+        // But it needs to know the names of the properties to look for in the tilemap data.
+        this.TILEMAP_DATA_NAMES = {
+            // This is the name of the tileset that holds the tiles to use for puzzles
+            tilesetName: "bulletHellTileSet",
+            // This is the name of the object layer (in Tiled) with the pieces and holes that will be used
+            objectLayerName: "puzzleLayer",
+            // In Tiled, the tiles for pieces or holes have a custom property with the following name.
+            // This is the name of the custom property, NOT its corresponding value.
+            puzzleObjIdentifier: "puzzleObjectType",
+            // The corresponding value for puzzleObjIdentifier if the tile represents a piece
+            puzPieceObjValue: "piece",
+            // The corresponding value for puzzleObjIdentifier if the tile represents a hole
+            puzHolePieceObjValue: "hole"
+        }
+
         this.PUZZLE_PIECE_Z_INDEX = this.playerChar.depth - 1;
         this.PUZZLE_HOLE_Z_INDEX = this.PUZZLE_PIECE_Z_INDEX - 1;
 
@@ -142,7 +158,7 @@ class PuzzleManager {
         return newSeqObj;
     }
 
-    addHoleToSeq(holeToAdd, seqName) {
+    addPuzzleHoleToSeq(holeToAdd, seqName) {
         let holesOfSequence = this.sequences[seqName].holes;
         for (const hole of holesOfSequence) {
             if (hole.numInSequence == holeToAdd.numInSequence) {
@@ -224,7 +240,83 @@ class PuzzleManager {
         this.interactKeyObj = this.parentScene.input.keyboard.addKey(newKeycode);
         this.interactKeyObj.on("down", this.INTERACT_KEY_DOWN_CALLBACK, this);
         this.interactKeyObj.on("up", this.INTERACT_KEY_UP_CALLBACK, this);
-        this.parentScene.input.keyboard.addCapture(newKeycode);        
+        this.parentScene.input.keyboard.addCapture(newKeycode);
+    }
+
+    // Reads in tilemap data to generate its puzzle
+    createPuzzleFromTilemap(tilemap) {
+        // From the tilemap, get the object layer named "puzzleLayer".
+        // This means that all the puzzle-related objects need to be on that layer.
+        let objLayer = tilemap.getObjectLayer(this.TILEMAP_DATA_NAMES.objectLayerName);
+        // The tileset data will be used to get the custom properties of tiles
+        let tileset = tilemap.getTileset(this.TILEMAP_DATA_NAMES.tilesetName);
+        for (const tiledObj of objLayer.objects) {
+            // Get the custom properties of the current object that are stored in the tileset
+            // The properties will be stored as an array of objects, where each object represents a custom property.
+            let properties = tileset.getTileProperties(tiledObj.gid);
+            // Find the first object in the properties array that indicates that the tile is a puzzle object
+            let propsObj = Phaser.Utils.Array.GetFirst(properties, "name", this.TILEMAP_DATA_NAMES.puzzleObjIdentifier);
+
+            if (propsObj == null) {
+                console.warn(`A puzzle piece or hole was found on the tilemap's object layer named "${this.TILEMAP_DATA_NAMES.objectLayerName}"
+                that didn't have the correct custom properties set!`);
+                continue;
+            }
+
+            // Anonymous function to automatically assign properties to puzzle pieces or holes
+            // Based off Phaser 3 code found here: https://github.com/photonstorm/phaser/blob/v3.55.2/src/tilemaps/Tilemap.js#L634
+            let assignProperties = (targetObj) => {
+                targetObj.setPosition(tiledObj.x, tiledObj.y);
+                // Account for Tiled's origin convention of (0, 1)
+                targetObj.x += targetObj.originX * tiledObj.width;
+                targetObj.y += (targetObj.originY - 1) * tiledObj.height;
+
+                targetObj.setDisplaySize(tiledObj.width, tiledObj.height);
+                targetObj.setVisible(tiledObj.visible);
+                // Apply the correct texture to this object using its tileset image
+                textureUVCoords = tileset.getTileTextureCoordinates(targetObj.gid);
+                // Get an object with all the frames of the tileset
+                let tilesetFrames = tileset.image.frames;
+                // Get the frame object that corresponds to this TiledObject
+                let correspondingFrame = Object.values(tilesetFrames).find((f) => {
+                    return f.cutX == textureUVCoords.x && f.cutY == textureUVCoords.y;
+                });
+
+                // Set the correct texture on this object
+                targetObj.setTexture(tileset.image);
+                targetObj.setFrame(correspondingFrame, false, false); // Don't update the size or origin
+
+                // Custom properties
+                let seqName = Phaser.Utils.Array.GetFirst(properties, "name", "sequenceName")[value];
+                targetObj.sequenceName = seqName;
+                targetObj.numInSequence = Phaser.Utils.Array.GetFirst(properties, "name", "numInSequence")[value];
+
+                // If a sequence with the object's sequence name doesn't yet exist, create it
+                if (!Phaser.Utils.Objects.HasValue(this.sequences, seqName)) {
+                    this.addSequence(seqName);
+                }
+            }
+
+            // Check whether the current object is a puzzle piece or a puzzle hole
+            if (propsObj["value"] === this.TILEMAP_DATA_NAMES.puzPieceObjValue) {
+                let newPiece = new PuzzlePiece({scene: this.parentScene});
+                assignProperties(newPiece);
+                this.addPuzzlePieceToSeq(newPiece, newPiece.sequenceName);
+            }
+            else if (propsObj["value"] === this.TILEMAP_DATA_NAMES.puzHoleObjValue) {
+                let newHole = new PuzzleHole({scene: this.parentScene});
+                assignProperties(newHole);
+                this.addPuzzleHoleToSeq(newPiece, newPiece.sequenceName);
+            }
+        }
+    }
+
+    // Returns an array containing references all of the puzzle pieces in this object's puzzle
+    getAllPieces() {
+        console.error("The getAllPieces() method currently isn't implemented!");
+        // Create array to hold puzzle pieces
+        
+        // Loop through all sequences
     }
 
     // Return the closest puzzle piece to the player
@@ -256,7 +348,7 @@ class PuzzleManager {
     }
 
     /*
-    Private methods
+    Private Methods
     */
     // Returns a Phaser.Geom.Point object for the top left point of the grid cell that contains the point.
     #containingGridCellTopLeft(x, y) {
@@ -268,7 +360,7 @@ class PuzzleManager {
     #pickUpPuzzlePiece(puzPiece) {
         puzPiece.setVisible(false);
         this.currHeldPuzPiece = puzPiece;
-        // TODO: maybe want to emit event that piece was picked up to alert the UI and sound manager
+        // TODO: maybe want to emit event that piece was picked up to alert the UI and sound managers
     }
 
     #placePuzzlePiece(puzPiece, targetHole = null) {

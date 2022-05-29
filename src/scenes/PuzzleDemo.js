@@ -12,32 +12,43 @@ class PuzzleDemo extends Phaser.Scene {
         // Testing tilemap
         this.load.tilemapTiledJSON("testTileMap", "./assets/tilemap-testing/tilePropertiesTest.json");
         this.load.json("testObjectTypes", "./assets/tilemap-testing/objectTypesTest.json");
+        this.load.atlas("gameAtlas", "./assets/bulletHellTileSet.png", "./assets/bulletHellTileSet.json");
     }
 
     create() {
         /* Tile testing stuff */
-        const testMap = this.add.tilemap("testTileMap");
+        let testMap = this.add.tilemap("testTileMap");
         console.log(testMap);
-        const testTileset = testMap.getTileset("bulletHellTileSet");
+        //let testTileset = testMap.addTilesetImage("bulletHellTileSet", "gameAtlas");
+        //let floorLayer = testMap.createLayer("Floor", testTileset, 0, 0);
+        //let wallLayer = testMap.createLayer("Walls", testTileset, 0, 0);
+        //let newObjLayer = testMap.createLayer("testObjectLayer", testTileset, 0, 0);
+        //let testTileset = testMap.getTileset("bulletHellTileSet");
         console.log("Tileset: ", testTileset);
-        const objectTypeData = this.cache.json.get("testObjectTypes");
+        let objectTypeData = this.cache.json.get("testObjectTypes");
         console.log("Object type data: ", objectTypeData);
+        
         // The idea here is to loop through every tile in the tilemap's specified object layer and 
         // create a new object based on the "type" field of the tile object. Do this by 
         // referencing the corresponding object types file from the project to find out what 
         // properties every tile with a certain type is supposed to have.
         let objLayer = testMap.getObjectLayer("testObjectLayer");
+        console.log("objLayer.objects: ", objLayer.objects);
+        console.log("objLayer.properties: ", objLayer.properties);
+        console.log("Tileset image frames: ", testTileset.image.frames);
         for (let obj of objLayer.objects) {
+            console.log("Tile tex coords: ", testTileset.getTileTextureCoordinates(obj.gid));
+            console.log("obj.properties: ", obj.properties);
             console.log("Properties assigned to every instance of this tile (doesn't use object types): ", testTileset.getTileProperties(obj.gid));
             // Using the global ID of the current tile (located on an object layer), get the current tile's corresponding data from the tileset object.
             // Then, get the "type" property of the corresponding data. This will be the object type of the current tile.
-            const objType = testTileset.getTileData(obj.gid).type;
+            let objType = testTileset.getTileData(obj.gid).type;
             console.log(objType);
             // Loop through the array of object types objects that was exported from Tiled. Find the one that applies to the current tile.
-            const objTypePropertiesObj = objectTypeData.find((obj) => {return obj.name == objType});
+            let objTypePropertiesObj = objectTypeData.find((obj) => {return obj.name == objType});
             // Finally, get the properties of the object type object.
             // This will be the properties that this tile has because of its type that was defined in Tiled.
-            const objTypeProperties = objTypePropertiesObj.properties;
+            let objTypeProperties = objTypePropertiesObj.properties;
             console.log("Inherited properties of current tile: ", objTypeProperties);
         }
         /**/
@@ -61,7 +72,6 @@ class PuzzleDemo extends Phaser.Scene {
 
         this.puzManager = new PuzzleManager(this, {playerChar: this.playerChar});
         let thing = this.puzManager.interactKeyObj;
-        this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make one sequence
         let seqName = "sequence1";
@@ -77,7 +87,7 @@ class PuzzleDemo extends Phaser.Scene {
             this.puzManager.addPuzzlePieceToSeq(newPiece, seqName);
             let newPuzHole = this.physics.add.sprite(128*i, 128 + 64 * Math.pow(-1, i), "puzHoleSprite").setOrigin(0);
             newPuzHole.numInSequence = i;
-            this.puzManager.addHoleToSeq(newPuzHole, seqName);
+            this.puzManager.addPuzzleHoleToSeq(newPuzHole, seqName);
         }
         this.puzManager.attachDebugTextToSeq(seqName);
 
@@ -95,7 +105,7 @@ class PuzzleDemo extends Phaser.Scene {
             this.puzManager.addPuzzlePieceToSeq(newPiece, seqName);
             let newPuzHole = this.physics.add.sprite(768 + 128*i, 128 + 64 * Math.pow(-1, i), "puzHoleSprite").setOrigin(0);
             newPuzHole.numInSequence = i;
-            this.puzManager.addHoleToSeq(newPuzHole, seqName);
+            this.puzManager.addPuzzleHoleToSeq(newPuzHole, seqName);
         }
         this.puzManager.attachDebugTextToSeq(seqName);
 
