@@ -68,7 +68,8 @@ class Tutorial extends Phaser.Scene {
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make a sequence
-        let seqIndex = this.puzManager.addSequence();
+        let seqName = "sequence1";
+        this.puzManager.addSequence(seqName);
         for (let i = 1; i < 4 + 1; i++) {
             let newPiece = new PuzzlePiece({
                 scene: this,
@@ -78,11 +79,11 @@ class Tutorial extends Phaser.Scene {
                 frame: "puzzlePiece" + i + ".png"
             }).setOrigin(0);
             newPiece.numInSequence = i;
-            this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+            this.puzManager.addPuzzlePieceToSeq(newPiece, seqName);
             let newPuzHole = this.physics.add.sprite(320*i, 192 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
             this.puzzleSlotgroup.add(newPuzHole); 
             newPuzHole.numInSequence = i;
-            this.puzManager.addPuzzleHoleToSeq(newPuzHole, seqIndex);
+            this.puzManager.addPuzzleHoleToSeq(newPuzHole, seqName);
             
         }
         //tutorial text
