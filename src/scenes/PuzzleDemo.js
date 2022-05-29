@@ -19,7 +19,7 @@ class PuzzleDemo extends Phaser.Scene {
         /* Tile testing stuff */
         let testMap = this.add.tilemap("testTileMap");
         console.log(testMap);
-        //let testTileset = testMap.addTilesetImage("bulletHellTileSet", "gameAtlas");
+        let testTileset = testMap.addTilesetImage("bulletHellTileSet", "gameAtlas");
         //let floorLayer = testMap.createLayer("Floor", testTileset, 0, 0);
         //let wallLayer = testMap.createLayer("Walls", testTileset, 0, 0);
         //let newObjLayer = testMap.createLayer("testObjectLayer", testTileset, 0, 0);
