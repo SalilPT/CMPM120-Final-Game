@@ -33,7 +33,7 @@ class Tutorial extends Phaser.Scene {
         });
         //groups
         this.anythingAndWalls = this.physics.add.group(); // group to keep things inside the walls
-        this.puzzleSlotgroup = this.physics.add.group(); // group to house the puzzle pieces
+        this.puzSlotGroup = this.physics.add.group(); // group to house the puzzle pieces
         // create a player
         this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "gameAtlas", "jeb legs temp.png");
         this.jebPlayer.body.setCollideWorldBounds(true);
@@ -64,11 +64,12 @@ class Tutorial extends Phaser.Scene {
         });
         //code based on the puzzle demo
         this.puzManager = new PuzzleManager(this, {playerChar: this.jebPlayer});
-        //let thing = this.puzManager.interactKeyObj;
+        let thing = this.puzManager.interactKeyObj;
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make a sequence
-        let seqIndex = this.puzManager.addSequence();
+        let seqName = "sequence1";
+        let seqIndex = this.puzManager.addSequence(seqName);
         for (let i = 1; i < 4 + 1; i++) {
             let newPiece = new PuzzlePiece({
                 scene: this,
@@ -78,13 +79,13 @@ class Tutorial extends Phaser.Scene {
                 frame: "puzzlePiece" + i + ".png"
             }).setOrigin(0);
             newPiece.numInSequence = i;
-            this.puzManager.addPuzzlePieceToSeq(newPiece, seqIndex);
+            this.puzManager.addPuzzlePieceToSeq(newPiece, seqName);
             let newPuzHole = this.physics.add.sprite(320*i, 192 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
-            this.puzzleSlotgroup.add(newPuzHole); 
+            this.puzSlotGroup.add(newPuzHole); 
             newPuzHole.numInSequence = i;
-            this.puzManager.addHoleToSeq(newPuzHole, seqIndex);
+            this.puzManager.addHoleToSeq(newPuzHole, seqName);
             
-        }
+        }        
         //tutorial text
         this.add.text(globalGameConfig.width/4, this.jebPlayer.y, "W\nA S D\nFor Movement", tuTextConfig).setOrigin(0.5);
         this.add.text(globalGameConfig.width/2, 768 + 64, "Spacebar to pick up/drop pieces", tuTextConfig).setOrigin(0.5, 1);
@@ -92,18 +93,36 @@ class Tutorial extends Phaser.Scene {
         
         // glowing slots tween
         this.tweens.add({
-            targets: this.puzzleSlotgroup.getChildren(),
+            targets: this.puzSlotGroup.getChildren(),
             alpha: { from: 0.20, to: 0.50 },
             //ease: 'Sine.easeInOut',
             duration: 1000,
             repeat: -1,
             yoyo: true,
         });
+        this.input.keyboard.on('keydown-SPACE', () => {
+            this.checkForCompletion();
+        })
     }
 
     update(){
         let movVector = this.movManager.getMovementVector();
         this.jebPlayer.body.setVelocity(movVector.x, movVector.y);
 
+    }
+
+    checkForCompletion(){
+        this.time.delayedCall(500, () => {
+            let sequencesCompleted = 0; // counter, keeps track of how many sequences are completed so far
+            for (let seq of Object.values(this.puzManager.sequences)){
+                if (seq.isCompleted == false){ 
+                    break;
+                }
+                sequencesCompleted ++; // one sequence was complete it, add to counter
+            }
+            if(sequencesCompleted == (Object.keys(this.puzManager.sequences).length))
+                console.log("all sequences were completed")
+                // call for the endiding scene
+        });
     }
 }
