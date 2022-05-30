@@ -98,6 +98,8 @@ class Tutorial extends Phaser.Scene {
             repeat: -1,
             yoyo: true,
         });
+
+        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
     }
 
     update(){

@@ -1,5 +1,6 @@
-class PuzzleManager {
+class PuzzleManager extends Phaser.GameObjects.GameObject {
     constructor(parentScene, config) {
+        super(parentScene, "PuzzleManager");
         this.parentScene = parentScene;
         this.playerChar = config.playerChar;
 
@@ -58,7 +59,7 @@ class PuzzleManager {
             else {
                 // Create ghost piece
                 const tempGhostPiecePos = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
-                this.ghostPuzzlePiece = this.parentScene.add.sprite(tempGhostPiecePos.x, tempGhostPiecePos.y, this.currHeldPuzPiece.texture).setOrigin(0);
+                this.ghostPuzzlePiece = this.parentScene.add.sprite(tempGhostPiecePos.x, tempGhostPiecePos.y, this.currHeldPuzPiece.texture).setOrigin(0); // Might need to get the frame of the currently held piece as well
                 this.ghostPuzzlePiece.setAlpha(0.5);
                 this.ghostPuzzlePieceUpdateTimer = this.parentScene.time.addEvent({
                     delay: 1000/60,
@@ -109,7 +110,7 @@ class PuzzleManager {
         }
        
         /*
-        Mutable properties
+        Mutable Properties
         */
         this.interactKeycode = this.DEFAULT_INTERACT_KEYCODE;
         // The key object for the interaction
@@ -135,7 +136,6 @@ class PuzzleManager {
         this.maxPickUpDist = 128;
 
         this.maxHolePlacementDist = 160;
-
     }
 
     /*
@@ -345,6 +345,17 @@ class PuzzleManager {
 
     getCurrentlyHeldPiece() {
         return this.currHeldPuzPiece;
+    }
+
+    // Returns true if this puzzle is completed. Else, it returns false.
+    puzzleCompleted() {
+        for (const sequence of Object.values(this.sequences)) {
+            if (sequence.isCompleted == false) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /*

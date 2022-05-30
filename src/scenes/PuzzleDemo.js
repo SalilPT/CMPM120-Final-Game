@@ -71,7 +71,6 @@ class PuzzleDemo extends Phaser.Scene {
         });
 
         this.puzManager = new PuzzleManager(this, {playerChar: this.playerChar});
-        let thing = this.puzManager.interactKeyObj;
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make one sequence
         let seqName = "sequence1";

@@ -2,7 +2,10 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
     constructor(params) {
         super(params.scene, params.x, params.y, params.texture, params.frame);
         
-        // Properties
+        /*
+        Properties
+        */
+
         this.sequenceName;
         // The number in the sequence that this piece will represent, NOT the index of its sequence
         this.numInSequence;
