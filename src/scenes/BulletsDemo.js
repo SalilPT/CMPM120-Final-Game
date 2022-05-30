@@ -58,7 +58,7 @@ class BulletsDemo extends Phaser.Scene {
                 newPlayerBullet.setScale(0.5);
                 this.plrBullets.add(newPlayerBullet);
 
-                if (globalGame.hasFocus) {this.sound.play("shootingSFX")};
+                this.sound.play("shootingSFX");
             },
             loop: true
         });
@@ -161,6 +161,9 @@ class BulletsDemo extends Phaser.Scene {
 
         this.puzzleIsCompleted = false;
         this.levelComplete = false;
+
+        // Sound-related
+        this.sound.pauseOnBlur = false; // Prevents stacked audio when clicking back in game window
 
         // Other stuff
         let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
