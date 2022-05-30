@@ -50,7 +50,7 @@ class Tutorial extends Phaser.Scene {
         // changing scenes debubgger
         //let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
         //this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
-        //this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
         //code based off the shooting demo
         this.input.on("pointerdown", () => {
             let newPlayerBullet = this.physics.add.sprite(this.jebPlayer.x, this.jebPlayer.y, "gameAtlas", "Key Temp.png").setOrigin(0.5);
@@ -119,6 +119,7 @@ class Tutorial extends Phaser.Scene {
                     break;
                 }
                 sequencesCompleted ++; // one sequence was complete it, add to counter
+                this.scene.launch("textBoxesScene", {textToDisplay:"tutorialEnd"});
             }
             if(sequencesCompleted == (Object.keys(this.puzManager.sequences).length))
                 console.log("all sequences were completed")
