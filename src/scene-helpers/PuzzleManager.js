@@ -28,6 +28,9 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         this.TILEMAP_DATA_NAMES = {
             // This is the name of the tileset that holds the tiles to use for puzzles
             tilesetName: "bulletHellTileSet",
+            // This is the key of the image that the tileset uses.
+            // The image must already be in the Phaser cache for puzzle generation from a tilemap to work properly.
+            tilesetImageKey: "gameAtlas",
             // This is the name of the object layer (in Tiled) with the pieces and holes that will be used
             objectLayerName: "puzzleLayer",
             // In Tiled, the tiles for pieces or holes have a custom property with the following name.
@@ -249,7 +252,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         // This means that all the puzzle-related objects need to be on that layer.
         let objLayer = tilemap.getObjectLayer(this.TILEMAP_DATA_NAMES.objectLayerName);
         // The tileset data will be used to get the custom properties of tiles
-        let tileset = tilemap.getTileset(this.TILEMAP_DATA_NAMES.tilesetName);
+        let tileset = tilemap.addTilesetImage(this.TILEMAP_DATA_NAMES.tilesetName, this.TILEMAP_DATA_NAMES.tilesetImageKey);
         for (const tiledObj of objLayer.objects) {
             // Get the custom properties of the current object that are stored in the tileset
             // The properties will be stored as an array of objects, where each object represents a custom property.
