@@ -1,5 +1,6 @@
-class PlayerMovementManager {
+class PlayerMovementManager extends Phaser.GameObjects.GameObject {
     constructor(parentScene) {
+        super(parentScene, "PlayerMovementManager");
         this.parentScene = parentScene;
 
         /*
@@ -43,6 +44,10 @@ class PlayerMovementManager {
 
         this.movSpd = this.DEFAULT_MOVEMENT_SPEED;
     }
+
+    /*
+    Public Methods
+    */
 
     // Re-map all of the movement action keycodes to new ones 
     bindAllMovementKeys(movKeyKeycodesMap, removeOldKeyObjs = true) {
@@ -106,7 +111,7 @@ class PlayerMovementManager {
     }
 
     /*
-    Private methods
+    Private Methods
     */
     #updateMovActionList() {
         for (const [keyActionName, keyObj] of Object.entries(this.movKeyObjects)) {
