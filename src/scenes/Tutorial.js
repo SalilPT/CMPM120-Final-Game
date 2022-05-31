@@ -12,6 +12,7 @@ class Tutorial extends Phaser.Scene {
     }
 
     create() {
+        this.tutorialComplete = false;
         let tuTextConfig = {
             fontFamily: "Courier",
             fontSize: "50px",
@@ -33,7 +34,7 @@ class Tutorial extends Phaser.Scene {
         });
         //groups
         this.anythingAndWalls = this.physics.add.group(); // group to keep things inside the walls
-        this.puzzleSlotgroup = this.physics.add.group(); // group to house the puzzle pieces
+        this.puzSlotGroup = this.physics.add.group(); // group to house the puzzle pieces
         // create a player
         this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "gameAtlas", "jeb legs temp.png");
         this.jebPlayer.body.setCollideWorldBounds(true);
@@ -50,7 +51,7 @@ class Tutorial extends Phaser.Scene {
         // changing scenes debubgger
         //let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
         //this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
-        //this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
         //code based off the shooting demo
         this.input.on("pointerdown", () => {
             let newPlayerBullet = this.physics.add.sprite(this.jebPlayer.x, this.jebPlayer.y, "gameAtlas", "Key Temp.png").setOrigin(0.5);
@@ -64,7 +65,7 @@ class Tutorial extends Phaser.Scene {
         });
         //code based on the puzzle demo
         this.puzManager = new PuzzleManager(this, {playerChar: this.jebPlayer});
-        //let thing = this.puzManager.interactKeyObj;
+        let thing = this.puzManager.interactKeyObj;
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.F, false);
         this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make a sequence
@@ -81,30 +82,55 @@ class Tutorial extends Phaser.Scene {
             newPiece.numInSequence = i;
             this.puzManager.addPuzzlePieceToSeq(newPiece, seqName);
             let newPuzHole = this.physics.add.sprite(320*i, 192 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
-            this.puzzleSlotgroup.add(newPuzHole); 
+            this.puzSlotGroup.add(newPuzHole); 
             newPuzHole.numInSequence = i;
             this.puzManager.addPuzzleHoleToSeq(newPuzHole, seqName);
             
-        }
+        }        
         //tutorial text
-        this.add.text(globalGameConfig.width/4, globalGameConfig.height/1, "W\nA S D\n\nFor Movement", tuTextConfig).setOrigin(0.5, 1);
+        this.add.text(globalGameConfig.width/4, this.jebPlayer.y, "W\nA S D\nFor Movement", tuTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width/2, 768 + 64, "Spacebar to pick up/drop pieces", tuTextConfig).setOrigin(0.5, 1);
         this.add.text(globalGameConfig.width/1.4, globalGameConfig.height/1, "Click to Fire", tuTextConfig).setOrigin(0.5, 1);
+        
         // glowing slots tween
         this.tweens.add({
-            targets: this.puzzleSlotgroup.getChildren(),
+            targets: this.puzSlotGroup.getChildren(),
             alpha: { from: 0.20, to: 0.50 },
             //ease: 'Sine.easeInOut',
             duration: 1000,
             repeat: -1,
             yoyo: true,
         });
-
+        this.input.keyboard.on('keydown-SPACE', () => {
+            if (this.tutorialComplete == false){
+                this.checkForCompletion();
+            }
+        });
         this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+
     }
 
     update(){
         let movVector = this.movManager.getMovementVector();
         this.jebPlayer.body.setVelocity(movVector.x, movVector.y);
 
+    }
+
+    checkForCompletion(){
+        this.time.delayedCall(500, () => {
+            let sequencesCompleted = 0; // counter, keeps track of how many sequences are completed so far
+            for (let seq of Object.values(this.puzManager.sequences)){
+                if (seq.isCompleted == false){ 
+                    break;
+                }
+                sequencesCompleted ++; // one sequence was complete it, add to counter
+            }
+            if(sequencesCompleted == (Object.keys(this.puzManager.sequences).length)){
+                this.tutorialComplete = true;
+                console.log("all sequences were completed")
+                this.scene.launch("textBoxesScene", {textToDisplay:"tutorialEnd"});
+                // call for the endiding scene
+            }
+        });
     }
 }

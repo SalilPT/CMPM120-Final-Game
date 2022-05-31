@@ -1,0 +1,34 @@
+{
+    "tutorialEnd": {
+        "text":"GREAT JOB!!\nYou completed the puzzle",
+        "keyboardInput": "SPACE",
+        "SwitchScene":{
+            "shouldSwitch": true,
+            "shouldStopScenes" : true,
+            "sceneToSwitchTo": "menuScene",
+            "scenesToStop": ["tutorialScene"]
+
+        }
+    },
+    "Wasd":{
+        "text":"USE WASD KEYS TO MOVE",
+        "keyboardInput": "SPACE",
+        "SwitchScene":{
+            "shouldSwitch": false
+        }
+    },
+    "ClickToFire":{
+        "text": "Click to Fire",
+        "keyboardInput": "SPACE",
+        "SwitchScene":{
+            "shouldSwitch": false
+        }
+    },
+    "SpaceToMove":{
+        "text":"Press SPACE to pick up/drop puzzle pieces",
+        "keyboardInput": "SPACE",
+        "SwitchScene":{
+            "shouldSwitch": false
+        }
+    }
+}
