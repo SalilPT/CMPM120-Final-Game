@@ -11,11 +11,11 @@ let globalGameConfig = {
     physics: {
         default: "arcade",
         arcade: {
-            debug: true
+            debug: false
         }
     },
     scale: {mode: Phaser.Scale.FIT},
-    scene: [Menu, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo]
+    scene: [Menu, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
     //scene: [MovementAndAimingDemo]
 }
 
