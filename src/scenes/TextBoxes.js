@@ -27,8 +27,8 @@ class TextBoxes extends Phaser.Scene {
             this.message = this.add.text(globalGameConfig.width/2, globalGameConfig.height/2, this.currentTextObject.text, tempTextConfig).setOrigin(0.5);
         });
         this.time.delayedCall(2000, ()=>{
-            let tempExitTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
-            this.exitMessage = this.add.text(this.textBox.x + this.textBox.displayWidth/2.5, this.textBox.y + this.textBox.displayHeight/3, this.currentTextObject.keyboardInput, tempExitTextConfig).setOrigin(0.5);
+            let tempExitTextConfig = {color: "white", fontSize: "30px", stroke: "black", strokeThickness: 1};
+            this.exitMessage = this.add.text(this.textBox.x + this.textBox.displayWidth/2.3, this.textBox.y + this.textBox.displayHeight/3, "press " + this.currentTextObject.keyboardInput, tempExitTextConfig).setOrigin(1, 0.5);
             this.exitMessage.setAlpha(0.2);
             this.tweens.add({
                 targets: this.exitMessage,
