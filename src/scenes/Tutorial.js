@@ -12,6 +12,7 @@ class Tutorial extends Phaser.Scene {
     }
 
     create() {
+        this.tutorialComplete = false;
         let tuTextConfig = {
             fontFamily: "Courier",
             fontSize: "50px",
@@ -101,8 +102,10 @@ class Tutorial extends Phaser.Scene {
             yoyo: true,
         });
         this.input.keyboard.on('keydown-SPACE', () => {
-            this.checkForCompletion();
-        })
+            if (this.tutorialComplete == false){
+                this.checkForCompletion();
+            }
+        });
     }
 
     update(){
@@ -119,11 +122,13 @@ class Tutorial extends Phaser.Scene {
                     break;
                 }
                 sequencesCompleted ++; // one sequence was complete it, add to counter
-                this.scene.launch("textBoxesScene", {textToDisplay:"tutorialEnd"});
             }
-            if(sequencesCompleted == (Object.keys(this.puzManager.sequences).length))
+            if(sequencesCompleted == (Object.keys(this.puzManager.sequences).length)){
+                this.tutorialComplete = true;
                 console.log("all sequences were completed")
+                this.scene.launch("textBoxesScene", {textToDisplay:"tutorialEnd"});
                 // call for the endiding scene
+            }
         });
     }
 }

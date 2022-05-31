@@ -4,6 +4,7 @@ class Menu extends Phaser.Scene {
     }
 
     create() {
+        this.scene.bringToTop();
         let demoSceneTransitionTextConfig = {color: "black", fontSize: "40px", stroke: "white", strokeThickness: 0};
         // Make buttons or keybinds to go to demo scenes
 
