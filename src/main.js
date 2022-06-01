@@ -11,7 +11,7 @@ let globalGameConfig = {
     physics: {
         default: "arcade",
         arcade: {
-            debug: false
+            debug: true
         }
     },
     scale: {mode: Phaser.Scale.FIT},

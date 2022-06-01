@@ -25,7 +25,7 @@
         }
     },
     "SpaceToInteract":{
-        "text":"Press SPACE to pick up/drop puzzle pieces",
+        "text":"Press SPACE to pick up/drop\npuzzle pieces",
         "keyboardInput": "SPACE",
         "SwitchScene":{
             "shouldSwitch": false

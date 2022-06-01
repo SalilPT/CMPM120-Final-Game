@@ -12,7 +12,10 @@ class Tutorial extends Phaser.Scene {
     }
 
     create() {
-        this.tutorialComplete = false;
+        this.fullTutorialComplete = false;
+        this.movementTutorialComplete = false;
+        this.aimingTutorialComplete = false;
+        this.InteractingTutorialComplete = false;
         let tuTextConfig = {
             fontFamily: "Courier",
             fontSize: "50px",
@@ -34,18 +37,20 @@ class Tutorial extends Phaser.Scene {
         });
         //groups
         this.anythingAndWalls = this.physics.add.group(); // group to keep things inside the walls
+        this.puzPieceGroup = this.physics.add.group(); // group to house the puzzle pieces
         this.puzSlotGroup = this.physics.add.group(); // group to house the puzzle pieces
         // create a player
         this.jebPlayer = this.physics.add.sprite(globalGameConfig.width/4, globalGameConfig.height/2, "gameAtlas", "jeb legs temp.png");
         this.jebPlayer.body.setCollideWorldBounds(true);
         this.jebPlayer.setCircle(this.textures.getFrame("gameAtlas", "jeb legs temp.png").width/2); // make collsion into circle shape
         this.anythingAndWalls.add(this.jebPlayer);
-        //create the collider and instance of the movement manager
+        //create the colliders
         this.physics.add.collider(this.anythingAndWalls, wallLayer, (object1) => {
             if(object1 != this.jebPlayer){ // check it is not player sprite
                 object1.destroy();
             }
         });
+        // create instance of the movement manager
         this.movManager = new PlayerMovementManager(this);
         this.movManager.setMovSpd(400);
         //code based off the shooting demo
@@ -75,6 +80,7 @@ class Tutorial extends Phaser.Scene {
                 texture: "gameAtlas",
                 frame: "puzzlePiece" + i + ".png"
             }).setOrigin(0);
+            this.puzPieceGroup.add(newPiece);
             newPiece.numInSequence = i;
             this.puzManager.addPuzzlePieceToSeq(newPiece, seqName);
             let newPuzHole = this.physics.add.sprite(320*i, 192 + 64 * Math.pow(-1, i), "gameAtlas", "puzzleSlot" + i + ".png").setOrigin(0);
@@ -83,10 +89,6 @@ class Tutorial extends Phaser.Scene {
             this.puzManager.addPuzzleHoleToSeq(newPuzHole, seqName);
             
         }        
-        //tutorial text
-        this.add.text(globalGameConfig.width/2, 768 + 64, "Spacebar to pick up/drop pieces", tuTextConfig).setOrigin(0.5, 1);
-        this.add.text(globalGameConfig.width/1.4, globalGameConfig.height/1, "Click to Fire", tuTextConfig).setOrigin(0.5, 1);
-        
         // glowing slots tween
         this.tweens.add({
             targets: this.puzSlotGroup.getChildren(),
@@ -96,25 +98,39 @@ class Tutorial extends Phaser.Scene {
             repeat: -1,
             yoyo: true,
         });
+        //Tutorial text
+        this.time.delayedCall(500, ()=> {
+            this.scene.launch("textBoxesScene", {textToDisplay:"Wasd"});
+            this.movementTutorialComplete = true;
+        });
+        // check if the puzzle is complete
         this.input.keyboard.on('keydown-SPACE', () => {
-            if (this.tutorialComplete == false){
+            if (this.fullTutorialComplete == false){
                 this.checkForCompletion();
             }
         });
-        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene")});
-        //Tutorial text
-        this.scene.launch("textBoxesScene", {textToDisplay:"Wasd"});
-
     }
 
     update(){
         let movVector = this.movManager.getMovementVector();
         this.jebPlayer.body.setVelocity(movVector.x, movVector.y);
-
+        //simple over lap logic to call the textbox for puzzle piece interaction
+        if (this.movementTutorialComplete == true && this.InteractingTutorialComplete == false){
+            for ( let puzPiece of this.puzPieceGroup.getChildren()){
+                if (puzPiece.x - puzPiece.width < this.jebPlayer.x && this.jebPlayer.x < puzPiece.x + puzPiece.width*2) {
+                    if (puzPiece.y - puzPiece.height < this.jebPlayer.y && this.jebPlayer.y < puzPiece.y + puzPiece.height*2) {
+                        if (this.movementTutorialComplete == true && this.InteractingTutorialComplete == false){
+                            this.scene.launch("textBoxesScene", {textToDisplay:"SpaceToInteract"});
+                            this.InteractingTutorialComplete = true;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     checkForCompletion(){
-        this.time.delayedCall(500, () => {
+        this.time.delayedCall(500, () => {// gives time to iterate over all of the sequences
             let sequencesCompleted = 0; // counter, keeps track of how many sequences are completed so far
             for (let seq of Object.values(this.puzManager.sequences)){
                 if (seq.isCompleted == false){ 
@@ -123,8 +139,8 @@ class Tutorial extends Phaser.Scene {
                 sequencesCompleted ++; // one sequence was complete it, add to counter
             }
             if(sequencesCompleted == (Object.keys(this.puzManager.sequences).length)){
-                this.tutorialComplete = true;
-                console.log("all sequences were completed")
+                this.fullTutorialComplete = true;
+                console.log("all sequences were completed");
                 this.scene.launch("textBoxesScene", {textToDisplay:"tutorialEnd"});
                 // call for the endiding scene
             }
