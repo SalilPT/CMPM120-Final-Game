@@ -12,7 +12,7 @@
     },
     "Wasd":{
         "text":"USE WASD KEYS TO MOVE",
-        "keyboardInput": "SPACE",
+        "keyboardInput": "W",
         "SwitchScene":{
             "shouldSwitch": false
         }
@@ -24,7 +24,7 @@
             "shouldSwitch": false
         }
     },
-    "SpaceToMove":{
+    "SpaceToInteract":{
         "text":"Press SPACE to pick up/drop puzzle pieces",
         "keyboardInput": "SPACE",
         "SwitchScene":{

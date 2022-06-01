@@ -48,10 +48,6 @@ class Tutorial extends Phaser.Scene {
         });
         this.movManager = new PlayerMovementManager(this);
         this.movManager.setMovSpd(400);
-        // changing scenes debubgger
-        //let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
-        //this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
-        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
         //code based off the shooting demo
         this.input.on("pointerdown", () => {
             let newPlayerBullet = this.physics.add.sprite(this.jebPlayer.x, this.jebPlayer.y, "gameAtlas", "Key Temp.png").setOrigin(0.5);
@@ -88,7 +84,6 @@ class Tutorial extends Phaser.Scene {
             
         }        
         //tutorial text
-        this.add.text(globalGameConfig.width/4, this.jebPlayer.y, "W\nA S D\nFor Movement", tuTextConfig).setOrigin(0.5);
         this.add.text(globalGameConfig.width/2, 768 + 64, "Spacebar to pick up/drop pieces", tuTextConfig).setOrigin(0.5, 1);
         this.add.text(globalGameConfig.width/1.4, globalGameConfig.height/1, "Click to Fire", tuTextConfig).setOrigin(0.5, 1);
         
@@ -106,7 +101,9 @@ class Tutorial extends Phaser.Scene {
                 this.checkForCompletion();
             }
         });
-        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene")});
+        //Tutorial text
+        this.scene.launch("textBoxesScene", {textToDisplay:"Wasd"});
 
     }
 
