@@ -53,9 +53,6 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                 if (Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, closestPuzPiece.getCenter()) > this.maxPickUpDist) {
                     return;
                 }
-                if (closestPuzPiece.placedInHole) {
-                    return;
-                }
 
                 this.#pickUpPuzzlePiece(closestPuzPiece);
             }
@@ -323,12 +320,16 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
     }
 
     // Return the closest puzzle piece to the player
-    getClosestPuzzlePiece() {
+    getClosestPuzzlePiece(excludePiecesInHoles = true) {
         let piecesList = [];
         for (const seq of Object.values(this.sequences)) {
             Phaser.Utils.Array.Add(piecesList, seq.pieces);
         }
-        
+
+        if (excludePiecesInHoles) {
+            piecesList = piecesList.filter((p) => {return !p.placedInHole});
+        }
+
         let closestPiece = this.parentScene.physics.closest(this.playerChar.body.center, piecesList);
         return closestPiece;
     }
