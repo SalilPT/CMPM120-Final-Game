@@ -12,7 +12,13 @@
             display: block;
             margin: auto;
         }
+        /* learned to include fonts through this guide https://learn.yorkcs.com/2019/09/28/phaser-3-basics-custom-fonts/ */
+        @font-face {
+            font-family: bulletFont;
+            src: url('./assets/fonts/bullet-storm.ttf');
+        }
     </style>
+    <div style="font-family:bulletFont; position:absolute; left:-1000px; visibility:hidden;">.</div>
 </head>
 <body>
     <!--
