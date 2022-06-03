@@ -72,7 +72,7 @@ class BulletsDemo extends Phaser.Scene {
                     this.time.removeEvent(enemySpawnTimer);
                     return;
                 }
-                if (this.liveEnemies >= 5) {
+                if (this.liveEnemies.getLength() >= 5) {
                     return;
                 }
                 const enemySpawnPositions = [
