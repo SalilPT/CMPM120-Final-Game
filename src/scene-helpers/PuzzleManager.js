@@ -50,9 +50,16 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             // Not currently holding a puzzle piece
             if (this.currHeldPuzPiece == null) {
                 let closestPuzPiece = this.getClosestPuzzlePiece();
+                // No pieces that can be picked up
+                if (closestPuzPiece == null) {
+                    return;
+                }
+
                 if (Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, closestPuzPiece.getCenter()) > this.maxPickUpDist) {
                     return;
                 }
+
+                
 
                 this.#pickUpPuzzlePiece(closestPuzPiece);
             }
