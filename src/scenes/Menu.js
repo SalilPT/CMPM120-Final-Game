@@ -3,6 +3,13 @@ class Menu extends Phaser.Scene {
         super("menuScene");
     }
 
+    preload() {
+        // Preload bullets
+        this.load.image("orangeBullet", "./assets/orangeBullet.png");
+        this.load.image("purpleBullet", "./assets/purpleBullet.png");
+        this.load.image("yellowBullet", "./assets/yellowBullet.png");
+    }
+
     create() {
         this.scene.bringToTop();
         let demoSceneTransitionTextConfig = {color: "black", fontSize: "40px", stroke: "white", strokeThickness: 0};
