@@ -65,7 +65,7 @@ class BulletPattern {
                 frame: 0,
                 bulletScale: 3,
                 bodyConfig: {
-                    radius: 2
+                    radius: 4
                 },
                 initTexAngleDeg: -90
             },

@@ -121,11 +121,14 @@ class BulletManager extends Phaser.GameObjects.GameObject {
             else {
                 const radiusToUse = bodyConfig.radius ?? bulletToSpawn.width / 2
                 bdy.setCircle(radiusToUse, bulletToSpawn.width / 2 - radiusToUse, bulletToSpawn.height / 2 - radiusToUse);
-                //bdy.setCircle(radiusToUse);
-                //bdy.center = bulletToSpawn.getCenter();
             }
         }
-        //bdy.reset(x - bdy.halfWidth, y - bdy.halfHeight);
+        bdy.resetFlags(true);
+
+        // Prevent pooled bullets from spawning behind enemies
+        // The bringToTop method apparently works here because the displayList (this.scene.children) inherits from Phaser.Structs.List, which has the method.
+        // Example usage here: https://labs.phaser.io/edit.html?src=src\depth%20sorting\bring%20to%20top.js
+        this.scene.children.bringToTop(bulletToSpawn);
 
         return bulletToSpawn;
     }
