@@ -20,6 +20,9 @@ class BulletsDemo extends Phaser.Scene {
     }
 
     create() {
+        // Bullet Manager
+        this.bltMgr = new BulletManager(this);
+        
         // Background
         this.background = this.add.tileSprite(0, 0, globalGame.config.width, globalGame.config.height, "background").setOrigin(0);
         this.background.setDepth(-1000);
@@ -34,6 +37,7 @@ class BulletsDemo extends Phaser.Scene {
         });
         this.playerChar.setCircle(this.textures.getFrame("gameAtlas", "jeb legs temp.png").width/2);
         this.playerChar.setPushable(false);
+        this.playerChar.setImmovable(true);
         this.playerChar.setData("health", 5);
 
         this.plrMovManager = this.playerChar.getMovManager();
@@ -48,6 +52,7 @@ class BulletsDemo extends Phaser.Scene {
                 if (this.liveEnemies.getLength() == 0) {
                     return;
                 }
+                /*
                 // Get angle between player character and mouse
                 let fireAngle = Phaser.Math.Angle.Between(this.playerChar.body.center.x, this.playerChar.body.center.y, this.input.activePointer.worldX, this.input.activePointer.worldY);
                 fireAngle = Phaser.Math.RadToDeg(fireAngle);
@@ -57,7 +62,14 @@ class BulletsDemo extends Phaser.Scene {
                 newPlayerBullet.body.setVelocity(fireVector.x, fireVector.y);
                 newPlayerBullet.setScale(0.5);
                 this.plrBullets.add(newPlayerBullet);
-
+                */
+                this.bltMgr.addPattern("shootAtTarget", {
+                    sourcePt: this.playerChar.body.center,
+                    targetPt: new Phaser.Geom.Point(this.input.activePointer.worldX, this.input.activePointer.worldY),
+                    bulletType: "purpleBullet",
+                    bulletSpd: 1000,
+                    enemyBullet: false
+                });
                 this.sound.play("shootingSFX");
             },
             loop: true
@@ -99,9 +111,8 @@ class BulletsDemo extends Phaser.Scene {
         this.plrBullets = this.add.group();
         this.enemyBullets = this.add.group();
 
-        this.physics.add.collider(this.plrBullets, this.liveEnemies, (bullet, enemy) => {
-            this.plrBullets.remove(bullet);
-            bullet.destroy();
+        this.physics.add.collider(this.bltMgr.getPlayerBulletsGroup(), this.liveEnemies, (bullet, enemy) => {
+            this.bltMgr.getPlayerBulletsGroup().remove(bullet);
             
             enemy.incData("health", -1);
             if (enemy.getData("health") == 0) {
@@ -111,10 +122,21 @@ class BulletsDemo extends Phaser.Scene {
 
         });
 
+        /*
         this.physics.add.collider(this.playerChar, this.enemyBullets, (player, bullet) => {
             this.enemyBullets.remove(bullet);
             bullet.body.checkCollision.none = true;
             bullet.destroy();
+
+            player.incData("health", -1);
+            if (player.getData("health") == 0) {
+                this.scene.restart();
+            }
+        });
+        */
+
+        this.physics.add.collider(this.playerChar, this.bltMgr.getEnemyBulletsGroup(), (player, bullet) => {
+            this.bltMgr.getEnemyBulletsGroup().remove(bullet);
 
             player.incData("health", -1);
             if (player.getData("health") == 0) {
@@ -130,7 +152,13 @@ class BulletsDemo extends Phaser.Scene {
                         this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64), 
                         this.playerChar.body.center.y + Phaser.Math.RND.integerInRange(-64, 64)
                     );
-                    this.fireEnemyBulletAtTarget(enemy, Phaser.Math.RND.integerInRange(200, 400), randomTarget);
+                    //this.fireEnemyBulletAtTarget(enemy, Phaser.Math.RND.integerInRange(200, 400), randomTarget);
+                    this.bltMgr.addPattern("shootAtTarget", {
+                        sourcePt: enemy.body.center,
+                        targetPt: randomTarget,
+                        bulletType: Phaser.Math.RND.pick(["orangeBullet", "yellowBullet"]),
+                        bulletSpd: Phaser.Math.RND.integerInRange(200, 400)
+                    });
                 }
             },
             loop: true
@@ -172,6 +200,17 @@ class BulletsDemo extends Phaser.Scene {
         //this.controlsTextObj = this.add.text(this.playerChar.x, this.playerChar.y - 64, "Controls: WASD to move, SPACE to pick up/place down", debugTextConfig).setOrigin(0.5);
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
         this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+
+        // Bullet pattern testing
+        /*
+        this.bltMgr = new BulletManager(this);
+        let testEnemy = this.physics.add.sprite(100, 100, "enemySprite");
+        this.bltMgr.addPattern("shootAtTarget", {
+            sourceObj: testEnemy,
+            targetObj: this.playerChar,
+            bulletType: "default"
+        });
+        */
     }
 
     update() {
@@ -187,10 +226,9 @@ class BulletsDemo extends Phaser.Scene {
         }
 
         // Update enemy bullets
-        for (let bullet of this.enemyBullets.getChildren()) {
+        for (let bullet of this.bltMgr.getEnemyBulletsGroup().getChildren()) {
             if (!Phaser.Geom.Rectangle.Overlaps(this.cameras.main.worldView, bullet.getBounds())) {
-                this.enemyBullets.remove(bullet);
-                bullet.destroy();
+                this.bltMgr.getEnemyBulletsGroup().remove(bullet);
             }
         }
 
@@ -202,7 +240,7 @@ class BulletsDemo extends Phaser.Scene {
         this.puzzleIsCompleted = this.puzManager.puzzleCompleted();
 
         // Level complete?
-        if (this.puzzleIsCompleted && this.liveEnemies.getLength() == 0 && this.enemyBullets.getLength() == 0 && !this.levelComplete) {
+        if (this.puzzleIsCompleted && this.liveEnemies.getLength() == 0 && this.bltMgr.getEnemyBulletsGroup().getLength() == 0 && !this.levelComplete) {
             this.levelComplete = true;
             this.add.text(globalGame.config.width/2, globalGame.config.height/2, "Level Complete", {color: "white", fontFamily: "Impact", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
         }
