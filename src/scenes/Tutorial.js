@@ -16,14 +16,6 @@ class Tutorial extends Phaser.Scene {
         this.movementTutorialComplete = false;
         this.aimingTutorialComplete = false;
         this.InteractingTutorialComplete = false;
-        let tuTextConfig = {
-            fontFamily: "Courier",
-            fontSize: "50px",
-            color: "#ffffff",
-            align: "center",
-            stroke: "#000000",
-            strokeThickness:5,
-        };
         // mainly followed Nathan Altice's mappy example for collisions using tile maps
         const map = this.add.tilemap("tileMap");
         // set a tileset for the map and its corresponding layers
@@ -98,10 +90,10 @@ class Tutorial extends Phaser.Scene {
             repeat: -1,
             yoyo: true,
         });
-        //Tutorial text
+        // Make a textBox that explains movement and interaction controls
         this.time.delayedCall(500, ()=> {
             this.scene.launch("textBoxesScene", {
-                textChain: ["Wasd", "SpaceToInteract"],
+                textChain: ["Wasd"],
                 scenesToPauseAtStart: ["tutorialScene"],
                 scenesToResumeAtEnd: ["tutorialScene"],             
             });
@@ -124,7 +116,11 @@ class Tutorial extends Phaser.Scene {
                 if (puzPiece.x - puzPiece.width < this.jebPlayer.x && this.jebPlayer.x < puzPiece.x + puzPiece.width*2) {
                     if (puzPiece.y - puzPiece.height < this.jebPlayer.y && this.jebPlayer.y < puzPiece.y + puzPiece.height*2) {
                         if (this.movementTutorialComplete == true && this.InteractingTutorialComplete == false){
-                            this.scene.launch("textBoxesScene", {textToDisplay:"SpaceToInteract"});
+                            this.scene.launch("textBoxesScene", {
+                                textChain:["SpaceToInteract"],
+                                scenesToPauseAtStart: ["tutorialScene"],
+                                scenesToResumeAtEnd: ["tutorialScene"]
+                            });
                             this.InteractingTutorialComplete = true;
                         }
                     }
@@ -144,8 +140,12 @@ class Tutorial extends Phaser.Scene {
             }
             if(sequencesCompleted == (Object.keys(this.puzManager.sequences).length)){
                 this.fullTutorialComplete = true;
-                console.log("all sequences were completed");
-                this.scene.launch("textBoxesScene", {textToDisplay:"tutorialEnd"});
+                this.scene.launch("textBoxesScene", {
+                    textChain:["tutorialEnd"],
+                    scenesToPauseAtStart: ["tutorialScene"],
+                    scenesToStopAtEnd: ["tutorialScene"],
+                    scenesToStartAtEnd: ["menuScene"]
+                });
                 // call for the endiding scene
             }
         });
