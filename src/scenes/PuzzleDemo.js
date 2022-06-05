@@ -43,13 +43,12 @@ class PuzzleDemo extends Phaser.Scene {
             // Using the global ID of the current tile (located on an object layer), get the current tile's corresponding data from the tileset object.
             // Then, get the "type" property of the corresponding data. This will be the object type of the current tile.
             let objType = testTileset.getTileData(obj.gid).type;
-            console.log(objType);
             // Loop through the array of object types objects that was exported from Tiled. Find the one that applies to the current tile.
             let objTypePropertiesObj = objectTypeData.find((obj) => {return obj.name == objType});
             // Finally, get the properties of the object type object.
             // This will be the properties that this tile has because of its type that was defined in Tiled.
             let objTypeProperties = objTypePropertiesObj.properties;
-            console.log("Inherited properties of current tile: ", objTypeProperties);
+            //console.log("Inherited properties of current tile: ", objTypeProperties);
         }
         /**/
         

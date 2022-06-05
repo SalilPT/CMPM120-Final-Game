@@ -31,7 +31,7 @@ class LevelGenDemo extends Phaser.Scene {
         // Puzzle manager
         this.puzManager = new PuzzleManager(this, {playerChar: this.playerChar});
 
-        let levelTilemap = this.add.tilemap("levelGenDemoTileMap");console.log(levelTilemap);
+        let levelTilemap = this.add.tilemap("levelGenDemoTileMap");
 
         // Walls and floor
         const levelTileset = levelTilemap.addTilesetImage("bulletHellTileSet", "gameAtlas");
