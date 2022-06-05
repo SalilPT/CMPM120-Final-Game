@@ -47,7 +47,6 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         this.PUZZLE_HOLE_Z_INDEX = this.PUZZLE_PIECE_Z_INDEX - 1;
 
         this.INTERACT_KEY_DOWN_CALLBACK = () => {
-            console.log("Interact key pressed");
             // Not currently holding a puzzle piece
             if (this.currHeldPuzPiece == null) {
                 let closestPuzPiece = this.getClosestPuzzlePiece();
