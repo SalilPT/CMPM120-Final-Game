@@ -8,6 +8,16 @@ class Menu extends Phaser.Scene {
         this.load.image("orangeBullet", "./assets/orangeBullet.png");
         this.load.image("purpleBullet", "./assets/purpleBullet.png");
         this.load.image("yellowBullet", "./assets/yellowBullet.png");
+
+        // Preload player character images and spritesheets
+        this.load.spritesheet("jebBottomIdle", "./assets/Jeb Bottom Idle Spritesheet.png", {frameWidth: 64});
+        this.load.spritesheet("jebBottomMoving", "./assets/Jeb Bottom Moving Spritesheet.png", {frameWidth: 64});
+        this.load.image("jebRingOff", "./assets/Jeb Ring Off.png");
+        this.load.spritesheet("jebRings", "./assets/Jeb Rings Spritesheet.png", {frameWidth: 64});
+        this.load.spritesheet("jebTopAttacking", "./assets/Jeb Top Attcking Spritesheet.png", {frameWidth: 64});
+        this.load.spritesheet("jebTopCharging", "./assets/Jeb Top Charging Spritesheet.png", {frameWidth: 64});
+        this.load.spritesheet("jebTopDeath", "./assets/Jeb Top Death Spritesheet.png", {frameWidth: 64});
+        this.load.image("jebTopStart", "./assets/Jeb Top Start.png");
     }
 
     create() {
