@@ -86,7 +86,7 @@ class TextBoxes extends Phaser.Scene {
     }
 
     displayContinueMessage() { 
-        this.exitMessage = this.add.text(this.textBoxSprite.x + this.textBoxSprite.displayWidth/2.3, this.textBoxSprite.y + this.textBoxSprite.displayHeight/3, "Right Click", this.exitTextConfig).setOrigin(1, 0.5);
+        this.exitMessage = this.add.text(this.textBoxSprite.x + this.textBoxSprite.displayWidth/2.3, this.textBoxSprite.y + this.textBoxSprite.displayHeight/3, "Click Mouse", this.exitTextConfig).setOrigin(1, 0.5);
         this.exitMessage.setAlpha(0.25);
         this.tweens.add({
             targets: this.exitMessage,
