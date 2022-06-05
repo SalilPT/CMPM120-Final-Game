@@ -100,7 +100,11 @@ class Tutorial extends Phaser.Scene {
         });
         //Tutorial text
         this.time.delayedCall(500, ()=> {
-            this.scene.launch("textBoxesScene", {textToDisplay:"Wasd"});
+            this.scene.launch("textBoxesScene", {
+                textChain: ["Wasd", "SpaceToInteract"],
+                scenesToPauseAtStart: ["tutorialScene"],
+                scenesToResumeAtEnd: ["tutorialScene"],             
+            });
             this.movementTutorialComplete = true;
         });
         // check if the puzzle is complete
