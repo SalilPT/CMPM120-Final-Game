@@ -32,27 +32,33 @@ class Menu extends Phaser.Scene {
         }
         // Make buttons or keybinds to go to demo scenes
 
-        this.add.rectangle(globalGameConfig.width/2, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x00BFB2)
+        let tutorialButton = this.add.rectangle(globalGameConfig.width/2, globalGameConfig.height/2, globalGameConfig.width/6, globalGameConfig.height/8, 0x00BFB2)
             .setInteractive({useHandCursor: true})
             .on("pointerdown", () => this.scene.start("tutorialScene"));
         
-        this.add.rectangle(globalGameConfig.width/3, globalGameConfig.height/1.3, globalGameConfig.width/7, globalGameConfig.height/9, 0x9ADFEA)
+        this.add.rectangle(globalGameConfig.width/3, tutorialButton.y + 192, globalGameConfig.width/7, globalGameConfig.height/9, 0x9ADFEA)
             .setInteractive({useHandCursor: true})
             .on("pointerdown", () => this.scene.start("movementAndAimingDemoScene"));
         
-        this.add.rectangle(globalGameConfig.width/2, globalGameConfig.height/1.3, globalGameConfig.width/7, globalGameConfig.height/9, 0x9ADFEA)
+        this.add.rectangle(globalGameConfig.width/2, tutorialButton.y + 192, globalGameConfig.width/7, globalGameConfig.height/9, 0x9ADFEA)
             .setInteractive({useHandCursor: true})
             .on("pointerdown", () => this.scene.start("puzzleDemoScene"));
 
-        this.add.rectangle(globalGameConfig.width*(2/3), globalGameConfig.height/1.3, globalGameConfig.width/7, globalGameConfig.height/9, 0x9ADFEA)
+        this.add.rectangle(globalGameConfig.width*(2/3), tutorialButton.y + 192, globalGameConfig.width/7, globalGameConfig.height/9, 0x9ADFEA)
         .setInteractive({useHandCursor: true})
         .on("pointerdown", () => this.scene.start("bulletsDemoScene"));
+
+        this.add.rectangle(globalGameConfig.width/3, tutorialButton.y + 320, globalGameConfig.width/7, globalGameConfig.height/9, 0x9ADFEA)
+            .setInteractive({useHandCursor: true})
+            .on("pointerdown", () => this.scene.start("levelGenDemoScene"));
                     
         this.add.text(globalGameConfig.width/2, globalGameConfig.height/2, "Tutorial", menuTextConfig).setOrigin(0.5);
         menuTextConfig.fontSize = '30px';
         menuTextConfig.strokeThickness = 4;
-        this.add.text(globalGameConfig.width/3, globalGameConfig.height/1.3, "Movement/\nAiming Demo", menuTextConfig).setOrigin(0.5);
-        this.add.text(globalGameConfig.width/2, globalGameConfig.height/1.3, "Puzzle Demo", menuTextConfig).setOrigin(0.5);
-        this.add.text(globalGameConfig.width*(2/3), globalGameConfig.height/1.3, "Bullets Demo", menuTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width/3, tutorialButton.y + 192, "Movement/\nAiming Demo", menuTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width/2, tutorialButton.y + 192, "Puzzle Demo", menuTextConfig).setOrigin(0.5);
+        this.add.text(globalGameConfig.width*(2/3), tutorialButton.y + 192, "Bullets Demo", menuTextConfig).setOrigin(0.5);
+
+        this.add.text(globalGameConfig.width/3, tutorialButton.y + 320, "Level Gen Demo", menuTextConfig).setOrigin(0.5);
     }
 }
