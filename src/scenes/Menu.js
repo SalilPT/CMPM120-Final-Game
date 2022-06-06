@@ -18,6 +18,10 @@ class Menu extends Phaser.Scene {
         this.load.spritesheet("jebTopCharging", "./assets/Jeb Top Charging Spritesheet.png", {frameWidth: 64});
         this.load.spritesheet("jebTopDeath", "./assets/Jeb Top Death Spritesheet.png", {frameWidth: 64});
         this.load.image("jebTopStart", "./assets/Jeb Top Start.png");
+
+        // Preload enemy spritesheets
+        this.load.spritesheet("enemy1Idle", "./assets/Enemy 1 Idle spritesheet.png", {frameWidth: 64});
+        this.load.spritesheet("enemy1Death", "./assets/Enemy 1 death spritesheet.png", {frameWidth: 64});
     }
 
     create() {
