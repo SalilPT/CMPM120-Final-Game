@@ -1,6 +1,6 @@
 {
     "tutorialEnd": {
-        "text":"GREAT JOB!!\nYou completed the puzzle",
+        "message":"GREAT JOB!!\nYou completed the puzzle",
         "keyboardInput": "SPACE",
         "SwitchScene":{
             "shouldSwitch": true,
@@ -11,21 +11,21 @@
         }
     },
     "Wasd":{
-        "text":"USE WASD KEYS TO MOVE",
+        "message":"USE WASD KEYS TO MOVE",
         "keyboardInput": "W",
         "SwitchScene":{
             "shouldSwitch": false
         }
     },
     "ClickToFire":{
-        "text": "Click to Fire",
+        "message": "Click to Fire",
         "keyboardInput": "SPACE",
         "SwitchScene":{
             "shouldSwitch": false
         }
     },
     "SpaceToInteract":{
-        "text":"Press SPACE to pick up/drop\npuzzle pieces",
+        "message":"Press SPACE to pick up/drop\npuzzle pieces",
         "keyboardInput": "SPACE",
         "SwitchScene":{
             "shouldSwitch": false
