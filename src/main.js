@@ -1,4 +1,4 @@
-// Naming convention: camel case for normal variables, upper snake case for constants
+// Naming convention: camel case for normal variables, upper snake case for constants made in constructors or create() methods
 // Line endings: LF
 
 "use strict";
@@ -15,7 +15,7 @@ let globalGameConfig = {
         }
     },
     scale: {mode: Phaser.Scale.FIT},
-    scene: [Menu, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
+    scene: [Menu, Credits, Settings, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
 }
 
 let globalGame = new Phaser.Game(globalGameConfig);
