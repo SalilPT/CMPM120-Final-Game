@@ -144,7 +144,7 @@ class Tutorial extends Phaser.Scene {
                     textChain:["tutorialEnd"],
                     scenesToPauseAtStart: ["tutorialScene"],
                     scenesToStopAtEnd: ["tutorialScene"],
-                    scenesToStartAtEnd: ["menuScene"]
+                    scenesToStartAtEnd: ["demoMenuScene"]
                 });
                 // call for the endiding scene
             }

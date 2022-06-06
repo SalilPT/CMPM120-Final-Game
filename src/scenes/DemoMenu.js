@@ -1,6 +1,6 @@
-class Menu extends Phaser.Scene {
+class DemoMenu extends Phaser.Scene {
     constructor() {
-        super("menuScene");
+        super("demoMenuScene");
     }
 
     preload() {
