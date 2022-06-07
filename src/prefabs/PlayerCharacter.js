@@ -119,6 +119,9 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
             .draw(this.bodyMiddle, this.width/2, this.height/2)
             .draw(this.bodyTop, this.width/2, this.height/2)
             ;
+
+        
+        this.body.setImmovable(true);
     }
 
     /*
@@ -191,8 +194,12 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
     takeDamage(damage = 1) {
         this.health -= damage;
         if (this.health <= 0) {
+            this.scene.sound.play("jebDeath");
             this.playDeathAnim();
         }
+
+        // Play regular damage sound instead
+        this.scene.sound.play("jebHurt");
     }
 
     /*

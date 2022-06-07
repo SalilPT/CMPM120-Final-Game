@@ -295,30 +295,27 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                 // Change the x and y positions to account for the change in origin
                 targetObj.x -= targetObj.width/2;
                 targetObj.y -= targetObj.height/2;
-
-                // Custom properties
-                let seqName = Phaser.Utils.Objects.GetValue(propsObj, "sequenceName", undefined);
-                targetObj.sequenceName = seqName;
-                targetObj.numInSequence = Phaser.Utils.Objects.GetValue(propsObj, "numInSequence", undefined);
-
-                // Play the correct animation
-                targetObj.play(targetObj.ANIMS_KEYS_ARRAY[targetObj.numInSequence-1]);
-
-                // If a sequence with the object's sequence name doesn't yet exist, create it
-                if (!Phaser.Utils.Objects.HasValue(this.sequences, seqName)) {
-                    this.addSequence(seqName);
-                }
             }
 
+            // Custom properties
+            let seqName = Phaser.Utils.Objects.GetValue(propsObj, "sequenceName", undefined);
+            let numInSequence = Phaser.Utils.Objects.GetValue(propsObj, "numInSequence", undefined);
+            // If a sequence with the object's sequence name doesn't yet exist, create it
+            if (!Phaser.Utils.Objects.HasValue(this.sequences, seqName)) {
+                this.addSequence(seqName);
+            }
             // Check whether the current object is a puzzle piece or a puzzle hole
             if (propsObj[this.TILEMAP_DATA_NAMES.puzzleObjIdentifier] === this.TILEMAP_DATA_NAMES.puzPieceObjValue) {
-                let newPiece = new PuzzlePiece({scene: this.parentScene});
+                let newPiece = new PuzzlePiece({scene: this.parentScene, sequenceName: seqName, numInSequence: numInSequence});
                 assignProperties(newPiece);
+                // Play the correct animation
+                newPiece.play(newPiece.ANIMS_KEYS_ARRAY[newPiece.numInSequence - 1]);
                 this.addPuzzlePieceToSeq(newPiece, newPiece.sequenceName);
             }
             else if (propsObj[this.TILEMAP_DATA_NAMES.puzzleObjIdentifier] === this.TILEMAP_DATA_NAMES.puzHoleObjValue) {
-                let newHole = new PuzzleHole({scene: this.parentScene});
+                let newHole = new PuzzleHole({scene: this.parentScene, sequenceName: seqName, numInSequence: numInSequence});
                 assignProperties(newHole);
+                newHole.setSprite();
                 this.addPuzzleHoleToSeq(newHole, newHole.sequenceName);
             }
         }
@@ -394,7 +391,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
     #placePuzzlePiece(puzPiece, targetHole = null) {
         if (targetHole != null) {
             puzPiece.setPosition(targetHole.getTopLeft().x, targetHole.getTopLeft().y);
-            puzPiece.changeToInHoleSprite();
+            puzPiece.changeToInHoleAnim();
             puzPiece.placedInHole = true;
             
             let parentSeq = this.sequences[puzPiece.sequenceName];
