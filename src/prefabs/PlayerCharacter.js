@@ -188,6 +188,13 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         this.bodyTop.play("jebTopDeathAnim");
     }
 
+    takeDamage(damage = 1) {
+        this.health -= damage;
+        if (this.health <= 0) {
+            this.playDeathAnim();
+        }
+    }
+
     /*
     Private Methods
     */
