@@ -10,7 +10,7 @@ class BulletManager extends Phaser.GameObjects.GameObject {
         /*
         Constants
         */
-
+        this.BULLETS_Z_INDEX = 10;
 
         /*
         Mutable Properties
@@ -125,10 +125,7 @@ class BulletManager extends Phaser.GameObjects.GameObject {
         }
         bdy.resetFlags(true);
 
-        // Prevent pooled bullets from spawning behind enemies
-        // The bringToTop method apparently works here because the displayList (this.scene.children) inherits from Phaser.Structs.List, which has the method.
-        // Example usage here: https://labs.phaser.io/edit.html?src=src\depth%20sorting\bring%20to%20top.js
-        this.scene.children.bringToTop(bulletToSpawn);
+        bulletToSpawn.setDepth(this.BULLETS_Z_INDEX);
 
         return bulletToSpawn;
     }

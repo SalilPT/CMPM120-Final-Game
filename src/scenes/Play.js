@@ -8,28 +8,7 @@ class Play extends Phaser.Scene {
     }
 
     preload() {
-        // Preload player character images and spritesheets
-        this.load.spritesheet("jebBottomIdle", "./assets/Jeb Bottom Idle Spritesheet.png", {frameWidth: 64});
-        this.load.spritesheet("jebBottomMoving", "./assets/Jeb Bottom Moving Spritesheet.png", {frameWidth: 64});
-        this.load.image("jebRingOff", "./assets/Jeb Ring Off.png");
-        this.load.spritesheet("jebRings", "./assets/Jeb Rings Spritesheet.png", {frameWidth: 64});
-        this.load.spritesheet("jebTopAttacking", "./assets/Jeb Top Attcking Spritesheet.png", {frameWidth: 64});
-        this.load.spritesheet("jebTopCharging", "./assets/Jeb Top Charging Spritesheet.png", {frameWidth: 64});
-        this.load.spritesheet("jebTopDeath", "./assets/Jeb Top Death Spritesheet.png", {frameWidth: 64});
-        this.load.image("jebTopStart", "./assets/Jeb Top Start.png");
-
-        // Testing tilemap
-        this.load.tilemapTiledJSON("testTilemap2", "./assets/Template Level Example 2.json");
-        this.load.atlas("gameAtlas", "./assets/gameAtlas.png", "./assets/gameAtlas.json");
-
-        // Preload bullets
-        this.load.image("orangeBullet", "./assets/orangeBullet.png");
-        this.load.image("purpleBullet", "./assets/purpleBullet.png");
-        this.load.image("yellowBullet", "./assets/yellowBullet.png");
-
-        // Load background music
-        this.load.audio("backgroundMusic", "./assets/audio/finalGameMusic.mp3");
-        this.load.audio("shootingSFX", "./assets/audio/shooting_sfx.wav");
+        
     }
 
     create() {
@@ -76,17 +55,7 @@ class Play extends Phaser.Scene {
         });
         // Move enemies
         this.physics.add.collider(this.enemyMgr.getEnemiesGroup(), wallLayer);
-        this.time.addEvent({
-            delay: 1 * 1000,
-            callback: () => {
-                if (this.enemyMgr.getEnemiesGroup().getLength() > 0) {
-                    for (let enemy of this.enemyMgr.getEnemiesGroup().getChildren()) {
-                        enemy.moveTowardsPlayer();
-                    }
-                }
-            },
-            loop: true
-        });
+
         
         // Bullets
         this.bltMgr = new BulletManager(this);
@@ -99,6 +68,8 @@ class Play extends Phaser.Scene {
                 this.sound.removeByKey("backgroundMusic");
                 this.scene.restart();
             }
+
+            this.userInterfaceMgr.setHealthBoxValue(player.health);
         });
 
         // Player bullets
@@ -116,16 +87,19 @@ class Play extends Phaser.Scene {
                     bulletSpd: 1000,
                     enemyBullet: false
                 });
-                this.sound.play("shootingSFX");
+                this.sound.play("jebShoot");
                 this.playerChar.playAttackAnim();
             },
             loop: true
         });
 
         this.physics.add.collider(this.bltMgr.getPlayerBulletsGroup(), this.enemyMgr.getEnemiesGroup(), (bullet, enemy) => {
-            this.bltMgr.getPlayerBulletsGroup().remove(bullet);
-            
+            this.bltMgr.getPlayerBulletsGroup().remove(bullet)
             enemy.takeDamage();
+        });
+
+        this.physics.add.collider(this.bltMgr.getPlayerBulletsGroup(), wallLayer, (bullet) => {
+            this.bltMgr.getPlayerBulletsGroup().remove(bullet)
         });
 
         // Enemy bullets
@@ -133,6 +107,9 @@ class Play extends Phaser.Scene {
             delay: 0.5 * 1000,
             callback: () => {
                 for (let enemy of this.enemyMgr.getEnemiesGroup().getChildren()) {
+                    if (enemy.health <= 0) {
+                        return;
+                    }
                     let randomTarget = new Phaser.Geom.Point(
                         this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64), 
                         this.playerChar.body.center.y + Phaser.Math.RND.integerInRange(-64, 64)
@@ -170,6 +147,8 @@ class Play extends Phaser.Scene {
         })
 
         // User Interface
+        this.userInterfaceMgr = new UserInterfaceManager(this, {});
+        this.userInterfaceMgr.createHealthBox(32, 32, this.playerChar.health);
 
         // Audio
         this.sound.pauseOnBlur = false; // Prevents stacked audio when clicking back in game window

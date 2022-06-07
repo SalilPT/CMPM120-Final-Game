@@ -21,6 +21,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         this.health = params.health ?? 3;
 
+        // The initial angle of this object's graphics
+        this.initAngle = -90;
+
         this.scene.anims.create({
             key: "enemyAnim",
             frameRate: 8,
@@ -42,46 +45,46 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                 start: 1,
                 end: 9,
             }),
-            repeat: -1
+            repeat: 0
         });
         
         this.play("enemyAnim");
 
-        /*
+        
 
-        this.shootingTimer = this.parentScene.time.addEvent({
-            delay: 1*1000,
-            callback: () {
-
+        this.movementTimer = this.scene.time.addEvent({
+            delay: 0.75 *1000,
+            callback: () => {
+                this.moveTowardsPlayer();
             },
             loop: true
         })
-        */
+        
 
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
         params.scene.physics.add.existing(this);
 
         this.body.setCircle(this.width/2);
-
     }
 
     /*
     Public Methods
     */
-    takeDamage(damage = 1) {
-        this.health -= damage;
-        if (this.health <= 0) {
-            this.scene.time.removeEvent(this.shootingTimer);
-            this.destroy();
+
+    facePlayerChar() {
+        if (!this.#canSeePlayerChar()) {
+            return;
         }
+        let angleToPlayer = this.#getAngleToPlayerChar();
+        this.setAngle(-this.initAngle + angleToPlayer);
     }
 
     moveTowardsPlayer() {
-        let angleToPlayer = Phaser.Math.Angle.Between(this.body.center.x, this.body.center.y, this.playerChar.body.center.x, this.playerChar.body.center.y);
-        angleToPlayer = Phaser.Math.RadToDeg(angleToPlayer);
+        let angleToPlayer = this.#getAngleToPlayerChar();
         let vec = this.scene.physics.velocityFromAngle(angleToPlayer, 200);
         this.body.setVelocity(vec.x, vec.y);
+        this.facePlayerChar();
         this.scene.time.addEvent({
             delay: 500,
             callback: () => {
@@ -92,12 +95,49 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         })
     }
     
+    takeDamage(damage = 1) {
+        this.health -= damage;
+        if (this.health <= 0) {
+            this.scene.sound.play("enemyDeath");
+            this.scene.time.removeEvent(this.movementTimer);
+
+            this.body.checkCollision.none = true;
+            this.play("enemyDeathAnim");
+            this.on("animationcomplete", () => {
+                // Destroy self after death animation is complete
+                if (this != null) {
+                    this.destroy();
+                }
+            });
+            return;
+        }
+
+        // Visual effect
+        this.setTintFill(0xFFFFFF);
+        this.scene.time.delayedCall(50, () => {
+            if (this != undefined) {
+                this.clearTint();
+            }
+        });
+
+        this.scene.sound.play("enemyGetsHit")
+    }
+
+
+    
     /*
     Private Methods
     */
     // Returns true if an uninterrupted line can be formed from this object's center tothe center of the player character.
     // Gets all tiles within a rectangular bounding box that has the player character and this object.
     #canSeePlayerChar() {
+        return true; // Placeholder
        // getTilesWithin
+    }
+
+    #getAngleToPlayerChar() {
+        let angleToPlayer = Phaser.Math.Angle.Between(this.body.center.x, this.body.center.y, this.playerChar.body.center.x, this.playerChar.body.center.y);
+        angleToPlayer = Phaser.Math.RadToDeg(angleToPlayer);
+        return angleToPlayer;
     }
 }

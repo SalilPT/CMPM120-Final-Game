@@ -8,6 +8,7 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
         Constants
         */
         this.ANIMS_KEYS_ARRAY = ["piece1Anim", "piece2Anim", "piece3Anim", "piece4Anim","piece5Anim", "piece6Anim"];
+        this.IN_HOLE_ANIMS_KEYS_ARRAY = ["piece1PlacedAnim", "piece2PlacedAnim", "piece3PlacedAnim", "piece4PlacedAnim", "piece5PlacedAnim", "piece6PlacedAnim"];
         /*
         Properties
         */
@@ -25,9 +26,24 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
             });
         }
 
-        this.sequenceName;
+        for (let i = 0; i < this.ANIMS_KEYS_ARRAY.length; i++) {
+            this.parentScene.anims.create({
+                key: this.IN_HOLE_ANIMS_KEYS_ARRAY[i],
+                frameRate: 8,
+                frames: this.parentScene.anims.generateFrameNames("gameAtlas", {
+                    prefix: "CircuitPlaced" + (i + 1) + "Frame",
+                    suffix: ".png",
+                    start: 1,
+                    end: 4,
+                }),
+                repeat: -1
+            });
+        }
+
+        this.sequenceName = params.sequenceName;
         // The number in the sequence that this piece will represent, NOT the index of its sequence
-        this.numInSequence;
+        this.numInSequence = params.numInSequence;
+        this.play(this.ANIMS_KEYS_ARRAY[this.numInSequence - 1]);
         // Has this piece been placed in its corresponding hole?
         this.placedInHole = false;
         
@@ -37,9 +53,9 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
     }
 
     /*
-    Public methods
+    Public Methods
     */
-    changeToInHoleSprite() {
-
+    changeToInHoleAnim() {
+        this.play(this.IN_HOLE_ANIMS_KEYS_ARRAY[this.numInSequence - 1]);
     }
 }

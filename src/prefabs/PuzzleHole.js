@@ -7,27 +7,15 @@ class PuzzleHole extends Phaser.GameObjects.Sprite {
         /*
         Constants
         */
-        this.ANIMS_KEYS_ARRAY = ["hole1Anim", "hole2Anim", "hole3Anim", "hole4Anim", "hole5Anim", "hole6Anim"];
+        this.TEXTURE_KEYS_ARRAY = ["hole1Sprite", "hole2Sprite", "hole3Sprite", "hole4Sprite", "hole5Sprite", "hole6Sprite"];
         /*
         Properties
         */
-        for (let i = 0; i < this.ANIMS_KEYS_ARRAY.length; i++) {
-            this.parentScene.anims.create({
-                key: this.ANIMS_KEYS_ARRAY[i],
-                frameRate: 8,
-                frames: this.parentScene.anims.generateFrameNames("gameAtlas", {
-                    prefix: "CircuitPlaced" + (i + 1) + "Frame",
-                    suffix: ".png",
-                    start: 1,
-                    end: 1,
-                }),
-                repeat: -1
-            });
-        }
 
-        this.sequenceName;
+        this.sequenceName = params.sequenceName;
         // The number in the sequence that this piece will represent, NOT the index of its sequence
-        this.numInSequence;
+        this.numInSequence = params.numInSequence;
+        this.setSprite();
         
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
@@ -37,4 +25,7 @@ class PuzzleHole extends Phaser.GameObjects.Sprite {
     /*
     Public methods
     */
+    setSprite() {
+        this.setTexture(this.TEXTURE_KEYS_ARRAY[this.numInSequence - 1]);
+    }
 }

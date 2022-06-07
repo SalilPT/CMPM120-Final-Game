@@ -15,7 +15,7 @@ let globalGameConfig = {
         }
     },
     scale: {mode: Phaser.Scale.FIT},
-    scene: [Menu, Play, DemoMenu, Credits, Settings, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
+    scene: [GameStartLoading, Menu, Play, DemoMenu, Credits, Settings, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
 }
 
 let globalGame = new Phaser.Game(globalGameConfig);
