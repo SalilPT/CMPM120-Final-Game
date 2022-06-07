@@ -48,7 +48,7 @@ class LevelGenDemo extends Phaser.Scene {
         // Other stuff
         let debugTextConfig = {color: "white", fontSize: "50px", stroke: "black", strokeThickness: 1};
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
-        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("demoMenuScene");});
     }
 
     update() {

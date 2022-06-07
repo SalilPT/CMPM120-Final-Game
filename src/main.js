@@ -7,7 +7,7 @@ let globalGameConfig = {
     type: Phaser.WEBGL,
     width: 1600,
     height: 1024,
-    backgroundColor: 0xAAAAAA,
+    backgroundColor: 0x000000,
     physics: {
         default: "arcade",
         arcade: {
@@ -15,7 +15,7 @@ let globalGameConfig = {
         }
     },
     scale: {mode: Phaser.Scale.FIT},
-    scene: [Menu, Credits, Settings, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
+    scene: [Menu, Play, DemoMenu, Credits, Settings, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
 }
 
 let globalGame = new Phaser.Game(globalGameConfig);

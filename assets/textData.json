@@ -5,7 +5,7 @@
         "SwitchScene":{
             "shouldSwitch": true,
             "shouldStopScenes" : true,
-            "sceneToSwitchTo": "menuScene",
+            "sceneToSwitchTo": "demoMenuScene",
             "scenesToStop": ["tutorialScene"]
 
         }

@@ -172,7 +172,7 @@ class BulletsDemo extends Phaser.Scene {
         this.healthTextbox = this.add.text(globalGame.config.width/2, 64, this.healthText, debugTextConfig).setOrigin(0.5);
         //this.controlsTextObj = this.add.text(this.playerChar.x, this.playerChar.y - 64, "Controls: WASD to move, SPACE to pick up/place down", debugTextConfig).setOrigin(0.5);
         this.add.text(globalGame.config.width - 32, globalGame.config.height - 64, "Press 0 (non-numpad) to go back to Menu", debugTextConfig).setOrigin(1, 0);
-        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("menuScene");});
+        this.input.keyboard.on("keydown-ZERO", () => {this.scene.start("demoMenuScene");});
     }
 
     update() {

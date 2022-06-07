@@ -28,7 +28,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         // Note that all pieces and holes in Tiled need to also have a "sequenceName" and a "numInSequence" property set in their tileset.
         this.TILEMAP_DATA_NAMES = {
             // This is the name of the tileset that holds the tiles to use for puzzles
-            tilesetName: "bulletHellTileSet",
+            tilesetName: "gameAtlasTileset",
             // This is the key of the image that the tileset uses.
             // The image must already be in the Phaser cache for puzzle generation from a tilemap to work properly.
             tilesetImageKey: "gameAtlas",
@@ -59,14 +59,12 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                     return;
                 }
 
-                
-
                 this.#pickUpPuzzlePiece(closestPuzPiece);
             }
             else {
                 // Create ghost piece
                 const tempGhostPiecePos = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
-                this.ghostPuzzlePiece = this.parentScene.add.sprite(tempGhostPiecePos.x, tempGhostPiecePos.y, this.currHeldPuzPiece.texture).setOrigin(0); // Might need to get the frame of the currently held piece as well
+                this.ghostPuzzlePiece = this.parentScene.add.sprite(tempGhostPiecePos.x, tempGhostPiecePos.y, this.currHeldPuzPiece.texture, this.currHeldPuzPiece.frame.name).setOrigin(0); // Pass in the frame name here, NOT the frame itself
                 this.ghostPuzzlePiece.setAlpha(0.5);
                 this.ghostPuzzlePieceUpdateTimer = this.parentScene.time.addEvent({
                     delay: 1000/60,
@@ -284,7 +282,8 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
 
                 // Get the frame object that corresponds to this TiledObject
                 let correspondingFrame = Object.values(tilesetFrames).find((f) => {
-                    return f.cutX == textureUVCoords.x && f.cutY == textureUVCoords.y;
+                    return f.cutX == textureUVCoords.x && f.cutY == textureUVCoords.y
+                    && f.cutWidth == tiledObj.width && f.cutHeight == tiledObj.height;
                 });
 
                 // Set the correct texture on this object
@@ -301,6 +300,9 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                 let seqName = Phaser.Utils.Objects.GetValue(propsObj, "sequenceName", undefined);
                 targetObj.sequenceName = seqName;
                 targetObj.numInSequence = Phaser.Utils.Objects.GetValue(propsObj, "numInSequence", undefined);
+
+                // Play the correct animation
+                targetObj.play(targetObj.ANIMS_KEYS_ARRAY[targetObj.numInSequence-1]);
 
                 // If a sequence with the object's sequence name doesn't yet exist, create it
                 if (!Phaser.Utils.Objects.HasValue(this.sequences, seqName)) {
