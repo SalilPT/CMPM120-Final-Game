@@ -4,6 +4,9 @@ class GameStartLoading extends Phaser.Scene {
     }
 
     preload() {
+        // Load almost-complete game atlas
+        this.load.atlas("gameAtlas", "./assets/gameAtlas.png", "./assets/gameAtlas.json");
+        
         // Load player character images and spritesheets
         this.load.spritesheet("jebBottomIdle", "./assets/Jeb Bottom Idle Spritesheet.png", {frameWidth: 64});
         this.load.spritesheet("jebBottomMoving", "./assets/Jeb Bottom Moving Spritesheet.png", {frameWidth: 64});
@@ -21,13 +24,16 @@ class GameStartLoading extends Phaser.Scene {
         this.load.image("hole4Sprite", "./assets/Circuit Boards Slot 4.png");
         this.load.image("hole5Sprite", "./assets/Circuit Boards Slot 5.png");
         this.load.image("hole6Sprite", "./assets/Circuit Boards Slot 6.png");
+        this.load.image("hole7Sprite", "./assets/Circuit Boards Slot 7.png");
+        this.load.image("hole8Sprite", "./assets/Circuit Boards Slot 8.png");
+        this.load.image("hole9Sprite", "./assets/Circuit Boards Slot 9.png");
 
         // Testing tilemap
-        this.load.tilemapTiledJSON("testTilemap2", "./assets/Template Level Example 2.json");
-        this.load.atlas("gameAtlas", "./assets/gameAtlas.png", "./assets/gameAtlas.json");
-
         this.load.tilemapTiledJSON("testTilemap3", "./assets/Template Level Example 3.json");
         this.load.atlas("gameTilesetAtlas", "./assets/gameTilesetAtlas.png", "./assets/gameTilesetAtlas.json");
+
+        // Load the rest of the levels
+        this.load.tilemapTiledJSON("easy1", "./assets/levels/easy1.json");
 
         // Load bullets
         this.load.image("orangeBullet", "./assets/orangeBullet.png");

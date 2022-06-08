@@ -12,10 +12,10 @@ class Play extends Phaser.Scene {
     }
 
     create() {
- 
+        const POSSIBLE_LEVELS = ["testTilemap3", "easy1"];
 
         // Tilemap
-        let testTilemap2 = this.add.tilemap("testTilemap3");
+        let testTilemap2 = this.add.tilemap(Phaser.Math.RND.pick(POSSIBLE_LEVELS));
         const testTilemap2Tileset = testTilemap2.addTilesetImage("gameTileset", "gameTilesetAtlas");
         const floorLayer = testTilemap2.createLayer("floor", testTilemap2Tileset, 0, 0).setDepth(-100);
         const wallLayer = testTilemap2.createLayer("walls", testTilemap2Tileset, 0, 0).setDepth(-99);
@@ -141,7 +141,8 @@ class Play extends Phaser.Scene {
             callback: () => {
                 if (this.puzMgr.puzzleCompleted() && this.enemyMgr.getEnemiesGroup().getLength() == 0 && this.bltMgr.getEnemyBulletsGroup().getLength() == 0) {
                     this.time.removeEvent(gameEndCheck);
-                    this.add.text(globalGame.config.width/2, globalGame.config.height/2, "Level Complete", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
+                    let cameraRect = this.cameras.main.worldView;
+                    let completeText = this.add.text(cameraRect.x + cameraRect.width/2, cameraRect.y + cameraRect.height/2, "Level Complete", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
                     
                     this.time.delayedCall(2000, () => {
                         this.transitionToNextLevel();
