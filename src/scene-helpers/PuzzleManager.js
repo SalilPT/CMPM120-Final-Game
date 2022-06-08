@@ -28,10 +28,10 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         // Note that all pieces and holes in Tiled need to also have a "sequenceName" and a "numInSequence" property set in their tileset.
         this.TILEMAP_DATA_NAMES = {
             // This is the name of the tileset that holds the tiles to use for puzzles
-            tilesetName: "gameAtlasTileset",
+            tilesetName: "gameTileset",
             // This is the key of the image that the tileset uses.
             // The image must already be in the Phaser cache for puzzle generation from a tilemap to work properly.
-            tilesetImageKey: "gameAtlas",
+            tilesetImageKey: "gameTilesetAtlas",
             // This is the name of the object layer (in Tiled) with the pieces and holes that will be used
             objectLayerName: "puzzleLayer",
             // In Tiled, the tiles for pieces or holes have a custom property with the following name.
@@ -275,6 +275,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
 
                 targetObj.setVisible(tiledObj.visible);
                 // Apply the correct texture to this object using its tileset image
+                /*
                 let textureUVCoords = tileset.getTileTextureCoordinates(tiledObj.gid);
 
                 // Get an object with all the frames of the tileset
@@ -291,6 +292,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                 targetObj.setFrame(correspondingFrame.name, true, false); // Update the size but not the origin
                 targetObj.setDisplaySize(correspondingFrame.width, correspondingFrame.height);
                 // Note: origin convention for puzzle pieces and holes is (0, 0)
+                */
                 targetObj.setOrigin(0);
                 // Change the x and y positions to account for the change in origin
                 targetObj.x -= targetObj.width/2;

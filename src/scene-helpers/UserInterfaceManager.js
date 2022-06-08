@@ -30,6 +30,8 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         this.healthText;
         this.healthBoxRenderTexture;
         this.healthIconFrame;
+
+        this.volumeText;
     }
 
     /*
@@ -42,6 +44,7 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         // Make the health text (with padding)
         let padAmount = 4;
         this.healthText = this.parentScene.add.text(x + padAmount, y + padAmount, "HEALTH ", this.HEALTH_TEXT_CONFIG);
+        this.healthText.setScrollFactor(0);
         // Get the first frame of the health icon's texture
         this.healthIconFrame = this.parentScene.textures.get(this.HEALTH_ICON_TEXTURE_KEY).get(0);
         const targetPt = this.healthText.getRightCenter();
@@ -98,7 +101,17 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         return newButton;
     }
 
-    createVolumeSlider() {
+    createVolumeSetter() {
+        // The distance from the right side of the volume text to the left sides of the volume arrows
+        const textToArrowPadding = 4;
+        // The distance from the bottom of the up arrow to the top of the number representing the current global volume value
+        const arrowToValuePadding = 8;
+        // The initial angle of the arrow graphic
+        const initArrowAngle = -90;
+
+        this.volumeText = this.parentScene.add.text(x, y, "Volume", this.MENU_TEXT_CONFIG);
+        let volIncreaseArrow = this.parentScene.add.sprite()
+        // TODO: FINISH THIS
         // The global volume value will be in this.parentScene.volume
     }
 
