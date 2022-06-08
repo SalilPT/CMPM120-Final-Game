@@ -3,8 +3,9 @@ class Play extends Phaser.Scene {
         super("playScene");
     }
 
-    init() {
-        
+    init(data) {
+        this.levelsLeft = data.levelsLeft;
+        this.completedLevels = data.completedLevels;
     }
 
     preload() {
@@ -12,10 +13,16 @@ class Play extends Phaser.Scene {
     }
 
     create() {
-        const POSSIBLE_LEVELS = ["testTilemap3", "easy1"];
+        let POSSIBLE_LEVELS = ["testTilemap3", "easy1"].filter((level) => {return !this.completedLevels.includes(level)});
+        if (POSSIBLE_LEVELS == []) {
+            console.log("No possible levels");
+            this.scene.start("menuScene");
+            return;
+        }
 
         // Tilemap
-        let testTilemap2 = this.add.tilemap(Phaser.Math.RND.pick(POSSIBLE_LEVELS));
+        this.levelThatWasPicked = Phaser.Math.RND.pick(POSSIBLE_LEVELS);
+        let testTilemap2 = this.add.tilemap(this.levelThatWasPicked);
         const testTilemap2Tileset = testTilemap2.addTilesetImage("gameTileset", "gameTilesetAtlas");
         const floorLayer = testTilemap2.createLayer("floor", testTilemap2Tileset, 0, 0).setDepth(-100);
         const wallLayer = testTilemap2.createLayer("walls", testTilemap2Tileset, 0, 0).setDepth(-99);
@@ -72,7 +79,10 @@ class Play extends Phaser.Scene {
             player.takeDamage();
             if (player.health == 0) {
                 this.sound.removeByKey("backgroundMusic");
-                this.scene.restart();
+                this.scene.restart({
+                    levelsLeft: this.levelsLeft,
+                    completedLevels: this.completedLevels
+                });
             }
 
             this.userInterfaceMgr.setHealthBoxValue(player.health);
@@ -142,8 +152,13 @@ class Play extends Phaser.Scene {
                 if (this.puzMgr.puzzleCompleted() && this.enemyMgr.getEnemiesGroup().getLength() == 0 && this.bltMgr.getEnemyBulletsGroup().getLength() == 0) {
                     this.time.removeEvent(gameEndCheck);
                     let cameraRect = this.cameras.main.worldView;
-                    let completeText = this.add.text(cameraRect.x + cameraRect.width/2, cameraRect.y + cameraRect.height/2, "Level Complete", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
-                    
+                    // TODO: fix text positioning
+                    if (this.levelsLeft >= 1) {
+                        this.add.text(cameraRect.x + this.cameras.main.width/2, cameraRect.y + this.cameras.main.height/2, "Level Complete", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
+                    }
+                    else {
+                        this.add.text(cameraRect.x + this.cameras.main.width/2, cameraRect.y + this.cameras.main.height/2, "MISSION COMPLETED", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
+                    }
                     this.time.delayedCall(2000, () => {
                         this.transitionToNextLevel();
                     });
@@ -188,8 +203,15 @@ class Play extends Phaser.Scene {
     }
 
     transitionToNextLevel() {
-        this.scene.start("menuScene");
         this.sound.removeByKey("backgroundMusic");
+        if (this.levelsLeft == 0) {
+            this.scene.start("menuScene");
+            return;
+        }
+        this.scene.restart({
+            levelsLeft: this.levelsLeft - 1,
+            completedLevels: this.completedLevels.concat([this.levelThatWasPicked])
+        });
     }
 
 }

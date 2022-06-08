@@ -64,11 +64,11 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         
     }
 
-    createMenuButton(x, y, width, height, text, targetSceneKey, rectFillColor = 0x00BFB2) {
+    createMenuButton(x, y, width, height, text, targetSceneKey, rectFillColor = 0x00BFB2, data = null) {
 
         let newButton = this.parentScene.add.rectangle(x, y, width, height, rectFillColor)
             .setInteractive({useHandCursor: true})
-            .on("pointerdown", () => this.parentScene.scene.start(targetSceneKey));
+            .on("pointerdown", () => this.parentScene.scene.start(targetSceneKey, data));
 
         
         // Tween button on hover
