@@ -15,7 +15,6 @@ class Menu extends Phaser.Scene {
         this.userInterfaceMgr.createMenuButton(halfGameWidth, halfGameHeight + 1*128, 256, 96, "Tutorial", "tutorialScene");
         this.userInterfaceMgr.createMenuButton(halfGameWidth - 160, halfGameHeight + 2*128, 256, 96, "Settings", "settingsScene");
         this.userInterfaceMgr.createMenuButton(halfGameWidth + 160, halfGameHeight + 2*128, 256, 96, "Credits", "creditsScene");
-        this.userInterfaceMgr.createMenuButton(halfGameWidth, halfGameHeight + 3*128, 320, 96, "Demo Menu", "demoMenuScene");
 
         // Title Text
         this.add.text(halfGameWidth, halfGameHeight - 320, "Jeb's Puzzling Mission", 
