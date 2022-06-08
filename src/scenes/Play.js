@@ -12,26 +12,31 @@ class Play extends Phaser.Scene {
     }
 
     create() {
+ 
+
+        // Tilemap
+        let testTilemap2 = this.add.tilemap("testTilemap3");
+        const testTilemap2Tileset = testTilemap2.addTilesetImage("gameTileset", "gameTilesetAtlas");
+        const floorLayer = testTilemap2.createLayer("floor", testTilemap2Tileset, 0, 0).setDepth(-100);
+        const wallLayer = testTilemap2.createLayer("walls", testTilemap2Tileset, 0, 0).setDepth(-99);
+        wallLayer.setCollisionByProperty({
+            collides: true
+        });
+
         // Player character
+        let plrSpawnPt = this.getPlayerCharacterCoordsFromObjectLayer(testTilemap2, "spawnerLayer", "gameTileset");
         this.playerChar = new PlayerCharacter({
-            scene: this,
-            x: globalGame.config.width/2,
-            y: globalGame.config.height/2,
-            texture: "gameAtlas",
-            frame: "JebBottomIdle1.png"
+        scene: this,
+        //x: globalGame.config.width/2,
+        //y: globalGame.config.height/2,
+        x: plrSpawnPt.x,
+        y: plrSpawnPt.y,
+        texture: "gameAtlas",
+        frame: "JebBottomIdle1.png"
         });
         this.playerChar.body.setCircle(this.playerChar.width/2);
         this.plrMovManager = this.playerChar.getMovManager();
         this.plrMovManager.setMovSpd(400);
-
-        // Tilemap
-        let testTilemap2 = this.add.tilemap("testTilemap2");
-        const testTilemap2Tileset = testTilemap2.addTilesetImage("gameAtlasTileset", "gameAtlas");
-        const floorLayer = testTilemap2.createLayer("Floor", testTilemap2Tileset, 0, 0).setDepth(-100);
-        const wallLayer = testTilemap2.createLayer("Walls", testTilemap2Tileset, 0, 0).setDepth(-99);
-        wallLayer.setCollisionByProperty({
-            collides: true
-        });
         this.physics.add.collider(this.playerChar, wallLayer);
 
         // Puzzles
@@ -61,6 +66,7 @@ class Play extends Phaser.Scene {
         this.bltMgr = new BulletManager(this);
 
         this.physics.add.collider(this.playerChar, this.bltMgr.getEnemyBulletsGroup(), (player, bullet) => {
+            bullet.setVelocity(0);
             this.bltMgr.getEnemyBulletsGroup().remove(bullet);
 
             player.takeDamage();
@@ -138,8 +144,7 @@ class Play extends Phaser.Scene {
                     this.add.text(globalGame.config.width/2, globalGame.config.height/2, "Level Complete", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
                     
                     this.time.delayedCall(2000, () => {
-                        this.scene.start("menuScene");
-                        this.sound.removeByKey("backgroundMusic");
+                        this.transitionToNextLevel();
                     });
                 }
             },
@@ -153,12 +158,37 @@ class Play extends Phaser.Scene {
         // Audio
         this.sound.pauseOnBlur = false; // Prevents stacked audio when clicking back in game window
         this.backgroundMusic = this.sound.add("backgroundMusic").play({loop: true});
+
+        // Camera
+        this.cameras.main.startFollow(this.playerChar, false, 0.75, 0.75)
+        .setBounds(0, 0, testTilemap2.widthInPixels, testTilemap2.heightInPixels);
     }
 
     update() {
+        // Update pointer position
+        this.input.activePointer.updateWorldPoint(this.cameras.main);
+        
         let movVector = this.plrMovManager.getMovementVector();
         this.playerChar.body.setVelocity(movVector.x, movVector.y);
         this.playerChar.updateGraphics();
+        
+    }
+
+    // Return the x and y of the player spawner as defined in Tiled
+    getPlayerCharacterCoordsFromObjectLayer(tilemap, layerName, tilesetName) {
+        let objLayer = tilemap.getObjectLayer(layerName);
+        let tileset = tilemap.getTileset(tilesetName);
+        for (const tiledObj of objLayer.objects) {
+            let propsObj = tileset.getTileProperties(tiledObj.gid);
+            if (propsObj["spawnerType"] == "player") {
+                return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y + tiledObj.height/2);
+            }
+        }
+    }
+
+    transitionToNextLevel() {
+        this.scene.start("menuScene");
+        this.sound.removeByKey("backgroundMusic");
     }
 
 }

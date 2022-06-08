@@ -4,7 +4,7 @@ class GameStartLoading extends Phaser.Scene {
     }
 
     preload() {
-        // Preload player character images and spritesheets
+        // Load player character images and spritesheets
         this.load.spritesheet("jebBottomIdle", "./assets/Jeb Bottom Idle Spritesheet.png", {frameWidth: 64});
         this.load.spritesheet("jebBottomMoving", "./assets/Jeb Bottom Moving Spritesheet.png", {frameWidth: 64});
         this.load.image("jebRingOff", "./assets/Jeb Ring Off.png");
@@ -26,13 +26,19 @@ class GameStartLoading extends Phaser.Scene {
         this.load.tilemapTiledJSON("testTilemap2", "./assets/Template Level Example 2.json");
         this.load.atlas("gameAtlas", "./assets/gameAtlas.png", "./assets/gameAtlas.json");
 
-        // Preload bullets
+        this.load.tilemapTiledJSON("testTilemap3", "./assets/Template Level Example 3.json");
+        this.load.atlas("gameTilesetAtlas", "./assets/gameTilesetAtlas.png", "./assets/gameTilesetAtlas.json");
+
+        // Load bullets
         this.load.image("orangeBullet", "./assets/orangeBullet.png");
         this.load.image("purpleBullet", "./assets/purpleBullet.png");
         this.load.image("yellowBullet", "./assets/yellowBullet.png");
 
-        // Preload health icon
+        // Load health icon
         this.load.image("lifeSymbol", "./assets/Life Symbol.png");
+
+        // Load miscellaneous assets
+        this.load.image("pointing arrow", "./assets/pointing arrow.png");
 
         // Load All Audio
         this.load.audio("backgroundMusic", "./assets/audio/finalGameMusic.mp3");

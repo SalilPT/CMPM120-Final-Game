@@ -19,14 +19,14 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         */
         //this.setTexture("gameAtlas", "Enemy1IdleFrame1.png")
         
-        this.health = params.health ?? 3;
+        this.health = params.health ?? 5;
 
         // The initial angle of this object's graphics
         this.initAngle = -90;
 
         this.scene.anims.create({
             key: "enemyAnim",
-            frameRate: 8,
+            frameRate: 15,
             frames: this.scene.anims.generateFrameNames("gameAtlas", {
                 prefix: "Enemy1IdleFrame",
                 suffix: ".png",
@@ -38,7 +38,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         this.scene.anims.create({
             key: "enemyDeathAnim",
-            frameRate: 8,
+            frameRate: 15,
             frames: this.scene.anims.generateFrameNames("gameAtlas", {
                 prefix: "Enemy1deathFrame",
                 suffix: ".png",
@@ -66,6 +66,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         params.scene.physics.add.existing(this);
 
         this.body.setCircle(this.width/2);
+
+        this.takingDamageEffectTimer;
     }
 
     /*
@@ -114,9 +116,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         // Visual effect
         this.setTintFill(0xFFFFFF);
-        this.scene.time.delayedCall(50, () => {
-            if (this != undefined) {
+        // Prevent multiple timers for damage effect
+        // Don't actually need to check whether the event is null or not
+        this.scene.time.removeEvent(this.takingDamageEffectTimer);
+        this.takingDamageEffectTimer = this.scene.time.delayedCall(50, () => {
+            if (this != undefined && !this.takingDamageEffectOn) {
                 this.clearTint();
+                this.takingDamageEffectTimer = null;
             }
         });
 

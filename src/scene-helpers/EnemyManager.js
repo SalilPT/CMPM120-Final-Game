@@ -10,10 +10,10 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
         */
         this.TILEMAP_DATA_NAMES = {
             // This is the name of the tileset that holds the tiles to use for enemy spawners
-            tilesetName: "gameAtlasTileset",
+            tilesetName: "gameTileset",
             // This is the key of the image that the tileset uses.
             // The image must already be in the Phaser cache for enemy spawner generation from a tilemap to work properly.
-            tilesetImageKey: "gameAtlas",
+            tilesetImageKey: "gameTilesetAtlas",
             // This is the name of the object layer (in Tiled) with the enemy spawners that will be used
             objectLayerName: "spawnerLayer",
             // The key of the custom property in Tiled that's used to get a spawner object's type (either "enemy" or "player")
@@ -22,7 +22,9 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
             // Going unused for now since there's only one enemy type
             keyOfEnemyTypes: "enemyTypes",
             // The key of the custom property in Tiled that's used to get a spawner's enemy spawning direction. 
-            keyOfSpawnDirection: "spawnDirection"
+            keyOfSpawnDirection: "spawnDirection",
+            // The name of the tilemap layers to use for enemy spawners' dummy tile collision
+            collisionLayerToUse: "walls"
         }
 
         this.DIRECTIONS_TO_VECTORS = {
@@ -42,10 +44,11 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
         */
         // Group of enemy spawners
         this.enemySpawners = this.parentScene.add.group({});
+        this.parentScene.physics.add.collider(this.playerChar, this.enemySpawners, () => {});
 
         // Group holding all enemies
         this.allEnemies = this.parentScene.add.group({});
-        this.parentScene.physics.add.collider(this.playerChar, this.allEnemies, () => {});
+        //this.parentScene.physics.add.collider(this.playerChar, this.allEnemies, () => {});
 
     }
 
@@ -77,6 +80,19 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
                 let angleToOffsetBy = spawnDirectionAngles[spawnDirection];
                 targetObj.setAngle(-this.INIT_SPAWNER_ANGLE + angleToOffsetBy);
                 targetObj.spawnDirection = spawnDirection;
+
+                // Make a dummy tile to act as collision for the new enemy spawner
+                // The tile NEEDS to be on a preexisting tilemap layer with collision or else going diagonally up-left or down-left against it while between it and a preexisting colliding tile will stop the player character
+                // Yes, this quirk of collision detection is stupid and extremely headache-inducing.
+                let collisionDummyTile = tilemap.putTileAtWorldXY(tiledObj.gid, Math.round(targetObj.x), Math.round(targetObj.y), true, this.parentScene.cameras.main, this.TILEMAP_DATA_NAMES.collisionLayerToUse);
+                // Make the tile invisible and have collision on all 4 of its sides
+                collisionDummyTile.alpha = 0;
+                collisionDummyTile.collideUp = true;
+                collisionDummyTile.collideRight = true;
+                collisionDummyTile.collideDown = true;
+                collisionDummyTile.collideLeft = true;
+                
+                tilemap.setCollision(tiledObj.gid, true, true, this.TILEMAP_DATA_NAMES.collisionLayerToUse);
             }
             // Ignore anything on the object layer that isn't an enemy spawner
             if (propsObj[this.TILEMAP_DATA_NAMES.keyOfSpawnerType] != "enemy") {
