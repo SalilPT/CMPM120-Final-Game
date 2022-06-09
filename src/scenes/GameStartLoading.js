@@ -45,6 +45,7 @@ class GameStartLoading extends Phaser.Scene {
 
         // Load miscellaneous assets
         this.load.image("pointing arrow", "./assets/pointing arrow.png");
+        this.load.image('tealButton', './assets/tealButton.png')
 
         // Load All Audio
         this.load.audio("backgroundMusic", "./assets/audio/finalGameMusic.mp3");
