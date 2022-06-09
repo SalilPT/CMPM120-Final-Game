@@ -32,8 +32,19 @@ class GameStartLoading extends Phaser.Scene {
         this.load.tilemapTiledJSON("testTilemap3", "./assets/Template Level Example 3.json");
         this.load.atlas("gameTilesetAtlas", "./assets/gameTilesetAtlas.png", "./assets/gameTilesetAtlas.json");
 
+        /*
+
+
+        */
         // Load the rest of the levels
-        this.load.tilemapTiledJSON("easy1", "./assets/levels/easy1.json");
+        this.load.tilemapTiledJSON("easy1", "./assets/levels/easy/easy1.json");
+        this.load.tilemapTiledJSON("easy2", "./assets/levels/easy/easy2.json");
+        this.load.tilemapTiledJSON("medium1", "./assets/levels/medium/medium1.json");
+        this.load.tilemapTiledJSON("hard1", "./assets/levels/hard/hard1.json");
+        /*
+
+
+        */
 
         // Load bullets
         this.load.image("orangeBullet", "./assets/orangeBullet.png");
