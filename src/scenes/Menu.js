@@ -10,11 +10,13 @@ class Menu extends Phaser.Scene {
         this.userInterfaceMgr = new UserInterfaceManager(this, {});
         const halfGameWidth = globalGameConfig.width/2;
         const halfGameHeight = globalGameConfig.height/2
+        this.menuBeat = this.sound.add("menuBeat").play({loop: true});
+        this.sound.pauseOnBlur = false;
         this.userInterfaceMgr.createNewMenuButton(halfGameWidth, halfGameHeight, 1, "Play", "playScene", {
             levelsLeft: 1,
             completedLevels: []
-        });
-
+        })
+        .once("pointerdown", () => this.sound.removeByKey("menuBeat"));
         this.userInterfaceMgr.createNewMenuButton(halfGameWidth, halfGameHeight + 1*160, 1, "Tutorial", "tutorialScene");
         this.userInterfaceMgr.createNewMenuButton(halfGameWidth - 160, halfGameHeight + 2*160, 1, "Settings", "settingsScene");
         this.userInterfaceMgr.createNewMenuButton(halfGameWidth + 160, halfGameHeight + 2*160, 1, "Credits", "creditsScene");
