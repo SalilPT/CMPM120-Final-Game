@@ -25,7 +25,7 @@
         }
     },
     "SpaceToInteract":{
-        "message":"Press SPACE to pick up/drop\npuzzle pieces",
+        "message":"Press SPACE to pick up/drop\npuzzle pieces, order matters!",
         "keyboardInput": "SPACE",
         "SwitchScene":{
             "shouldSwitch": false
