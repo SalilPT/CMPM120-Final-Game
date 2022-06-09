@@ -12,7 +12,7 @@ class Menu extends Phaser.Scene {
         const halfGameWidth = globalGameConfig.width/2;
         const halfGameHeight = globalGameConfig.height/2
         this.userInterfaceMgr.createMenuButton(halfGameWidth, halfGameHeight, 288, 108, "Play", "playScene", undefined, {
-            levelsLeft: 1,
+            levelsLeft: 2, // 1 more than total levels
             completedLevels: []
         });
         this.userInterfaceMgr.createMenuButton(halfGameWidth, halfGameHeight + 1*128, 256, 96, "Tutorial", "tutorialScene");

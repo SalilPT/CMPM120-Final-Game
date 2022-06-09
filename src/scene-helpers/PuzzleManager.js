@@ -387,6 +387,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
     #pickUpPuzzlePiece(puzPiece) {
         puzPiece.setVisible(false);
         this.currHeldPuzPiece = puzPiece;
+        this.parentScene.sound.play("collectSFX");
         // TODO: maybe want to emit event that piece was picked up to alert the UI and sound managers
     }
 

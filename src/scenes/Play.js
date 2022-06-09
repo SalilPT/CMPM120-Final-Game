@@ -4,6 +4,9 @@ class Play extends Phaser.Scene {
     }
 
     init(data) {
+        if (data.fromRestart) {
+            this.possibleLevels = data.restartLevelName;
+        }
         this.levelsLeft = data.levelsLeft;
         this.completedLevels = data.completedLevels;
     }
@@ -13,15 +16,16 @@ class Play extends Phaser.Scene {
     }
 
     create() {
-        let POSSIBLE_LEVELS = ["testTilemap3", "easy1"].filter((level) => {return !this.completedLevels.includes(level)});
-        if (POSSIBLE_LEVELS == []) {
+        this.possibleLevels = this.possibleLevels ?? ["testTilemap3", "easy1", "easy2"].filter((level) => {return !this.completedLevels.includes(level)});
+        //let possibleLevels = ["medium1"].filter((level) => {return !this.completedLevels.includes(level)});
+        if (this.possibleLevels == []) {
             console.log("No possible levels");
             this.scene.start("menuScene");
             return;
         }
 
         // Tilemap
-        this.levelThatWasPicked = Phaser.Math.RND.pick(POSSIBLE_LEVELS);
+        this.levelThatWasPicked = Phaser.Math.RND.pick(this.possibleLevels);
         let testTilemap2 = this.add.tilemap(this.levelThatWasPicked);
         const testTilemap2Tileset = testTilemap2.addTilesetImage("gameTileset", "gameTilesetAtlas");
         const floorLayer = testTilemap2.createLayer("floor", testTilemap2Tileset, 0, 0).setDepth(-100);
@@ -81,7 +85,8 @@ class Play extends Phaser.Scene {
                 this.sound.removeByKey("backgroundMusic");
                 this.scene.restart({
                     levelsLeft: this.levelsLeft,
-                    completedLevels: this.completedLevels
+                    completedLevels: this.completedLevels,
+                    restartLevelName: this.levelThatWasPicked
                 });
             }
 
@@ -151,13 +156,12 @@ class Play extends Phaser.Scene {
             callback: () => {
                 if (this.puzMgr.puzzleCompleted() && this.enemyMgr.getEnemiesGroup().getLength() == 0 && this.bltMgr.getEnemyBulletsGroup().getLength() == 0) {
                     this.time.removeEvent(gameEndCheck);
-                    let cameraRect = this.cameras.main.worldView;
-                    // TODO: fix text positioning
+                    // Put text at center of screen
                     if (this.levelsLeft >= 1) {
-                        this.add.text(cameraRect.x + this.cameras.main.width/2, cameraRect.y + this.cameras.main.height/2, "Level Complete", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
+                        this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, `Level Complete\n${this.levelsLeft} Remain` + (this.levelsLeft == 1 ? "s ": ""), {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
                     }
                     else {
-                        this.add.text(cameraRect.x + this.cameras.main.width/2, cameraRect.y + this.cameras.main.height/2, "MISSION COMPLETED", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
+                        this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, "MISSION COMPLETED", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
                     }
                     this.time.delayedCall(2000, () => {
                         this.transitionToNextLevel();
