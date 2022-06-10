@@ -37,10 +37,34 @@ class GameStartLoading extends Phaser.Scene {
 
         */
         // Load the rest of the levels
-        this.load.tilemapTiledJSON("easy1", "./assets/levels/easy/easy1.json");
-        this.load.tilemapTiledJSON("easy2", "./assets/levels/easy/easy2.json");
-        this.load.tilemapTiledJSON("medium1", "./assets/levels/medium/medium1.json");
-        this.load.tilemapTiledJSON("hard1", "./assets/levels/hard/hard1.json");
+        this.registry.set("levels", {
+            easy: [],
+            medium: [],
+            hard: []
+        });
+        
+        const NUM_EASY_LEVELS = 3;
+        const NUM_MEDIUM_LEVELS = 1;
+        const NUM_HARD_LEVELS = 1;
+
+        // Note: A simple try {...} catch {...} doesn't catch HTTP 404 responses.
+        // Load easy levels
+        for (let i = 1; i <= NUM_EASY_LEVELS; i++) {
+            this.load.tilemapTiledJSON(`easy${i}`, `./assets/levels/easy/easy${i}.json`);
+            this.registry.values.levels.easy.push(`easy${i}`);
+        }
+        
+        // Load medium levels
+        for (let i = 1; i <= NUM_MEDIUM_LEVELS; i++) {
+            this.load.tilemapTiledJSON(`medium${i}`, `./assets/levels/medium/medium${i}.json`);
+            this.registry.values.levels.medium.push(`medium${i}`);
+        }
+
+        // Load hard levels
+        for (let i = 1; i <= NUM_HARD_LEVELS; i++) {
+            this.load.tilemapTiledJSON(`hard${i}`, `./assets/levels/hard/hard${i}.json`);
+            this.registry.values.levels.hard.push(`hard${i}`);
+        }
         /*
 
 

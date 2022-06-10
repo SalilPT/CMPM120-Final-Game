@@ -4,11 +4,39 @@ class Play extends Phaser.Scene {
     }
 
     init(data) {
+        // Constants for game balancing
+        const NUM_EASY_LEVELS_REQUIRED = 3;
+        const NUM_MEDIUM_LEVELS_REQUIRED = 1;
+        const NUM_HARD_LEVELS_REQUIRED = 1;
+        const TOTAL_LEVELS = NUM_EASY_LEVELS_REQUIRED + NUM_HARD_LEVELS_REQUIRED + NUM_HARD_LEVELS_REQUIRED;
+
+        // Update the number of levels left
+        this.levelsLeft = (data.levelsLeft ?? TOTAL_LEVELS) - 1;
+        // If this level was restarted because the player character reached 0 health, play the same level again
         if (data.fromRestart) {
-            this.possibleLevels = data.restartLevelName;
+            this.possibleLevels = [data.restartLevelName];
+            this.levelsLeft = data.levelsLeft;
+            return;
         }
-        this.levelsLeft = data.levelsLeft;
-        this.completedLevels = data.completedLevels;
+
+        // Figure out what difficulty this map should be
+        this.completedLevels = data.completedLevels ?? [];
+        let numCompletedLevels = this.completedLevels.length;
+        let difficulty;
+        if (numCompletedLevels < NUM_EASY_LEVELS_REQUIRED) {
+            difficulty = "easy";
+        }
+        else if (numCompletedLevels < NUM_EASY_LEVELS_REQUIRED + NUM_MEDIUM_LEVELS_REQUIRED) {
+            difficulty = "medium";
+        }
+        else {
+            difficulty = "hard";
+        }
+
+        // Based on the difficulty, get the appropriate level data keys
+        this.possibleLevels = this.registry.values.levels[difficulty];
+        
+        this.possibleLevels = this.possibleLevels.filter((level) => {return !this.completedLevels.includes(level);}); 
     }
 
     preload() {
@@ -16,9 +44,8 @@ class Play extends Phaser.Scene {
     }
 
     create() {
-        this.possibleLevels = this.possibleLevels ?? ["testTilemap3", "easy1", "easy2"].filter((level) => {return !this.completedLevels.includes(level)});
-        //let possibleLevels = ["medium1"].filter((level) => {return !this.completedLevels.includes(level)});
-        if (this.possibleLevels == []) {
+        //this.possibleLevels = ["hard1"].filter((level) => {return !this.completedLevels.includes(level)});
+        if (this.possibleLevels.length == 0) {
             console.log("No possible levels");
             this.scene.start("menuScene");
             return;
@@ -84,6 +111,7 @@ class Play extends Phaser.Scene {
             if (player.health == 0) {
                 this.sound.removeByKey("backgroundMusic");
                 this.scene.restart({
+                    fromRestart: true,
                     levelsLeft: this.levelsLeft,
                     completedLevels: this.completedLevels,
                     restartLevelName: this.levelThatWasPicked
@@ -158,7 +186,7 @@ class Play extends Phaser.Scene {
                     this.time.removeEvent(gameEndCheck);
                     // Put text at center of screen
                     if (this.levelsLeft >= 1) {
-                        this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, `Level Complete\n${this.levelsLeft} Remain` + (this.levelsLeft == 1 ? "s ": ""), {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
+                        this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, `Room Cleared\n${this.levelsLeft} Remain` + (this.levelsLeft == 1 ? "s ": ""), {align: "center", color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
                     }
                     else {
                         this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, "MISSION COMPLETED", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
@@ -213,7 +241,7 @@ class Play extends Phaser.Scene {
             return;
         }
         this.scene.restart({
-            levelsLeft: this.levelsLeft - 1,
+            levelsLeft: this.levelsLeft,
             completedLevels: this.completedLevels.concat([this.levelThatWasPicked])
         });
     }
