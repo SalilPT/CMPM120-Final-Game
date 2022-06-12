@@ -50,6 +50,18 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
         this.allEnemies = this.parentScene.add.group({});
         //this.parentScene.physics.add.collider(this.playerChar, this.allEnemies, () => {});
 
+        // Make animation for enemy spawners
+        this.parentScene.anims.create({
+            key: "enemySpawnerAnim",
+            frameRate: 8,
+            frames: this.parentScene.anims.generateFrameNames("gameAtlas", {
+                prefix: "metal door ",
+                suffix: ".png",
+                start: 1,
+                end: 6,
+            }),
+            yoyo: true
+        });
     }
 
     createEnemySpawnersFromTilemap(tilemap) {
@@ -114,19 +126,25 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
     }
 
     spawnEnemyAtSpawner(spawner) {
+        // Play spawner animation
+        spawner.play("enemySpawnerAnim");
+
+        let spawnerPos = new Phaser.Geom.Point(spawner.getCenter().x, spawner.getCenter().y);
+
         let newEnemy = new Enemy({
             scene: this.parentScene,
-            x: spawner.getCenter().x,
-            y: spawner.getCenter().y,
+            x: spawnerPos.x,
+            y: spawnerPos.y,
             texture: "gameAtlas",
             frame: "Enemy1IdleFrame1.png",
             playerChar: this.playerChar
         });
         this.allEnemies.add(newEnemy);
+
+        // Play spawning animation
         let vecCopy = new Phaser.Math.Vector2(0, 0).copy(this.DIRECTIONS_TO_VECTORS[spawner.spawnDirection]);
         let displacementVec = vecCopy.scale(this.GRID_SQUARE_LENGTH);
-        newEnemy.x += displacementVec.x;
-        newEnemy.y += displacementVec.y;
-        newEnemy.setImmovable(true);
+        newEnemy.setDepth(spawner.depth - 1);
+        newEnemy.playSpawningAnim(spawnerPos, displacementVec.add(spawnerPos));
     }
 }

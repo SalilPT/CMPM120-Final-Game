@@ -50,8 +50,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         this.play("enemyAnim");
 
-        
-
         this.movementTimer = this.scene.time.addEvent({
             delay: 0.75 *1000,
             callback: () => {
@@ -66,6 +64,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         params.scene.physics.add.existing(this);
 
         this.body.setCircle(this.width/2);
+
+        this.setImmovable(true);
 
         this.takingDamageEffectTimer;
     }
@@ -129,7 +129,22 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.scene.sound.play("enemyGetsHit")
     }
 
+    playSpawningAnim(startPos, endPos) {
+        // Don't check collision during animation
+        this.body.checkCollision.none = true;
 
+        let facingAngle = Phaser.Math.Angle.BetweenPoints(startPos, endPos);
+        facingAngle = Math.round(Phaser.Math.RadToDeg(facingAngle));
+        this.setAngle(-this.initAngle + facingAngle);
+        this.scene.add.tween({
+            targets: this,
+            x: {from: startPos.x, to: endPos.x},
+            y: {from: startPos.y, to: endPos.y},
+            duration: this.SPAWN_IN_TIME,
+            ease: Phaser.Math.Easing.Quadratic.In,
+            onComplete: () => {this.body.checkCollision.none = false}
+        });
+    }
     
     /*
     Private Methods
