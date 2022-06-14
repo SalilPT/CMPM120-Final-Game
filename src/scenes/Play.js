@@ -214,12 +214,7 @@ class Play extends Phaser.Scene {
 
     update() {
         // Update pointer position
-        this.input.activePointer.updateWorldPoint(this.cameras.main);
-        
-        let movVector = this.plrMovManager.getMovementVector();
-        this.playerChar.body.setVelocity(movVector.x, movVector.y);
-        this.playerChar.updateGraphics();
-        
+        this.input.activePointer.updateWorldPoint(this.cameras.main);        
     }
 
     // Return the x and y of the player spawner as defined in Tiled

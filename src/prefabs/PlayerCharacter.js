@@ -11,26 +11,19 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         this.movManager = new PlayerMovementManager(params.scene);
 
         /*
-        Things to do when the scene with this object calls update()
+        Things to do when the scene whne the parent scene calls update()
         */
-        /*
+
         let listenerFunction = () => {
-                // Update movement
-                //console.log("?????", this.body);
-                let movVector = this.movManager.getMovementVector();
-                if (movVector == null) {
-                    console.log("\n\n\nAAA");
-                }
-                try {
-                    
-                    this.body.setVelocity(movVector.x, movVector.y);
-                    //console.log("HUH")
-                }
-                catch {console.log("OK???", this.body);}
-            }
-            let updListener = this.scene.events.on("update", listenerFunction, this);
-            this.scene.events.on("shutdown", () => {console.log("shutdown");});
-            */
+            // Update movement
+            let movVector = this.movManager.getMovementVector();
+            this.body.setVelocity(movVector.x, movVector.y);
+
+            this.updateGraphics();
+        }
+        this.scene.events.on("update", listenerFunction, this);
+        this.on("destroy", () => {this.scene.events.removeListener("update", listenerFunction, this);});
+
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
         params.scene.physics.add.existing(this);
