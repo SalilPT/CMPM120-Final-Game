@@ -4,26 +4,40 @@ class Menu extends Phaser.Scene {
     }
 
     preload() {
-        
     }
 
     create() {
+        this.anims.create({
+            key: 'jebTitleAnim',
+            frames: this.anims.generateFrameNames('jebTitle'),
+            frameRate: 23,
+            yoyo: true,
+            repeat: -1
+        });
         this.userInterfaceMgr = new UserInterfaceManager(this, {});
         const halfGameWidth = globalGameConfig.width/2;
         const halfGameHeight = globalGameConfig.height/2
-        this.userInterfaceMgr.createMenuButton(halfGameWidth, halfGameHeight, 288, 108, "Play", "playScene", undefined);
-        this.userInterfaceMgr.createMenuButton(halfGameWidth, halfGameHeight + 1*128, 256, 96, "Tutorial", "tutorialScene");
-        this.userInterfaceMgr.createMenuButton(halfGameWidth - 160, halfGameHeight + 2*128, 256, 96, "Settings", "settingsScene");
-        this.userInterfaceMgr.createMenuButton(halfGameWidth + 160, halfGameHeight + 2*128, 256, 96, "Credits", "creditsScene");
+        this.menuBeat = this.sound.add("menuBeat").play({loop: true});
+        this.sound.pauseOnBlur = false;
+        this.userInterfaceMgr.createNewMenuButton(halfGameWidth, halfGameHeight, 1, "Play", "playScene", {
+            levelsLeft: 1,
+            completedLevels: []
+        })
+        .once("pointerdown", () => this.sound.removeByKey("menuBeat"));
+        this.userInterfaceMgr.createNewMenuButton(halfGameWidth, halfGameHeight + 1*160, 1, "Tutorial", "tutorialScene");
+        this.userInterfaceMgr.createNewMenuButton(halfGameWidth - 160, halfGameHeight + 2*160, 1, "Settings", "settingsScene");
+        this.userInterfaceMgr.createNewMenuButton(halfGameWidth + 160, halfGameHeight + 2*160, 1, "Credits", "creditsScene");
 
         // Title Text
-        this.add.text(halfGameWidth, halfGameHeight - 320, "Jeb's Puzzling Mission", 
+        this.jebTitle = this.add.sprite(halfGameWidth/1.25, halfGameHeight - 320, 'jebTitle');
+        this.jebTitle.anims.play('jebTitleAnim')
+        this.add.text(this.jebTitle.x + this.jebTitle.width/2 + (64 * 2.5), halfGameHeight - 300, "Puzzling\n     Mission", 
         {
             fontFamily: "bulletFont",
             fontSize: "96px",
-            color: "#F7F6F3",
+            color: "#76c2e8",
             stroke: "#160F29",
-            strokeThickness: 4
+            strokeThickness: 10
         }).setOrigin(0.5);
     }
 

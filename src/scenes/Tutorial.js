@@ -160,7 +160,7 @@ class Tutorial extends Phaser.Scene {
                     scenesToStopAtEnd: ["tutorialScene"],
                     scenesToStartAtEnd: ["menuScene"]
                 });
-                // call for the endiding scene
+                this.sound.removeByKey("menuBeat");
             }
         });
     }

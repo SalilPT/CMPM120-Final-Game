@@ -16,6 +16,7 @@ class GameStartLoading extends Phaser.Scene {
         this.load.spritesheet("jebTopCharging", "./assets/Jeb Top Charging Spritesheet.png", {frameWidth: 64});
         this.load.spritesheet("jebTopDeath", "./assets/Jeb Top Death Spritesheet.png", {frameWidth: 64});
         this.load.image("jebTopStart", "./assets/Jeb Top Start.png");
+        this.load.spritesheet("jebTitle", "./assets/jebNameTitleAnim.png", {frameWidth: 383.9, frameHeight:256});
 
         // Load Puzzle-Related Graphics
         this.load.image("hole1Sprite", "./assets/Circuit Boards Slot 1.png");
@@ -80,6 +81,7 @@ class GameStartLoading extends Phaser.Scene {
 
         // Load miscellaneous assets
         this.load.image("pointing arrow", "./assets/pointing arrow.png");
+        this.load.image('tealButton', './assets/tealButton.png')
 
         // Load All Audio
         this.load.audio("backgroundMusic", "./assets/audio/finalGameMusic.mp3");

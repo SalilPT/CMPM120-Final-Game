@@ -18,7 +18,7 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         }
         this.MENU_TEXT_CONFIG = {
             fontFamily: "bulletFont",
-            fontSize: "60px",
+            fontSize: "55px",
             color: "#F7F6F3",
             stroke: "#160F29",
             strokeThickness: 4
@@ -99,6 +99,14 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         this.parentScene.add.text(x, y, text, this.MENU_TEXT_CONFIG).setOrigin(0.5);
         
         return newButton;
+    }
+    createNewMenuButton(x, y, scale, text, targetSceneKey, data = null) {
+        let Button = this.parentScene.add.sprite(x, y , "tealButton")
+        .setInteractive({useHandCursor: true})
+        .on("pointerdown", () => this.parentScene.scene.start(targetSceneKey, data))
+        .setScale(scale);
+        this.parentScene.add.text(x, y, text, this.MENU_TEXT_CONFIG).setOrigin(0.5);
+        return Button;
     }
 
     createVolumeSetter() {
