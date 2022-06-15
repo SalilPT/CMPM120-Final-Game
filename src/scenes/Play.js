@@ -108,17 +108,17 @@ class Play extends Phaser.Scene {
             this.bltMgr.getEnemyBulletsGroup().remove(bullet);
 
             player.takeDamage();
-            if (player.health == 0) {
-                this.sound.removeByKey("backgroundMusic");
-                this.scene.restart({
-                    fromRestart: true,
-                    levelsLeft: this.levelsLeft,
-                    completedLevels: this.completedLevels,
-                    restartLevelName: this.levelThatWasPicked
-                });
-            }
-
             this.userInterfaceMgr.setHealthBoxValue(player.health);
+            if (player.health != 0) {
+                return;
+            }
+            
+            this.sound.removeByKey("backgroundMusic");
+            this.playerChar.once("deathAnimCompleted", () => {
+                this.restartLevelFromDeath();
+            });
+
+            
         });
 
         // Player bullets
@@ -129,6 +129,12 @@ class Play extends Phaser.Scene {
                 if (this.enemyMgr.getEnemiesGroup().getLength() == 0) {
                     return;
                 }
+
+                // Don't fire any bullets when player character is dead
+                if (this.playerChar.health <= 0) {
+                    return;
+                }
+
                 this.bltMgr.addPattern("shootAtTarget", {
                     sourcePt: this.playerChar.body.center,
                     targetPt: new Phaser.Geom.Point(this.input.activePointer.worldX, this.input.activePointer.worldY),
@@ -227,6 +233,15 @@ class Play extends Phaser.Scene {
                 return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y + tiledObj.height/2);
             }
         }
+    }
+
+    restartLevelFromDeath() {
+        this.scene.restart({
+            fromRestart: true,
+            levelsLeft: this.levelsLeft,
+            completedLevels: this.completedLevels,
+            restartLevelName: this.levelThatWasPicked
+        });
     }
 
     transitionToNextLevel() {

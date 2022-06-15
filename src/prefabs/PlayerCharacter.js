@@ -1,6 +1,13 @@
 class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
     constructor(params) {
         super(params.scene, params.x, params.y, params.texture, params.frame);
+
+        /*
+        Constants
+        */
+        this.EVENT_EMITTER_KEYS = {
+            deathAnimCompleted: "deathAnimCompleted"
+        }
         /*
         Properties
         */
@@ -71,7 +78,7 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
             key: "jebTopDeathAnim",
             frames: this.anims.generateFrameNumbers("jebTopDeath", {start: 0}),
             frameRate: 8,
-            repeat: -1
+            repeat: 0
         });
 
         // This object actually controls the bottom part of Jeb's body
@@ -127,6 +134,13 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
     }
 
     updateGraphics() {
+        if (this.health <= 0) {
+            this.bodyRenderTexture.clear()
+                .draw(this.bodyTop, this.width/2, this.height/2)
+                ;
+            return;
+        }
+
         // Update the bottom
         let movVector = this.movManager.getMovementVector();
         //console.log("movVector:", movVector.length() == 0);
@@ -182,13 +196,19 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
 
     playDeathAnim() {
         this.bodyTop.play("jebTopDeathAnim");
+        this.bodyTop.once("animationcomplete-jebTopDeathAnim", () => {
+            this.emit(this.EVENT_EMITTER_KEYS.deathAnimCompleted);
+        });
     }
 
     takeDamage(damage = 1) {
         this.health -= damage;
         if (this.health <= 0) {
             this.scene.sound.play("jebDeath");
+            this.body.checkCollision.none = true;
+            this.movManager.setMovSpd(0);
             this.playDeathAnim();
+            return;
         }
 
         // Play regular damage sound instead
