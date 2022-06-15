@@ -7,6 +7,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         /*
         Constants
         */
+        this.EVENT_EMITTER_KEYS = {
+            addBulletPattern: "addBulletPattern"
+        }
         // A reference to the tilemap used by the scene this is in.
         //this.PARENT_SCENE_TILEMAP = params.parentSceneTilemap;
 
@@ -50,8 +53,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         
         this.play("enemyAnim");
 
-        
-
         this.movementTimer = this.scene.time.addEvent({
             delay: 0.75 *1000,
             callback: () => {
@@ -67,7 +68,31 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         this.body.setCircle(this.width/2);
 
+        this.setImmovable(true);
+
         this.takingDamageEffectTimer;
+
+        this.bulletPatternTimer = this.scene.time.addEvent({
+            delay: 0.5 * 1000,
+            callback: () => {
+                    if (this.health <= 0) {
+                        return;
+                    }
+                    let randomTarget = new Phaser.Geom.Point(
+                        this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64), 
+                        this.playerChar.body.center.y + Phaser.Math.RND.integerInRange(-64, 64)
+                    );
+                    this.scene.events.emit(this.EVENT_EMITTER_KEYS.addBulletPattern, "shootAtTarget", {
+                        sourcePt: this.body.center,
+                        targetPt: randomTarget,
+                        bulletType: Phaser.Math.RND.pick(["orangeBullet", "yellowBullet"]),
+                        bulletSpd: Phaser.Math.RND.integerInRange(200, 400)
+                    });
+            },
+            loop: true,
+            paused: true
+        });
+        this.once("destroy", () => {this.scene.time.removeEvent(this.bulletPatternTimer);});
     }
 
     /*
@@ -129,7 +154,25 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.scene.sound.play("enemyGetsHit")
     }
 
+    playSpawningAnim(startPos, endPos) {
+        // Don't check collision during animation
+        this.body.checkCollision.none = true;
 
+        let facingAngle = Phaser.Math.Angle.BetweenPoints(startPos, endPos);
+        facingAngle = Math.round(Phaser.Math.RadToDeg(facingAngle));
+        this.setAngle(-this.initAngle + facingAngle);
+        this.scene.add.tween({
+            targets: this,
+            x: {from: startPos.x, to: endPos.x},
+            y: {from: startPos.y, to: endPos.y},
+            duration: this.SPAWN_IN_TIME,
+            ease: Phaser.Math.Easing.Quadratic.In,
+            onComplete: () => {
+                this.body.checkCollision.none = false;
+                this.bulletPatternTimer.paused = false;
+            }
+        });
+    }
     
     /*
     Private Methods

@@ -48,6 +48,18 @@ class BulletManager extends Phaser.GameObjects.GameObject {
                 this.enemyActiveBullets.add(bullet);
             }
         });
+
+        /*
+        Other
+        */
+        // Listen to events emitted by the parent scene indicting that a bullet pattern should be created
+        let bulletPatternListenerFunction = (patternKey, patternConfig) => {
+            //console.log("shoot", patternKey, patternConfig);
+            this.addPattern(patternKey, patternConfig);
+        };
+        this.scene.events.on("addBulletPattern", bulletPatternListenerFunction, this);
+        this.scene.events.once("shutdown", () => {
+            this.scene.events.removeListener("addBulletPattern", bulletPatternListenerFunction, this);});
        
     }
 

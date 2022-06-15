@@ -31,6 +31,7 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         this.healthBoxRenderTexture;
         this.healthIconFrame;
 
+        this.volumeLabelText;
         this.volumeText;
     }
 
@@ -109,7 +110,7 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         return Button;
     }
 
-    createVolumeSetter() {
+    createVolumeSetter(x, centerY) {
         // The distance from the right side of the volume text to the left sides of the volume arrows
         const textToArrowPadding = 4;
         // The distance from the bottom of the up arrow to the top of the number representing the current global volume value
@@ -117,10 +118,51 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         // The initial angle of the arrow graphic
         const initArrowAngle = -90;
 
-        this.volumeText = this.parentScene.add.text(x, y, "Volume", this.MENU_TEXT_CONFIG);
-        let volIncreaseArrow = this.parentScene.add.sprite()
-        // TODO: FINISH THIS
-        // The global volume value will be in this.parentScene.volume
+        this.volumeLabelText = this.parentScene.add.text(x, centerY, "Volume: ", this.MENU_TEXT_CONFIG).setOrigin(0, 0.5);
+        // Give the volume text placeholder text for positioning purposes
+        this.volumeText = this.parentScene.add.text(this.volumeLabelText.getRightCenter().x, centerY, "100", this.MENU_TEXT_CONFIG).setOrigin(0, 0.5);
+        let volIncreaseArrow = this.parentScene.add.sprite(this.volumeText.getCenter().x, this.volumeText.getTopCenter().y - arrowToValuePadding, "pointing arrow").setOrigin(0.5);
+        volIncreaseArrow.setAngle(-initArrowAngle - 90);
+        volIncreaseArrow.y -= volIncreaseArrow.height/2;
+        let volDecreaseArrow = this.parentScene.add.sprite(this.volumeText.getCenter().x, this.volumeText.getBottomCenter().y + arrowToValuePadding, "pointing arrow").setOrigin(0.5);
+        volDecreaseArrow.setAngle(-initArrowAngle + 90);
+        volDecreaseArrow.y += volDecreaseArrow.height/2;
+        
+        this.volumeText.text = Math.round(this.parentScene.sound.volume * 100);
+        let volChangeFlag = false;
+        // Assign click events
+        volIncreaseArrow
+            .setInteractive({useHandCursor: true})
+            .on("pointerdown", () => {
+                const newVol = Math.min(globalGame.sound.volume + 0.1, 2);
+                globalGame.sound.setVolume(newVol.toFixed(2));
+
+                // For whatever reason, the voolume value doesn't update immediately.
+                // So, it needs to be stored in a variable for the volume text here.
+                this.volumeText.text = Math.round(newVol * 100);
+                volChangeFlag = true;
+            })
+
+        volDecreaseArrow
+            .setInteractive({useHandCursor: true})
+            .on("pointerdown", () => {
+                const newVol = Math.max(globalGame.sound.volume - 0.1, 0);
+                globalGame.sound.setVolume(newVol.toFixed(2));
+
+                // For whatever reason, the voolume value doesn't update immediately.
+                // So, it needs to be stored in a variable for the volume text here.
+                this.volumeText.text = Math.round(newVol * 100);
+                volChangeFlag = true;
+            });
+
+        this.parentScene.input.on("pointerup", () => {
+            if (volChangeFlag) {
+                this.parentScene.sound.play("jebShoot");
+                volChangeFlag = false;
+            }
+            });
+        this.parentScene.input.on("gameout", () => {volChangeFlag = false;})
+
     }
 
     setHealthBoxValue(value) {

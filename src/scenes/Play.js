@@ -72,9 +72,7 @@ class Play extends Phaser.Scene {
         texture: "gameAtlas",
         frame: "JebBottomIdle1.png"
         });
-        this.playerChar.body.setCircle(this.playerChar.width/2);
-        this.plrMovManager = this.playerChar.getMovManager();
-        this.plrMovManager.setMovSpd(400);
+        this.playerChar.getMovManager().setMovSpd(400);
         this.physics.add.collider(this.playerChar, wallLayer);
 
         // Puzzles
@@ -108,17 +106,17 @@ class Play extends Phaser.Scene {
             this.bltMgr.getEnemyBulletsGroup().remove(bullet);
 
             player.takeDamage();
-            if (player.health == 0) {
-                this.sound.removeByKey("backgroundMusic");
-                this.scene.restart({
-                    fromRestart: true,
-                    levelsLeft: this.levelsLeft,
-                    completedLevels: this.completedLevels,
-                    restartLevelName: this.levelThatWasPicked
-                });
-            }
-
             this.userInterfaceMgr.setHealthBoxValue(player.health);
+            if (player.health != 0) {
+                return;
+            }
+            
+            this.sound.removeByKey("backgroundMusic");
+            this.playerChar.once("deathAnimCompleted", () => {
+                this.restartLevelFromDeath();
+            });
+
+            
         });
 
         // Player bullets
@@ -129,6 +127,12 @@ class Play extends Phaser.Scene {
                 if (this.enemyMgr.getEnemiesGroup().getLength() == 0) {
                     return;
                 }
+
+                // Don't fire any bullets when player character is dead
+                if (this.playerChar.health <= 0) {
+                    return;
+                }
+
                 this.bltMgr.addPattern("shootAtTarget", {
                     sourcePt: this.playerChar.body.center,
                     targetPt: new Phaser.Geom.Point(this.input.activePointer.worldX, this.input.activePointer.worldY),
@@ -152,28 +156,6 @@ class Play extends Phaser.Scene {
         });
 
         // Enemy bullets
-        this.time.addEvent({
-            delay: 0.5 * 1000,
-            callback: () => {
-                for (let enemy of this.enemyMgr.getEnemiesGroup().getChildren()) {
-                    if (enemy.health <= 0) {
-                        return;
-                    }
-                    let randomTarget = new Phaser.Geom.Point(
-                        this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64), 
-                        this.playerChar.body.center.y + Phaser.Math.RND.integerInRange(-64, 64)
-                    );
-                    this.bltMgr.addPattern("shootAtTarget", {
-                        sourcePt: enemy.body.center,
-                        targetPt: randomTarget,
-                        bulletType: Phaser.Math.RND.pick(["orangeBullet", "yellowBullet"]),
-                        bulletSpd: Phaser.Math.RND.integerInRange(200, 400)
-                    });
-                }
-            },
-            loop: true
-        });
-
         this.physics.add.collider(this.bltMgr.getEnemyBulletsGroup(), wallLayer, (bullet, wall) => {
             this.bltMgr.getEnemyBulletsGroup().remove(bullet);
         });
@@ -214,12 +196,7 @@ class Play extends Phaser.Scene {
 
     update() {
         // Update pointer position
-        this.input.activePointer.updateWorldPoint(this.cameras.main);
-        
-        let movVector = this.plrMovManager.getMovementVector();
-        this.playerChar.body.setVelocity(movVector.x, movVector.y);
-        this.playerChar.updateGraphics();
-        
+        this.input.activePointer.updateWorldPoint(this.cameras.main);        
     }
 
     // Return the x and y of the player spawner as defined in Tiled
@@ -232,6 +209,15 @@ class Play extends Phaser.Scene {
                 return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y + tiledObj.height/2);
             }
         }
+    }
+
+    restartLevelFromDeath() {
+        this.scene.restart({
+            fromRestart: true,
+            levelsLeft: this.levelsLeft,
+            completedLevels: this.completedLevels,
+            restartLevelName: this.levelThatWasPicked
+        });
     }
 
     transitionToNextLevel() {
