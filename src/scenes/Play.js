@@ -158,28 +158,6 @@ class Play extends Phaser.Scene {
         });
 
         // Enemy bullets
-        this.time.addEvent({
-            delay: 0.5 * 1000,
-            callback: () => {
-                for (let enemy of this.enemyMgr.getEnemiesGroup().getChildren()) {
-                    if (enemy.health <= 0) {
-                        return;
-                    }
-                    let randomTarget = new Phaser.Geom.Point(
-                        this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64), 
-                        this.playerChar.body.center.y + Phaser.Math.RND.integerInRange(-64, 64)
-                    );
-                    this.bltMgr.addPattern("shootAtTarget", {
-                        sourcePt: enemy.body.center,
-                        targetPt: randomTarget,
-                        bulletType: Phaser.Math.RND.pick(["orangeBullet", "yellowBullet"]),
-                        bulletSpd: Phaser.Math.RND.integerInRange(200, 400)
-                    });
-                }
-            },
-            loop: true
-        });
-
         this.physics.add.collider(this.bltMgr.getEnemyBulletsGroup(), wallLayer, (bullet, wall) => {
             this.bltMgr.getEnemyBulletsGroup().remove(bullet);
         });
