@@ -72,9 +72,7 @@ class Play extends Phaser.Scene {
         texture: "gameAtlas",
         frame: "JebBottomIdle1.png"
         });
-        this.playerChar.body.setCircle(this.playerChar.width/2);
-        this.plrMovManager = this.playerChar.getMovManager();
-        this.plrMovManager.setMovSpd(400);
+        this.playerChar.getMovManager().setMovSpd(400);
         this.physics.add.collider(this.playerChar, wallLayer);
 
         // Puzzles

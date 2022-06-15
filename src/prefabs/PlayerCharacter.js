@@ -21,19 +21,23 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         Things to do when the scene whne the parent scene calls update()
         */
 
-        let listenerFunction = () => {
+        let updateListenerFunction = () => {
             // Update movement
             let movVector = this.movManager.getMovementVector();
             this.body.setVelocity(movVector.x, movVector.y);
 
             this.updateGraphics();
         }
-        this.scene.events.on("update", listenerFunction, this);
-        this.on("destroy", () => {this.scene.events.removeListener("update", listenerFunction, this);});
+        this.scene.events.on("update", updateListenerFunction, this);
+        this.once("destroy", () => {this.scene.events.removeListener("update", updateListenerFunction, this);});
 
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
         params.scene.physics.add.existing(this);
+
+        // Set up phyics body
+        this.body.setCircle(this.width/2);
+        this.body.setImmovable(true);
 
         /*
         Set up animations
@@ -119,9 +123,6 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
             .draw(this.bodyMiddle, this.width/2, this.height/2)
             .draw(this.bodyTop, this.width/2, this.height/2)
             ;
-
-        
-        this.body.setImmovable(true);
     }
 
     /*
