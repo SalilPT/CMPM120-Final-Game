@@ -18,7 +18,7 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         this.movManager = new PlayerMovementManager(params.scene);
 
         /*
-        Things to do when the scene whne the parent scene calls update()
+        Things to do when the scene when the parent scene calls update()
         */
 
         let updateListenerFunction = () => {
