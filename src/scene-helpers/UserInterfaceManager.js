@@ -121,7 +121,6 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         volDecreaseArrow.y += volDecreaseArrow.height/2;
         
         this.volumeText.text = Math.round(this.parentScene.sound.volume * 100);
-        //this.parentScene.sound.volume = this.parentScene.sound.volume;
         let volChangeFlag = false;
         // Assign click events
         volIncreaseArrow
@@ -135,12 +134,10 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
                 this.volumeText.text = Math.round(newVol * 100);
                 volChangeFlag = true;
             })
-            //.on("pointerup", () => {this.parentScene.sound.play("jebShoot");console.log("POINTER UP???")});
 
         volDecreaseArrow
             .setInteractive({useHandCursor: true})
             .on("pointerdown", () => {
-                console.log(this.parentScene.sound.volume, Math.max(this.parentScene.sound.volume - 0.05, 0));
                 const newVol = Math.max(globalGame.sound.volume - 0.1, 0);
                 globalGame.sound.setVolume(newVol.toFixed(2));
 
@@ -152,7 +149,7 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
 
         this.parentScene.input.on("pointerup", () => {
             if (volChangeFlag) {
-                this.parentScene.sound.play("jebShoot");console.log("POINTER UP???")
+                this.parentScene.sound.play("jebShoot");
                 volChangeFlag = false;
             }
             });
