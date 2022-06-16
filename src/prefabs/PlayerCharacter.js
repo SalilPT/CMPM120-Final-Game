@@ -25,11 +25,14 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
             // Update movement
             let movVector = this.movManager.getMovementVector();
             this.body.setVelocity(movVector.x, movVector.y);
-
-            this.updateGraphics();
         }
         this.scene.events.on("update", updateListenerFunction, this);
-        this.once("destroy", () => {this.scene.events.removeListener("update", updateListenerFunction, this);});
+        let postUpdateListenerFunction = () => {this.updateGraphics();}
+        this.scene.events.on("postupdate", postUpdateListenerFunction, this);
+        this.once("destroy", () => {
+            this.scene.events.removeListener("update", updateListenerFunction, this);
+            this.scene.events.removeListener("postupdate", postUpdateListenerFunction, this);
+        });
 
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
