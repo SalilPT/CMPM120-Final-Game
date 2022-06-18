@@ -6,9 +6,7 @@ class Tutorial extends Phaser.Scene {
     preload(){
         //visual assets
         this.load.atlas("bulletHellAtlas", "./assets/bulletHellTileSet.png", "./assets/bulletHellTileSet.json");
-        this.load.tilemapTiledJSON("tileMap", "./assets/bulletHellMap.json"); // tile map JSON file (from tiled software)
-        //audio assets
-        this.load.audio("shootingSFX", "./assets/audio/shooting_sfx.wav");
+        this.load.tilemapTiledJSON("tutorialMap", "./assets/bulletHellMap.json"); // tile map JSON file (from tiled software)
     }
 
     create() {
@@ -17,7 +15,7 @@ class Tutorial extends Phaser.Scene {
         this.aimingTutorialComplete = false;
         this.InteractingTutorialComplete = false;
         // mainly followed Nathan Altice's mappy example for collisions using tile maps
-        const map = this.add.tilemap("tileMap");
+        const map = this.add.tilemap("tutorialMap");
         // set a tileset for the map and its corresponding layers
         const tileset = map.addTilesetImage("bulletHellTileSet", "bulletHellAtlas");
         const floorLayer = map.createLayer("Floor", tileset, 0, 0);
@@ -39,8 +37,7 @@ class Tutorial extends Phaser.Scene {
             texture: "gameAtlas",
             frame: "JebBottomIdle1.png"
         });
-        this.plrMovManager = this.playerChar.getMovManager();
-        this.plrMovManager.setMovSpd(400);
+        this.playerChar.getMovManager().setMovSpd(400);
         this.playerChar.body.setCollideWorldBounds(true);
         this.anythingAndWalls.add(this.playerChar);
         //create the colliders
@@ -49,9 +46,6 @@ class Tutorial extends Phaser.Scene {
                 object1.destroy();
             }
         });
-        // create instance of the movement manager
-        this.movManager = new PlayerMovementManager(this);
-        this.movManager.setMovSpd(400);
         /*
         //code based off the shooting demo
         this.input.on("pointerdown", () => {
@@ -62,12 +56,11 @@ class Tutorial extends Phaser.Scene {
             let fireVector = this.physics.velocityFromAngle(fireAngle, 250);
             newPlayerBullet.body.setVelocity(fireVector.x, fireVector.y);
             newPlayerBullet.setScale(0.5);
-            this.sound.play("shootingSFX");
+            this.sound.play("shooting_sfx");
         });
         */
         //code based on the puzzle demo
         this.puzManager = new PuzzleManager(this, {playerChar: this.playerChar});
-        this.puzManager.bindAndListenForInteractKey(Phaser.Input.Keyboard.KeyCodes.SPACE, false);
         // Make a sequence
         let seqName = "sequence1";
         this.puzManager.addSequence(seqName);
@@ -113,17 +106,21 @@ class Tutorial extends Phaser.Scene {
             this.movementTutorialComplete = true;
         });
         // check if the puzzle is complete
-        this.input.keyboard.on('keydown-SPACE', () => {
+        this.input.keyboard.on('keyup-SPACE', () => {
             if (this.fullTutorialComplete == false){
                 this.checkForCompletion();
             }
         });
+
+        // Camera
+        this.cameras.main.startFollow(this.playerChar, false, 0.75, 0.75)
+        .setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     }
 
     update(){
-        let movVector = this.plrMovManager.getMovementVector();
-        this.playerChar.body.setVelocity(movVector.x, movVector.y);
-        this.playerChar.updateGraphics();
+        // Update pointer position
+        this.input.activePointer.updateWorldPoint(this.cameras.main);     
+        
         //simple over lap logic to call the textbox for puzzle piece interaction
         if (this.movementTutorialComplete == true && this.InteractingTutorialComplete == false){
             for ( let puzPiece of this.puzPieceGroup.getChildren()){
@@ -143,25 +140,17 @@ class Tutorial extends Phaser.Scene {
         }
     }
 
-    checkForCompletion(){
-        this.time.delayedCall(500, () => {// gives time to iterate over all of the sequences
-            let sequencesCompleted = 0; // counter, keeps track of how many sequences are completed so far
-            for (let seq of Object.values(this.puzManager.sequences)){
-                if (seq.isCompleted == false){ 
-                    break;
-                }
-                sequencesCompleted ++; // one sequence was complete it, add to counter
-            }
-            if(sequencesCompleted == (Object.keys(this.puzManager.sequences).length)){
-                this.fullTutorialComplete = true;
-                this.scene.launch("textBoxesScene", {
-                    textChain:["tutorialEnd"],
-                    scenesToPauseAtStart: ["tutorialScene"],
-                    scenesToStopAtEnd: ["tutorialScene"],
-                    scenesToStartAtEnd: ["menuScene"]
-                });
-                this.sound.removeByKey("menuBeat");
-            }
+    checkForCompletion() {
+        if (!this.puzManager.puzzleCompleted()) {
+            return;
+        }
+        this.fullTutorialComplete = true;
+        this.scene.launch("textBoxesScene", {
+            textChain:["tutorialEnd"],
+            scenesToPauseAtStart: ["tutorialScene"],
+            scenesToStopAtEnd: ["tutorialScene"],
+            scenesToStartAtEnd: ["menuScene"]
         });
+        this.sound.removeByKey("menuBeat");
     }
 }
