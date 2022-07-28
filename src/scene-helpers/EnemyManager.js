@@ -4,6 +4,7 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
 
         this.parentScene = parentScene;
         this.playerChar = config.playerChar;
+        this.parentSceneTilemap = config.tilemap; // Passed to enemies that are spawned by this
 
         /*
         Constants
@@ -137,7 +138,9 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
             y: spawnerPos.y,
             texture: "gameAtlas",
             frame: "Enemy1IdleFrame1.png",
-            playerChar: this.playerChar
+            playerChar: this.playerChar,
+            parentSceneTilemap: this.parentSceneTilemap,
+            parentSceneTilemapCollisionLayer: this.TILEMAP_DATA_NAMES.collisionLayerToUse
         });
         this.allEnemies.add(newEnemy);
 

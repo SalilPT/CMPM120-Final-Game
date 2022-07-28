@@ -80,7 +80,10 @@ class Play extends Phaser.Scene {
         this.puzMgr.createPuzzleFromTilemap(testTilemap2);
 
         // Enemy spawners
-        this.enemyMgr = new EnemyManager(this, {playerChar: this.playerChar});
+        this.enemyMgr = new EnemyManager(this, {
+            playerChar: this.playerChar,
+            tilemap: testTilemap2
+        });
         this.enemyMgr.createEnemySpawnersFromTilemap(testTilemap2);
         let spawners = this.enemyMgr.getEnemySpawnerGroup();
         this.time.addEvent({

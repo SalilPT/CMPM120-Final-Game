@@ -3,6 +3,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         super(params.scene, params.x, params.y, params.texture, params.frame);
 
         this.playerChar = params.playerChar;
+        // A reference to the tilemap used by the scene this is in.
+        this.parentSceneTilemap = params.parentSceneTilemap;
+        // The name of the layer with tiles that have collision.
+        this.parentSceneTilemapCollisionLayer = params.parentSceneTilemapCollisionLayer;
 
         /*
         Constants
@@ -10,8 +14,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.EVENT_EMITTER_KEYS = {
             addBulletPattern: "addBulletPattern"
         }
-        // A reference to the tilemap used by the scene this is in.
-        //this.PARENT_SCENE_TILEMAP = params.parentSceneTilemap;
 
         // The amount of time in milliseconds it takes for this enemy to walk into the room.
         // After it has entered the room, it will have collisions with the player character's bullets.
@@ -75,9 +77,15 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.bulletPatternTimer = this.scene.time.addEvent({
             delay: 0.5 * 1000,
             callback: () => {
+                    // Don't spawn bullets from this enemy if it can't see the player character
+                    if (!this.#canSeePlayerChar()) {
+                        return;
+                    }
+
                     if (this.health <= 0) {
                         return;
                     }
+
                     let randomTarget = new Phaser.Geom.Point(
                         this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64), 
                         this.playerChar.body.center.y + Phaser.Math.RND.integerInRange(-64, 64)
@@ -100,14 +108,16 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     */
 
     facePlayerChar() {
-        if (!this.#canSeePlayerChar()) {
-            return;
-        }
         let angleToPlayer = this.#getAngleToPlayerChar();
         this.setAngle(-this.initAngle + angleToPlayer);
     }
 
     moveTowardsPlayer() {
+        // Don't move this enemy if it can't see the player character
+        if (!this.#canSeePlayerChar()) {
+            return;
+        }
+
         let angleToPlayer = this.#getAngleToPlayerChar();
         let vec = this.scene.physics.velocityFromAngle(angleToPlayer, 200);
         this.body.setVelocity(vec.x, vec.y);
@@ -177,11 +187,41 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     /*
     Private Methods
     */
-    // Returns true if an uninterrupted line can be formed from this object's center tothe center of the player character.
+    // Returns true if an uninterrupted line can be formed from this object's center to the center of the player character.
     // Gets all tiles within a rectangular bounding box that has the player character and this object.
-    #canSeePlayerChar() {
-        return true; // Placeholder
-       // getTilesWithin
+    #canSeePlayerChar() {       
+       let tilemap = this.parentSceneTilemap;
+
+       let myCenter = this.body.center;
+       let plrCenter = this.playerChar.body.center;
+
+       // The line that will be used to determine whether or not this enemy can "see" the player character
+       let traceLine = new Phaser.Geom.Line(myCenter.x, myCenter.y, plrCenter.x, plrCenter.y);
+
+       let tileRectX = Math.min(myCenter.x, plrCenter.x);
+       let tileRectY = Math.min(myCenter.y, plrCenter.y);
+       let tileRectWidth = Math.abs(myCenter.x - plrCenter.x);
+       let tileRectHeight = Math.abs(myCenter.y - plrCenter.y);
+
+       // Select the correct layer for collisions because doing it in the getTilesWithinWorldXY method doesn't seem to work
+       let oldSelectedLayer = tilemap.layer.name;
+       tilemap.setLayer(this.parentSceneTilemapCollisionLayer);
+
+       // Get an array of tiles to check
+       let tilesToCheck = tilemap.getTilesWithinWorldXY(tileRectX, tileRectY, tileRectWidth, tileRectHeight, {isColliding: true});
+
+       // Set the selected layer of the tilemap to what it was before this method was called
+       tilemap.setLayer(oldSelectedLayer);
+
+       for (let tile of tilesToCheck) {
+           let intersectionRect = tile.getBounds(this.scene.cameras.main);
+           let intersectionPoints = Phaser.Geom.Intersects.GetLineToRectangle(traceLine, intersectionRect);
+           if (intersectionPoints.length != 0) {
+               return false;
+           }
+       }
+
+       return true;
     }
 
     #getAngleToPlayerChar() {
