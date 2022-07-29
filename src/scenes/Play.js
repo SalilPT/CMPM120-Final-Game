@@ -53,16 +53,20 @@ class Play extends Phaser.Scene {
 
         // Tilemap
         this.levelThatWasPicked = Phaser.Math.RND.pick(this.possibleLevels);
-        let testTilemap2 = this.add.tilemap(this.levelThatWasPicked);
-        const testTilemap2Tileset = testTilemap2.addTilesetImage("gameTileset", "gameTilesetAtlas");
-        const floorLayer = testTilemap2.createLayer("floor", testTilemap2Tileset, 0, 0).setDepth(-100);
-        const wallLayer = testTilemap2.createLayer("walls", testTilemap2Tileset, 0, 0).setDepth(-99);
+        let levelTilemap = this.add.tilemap(this.levelThatWasPicked);
+        const levelTilemapTileset = levelTilemap.addTilesetImage("gameTileset", "gameTilesetAtlas");
+        const floorLayer = levelTilemap.createLayer("floor", levelTilemapTileset, 0, 0).setDepth(-100);
+        const wallLayer = levelTilemap.createLayer("walls", levelTilemapTileset, 0, 0).setDepth(-99);
         wallLayer.setCollisionByProperty({
             collides: true
         });
 
+        // Prevent bullets from sometimes going through walls
+        // Thanks to samme for their answer here: https://www.html5gamedevs.com/topic/36294-small-arcade-sprite-and-tilemap-collision-bug/?do=findComment&comment=208136
+        this.physics.world.TILE_BIAS = Math.max(levelTilemap.getLayer("walls").tileWidth, levelTilemap.getLayer("walls").tileHeight);
+
         // Player character
-        let plrSpawnPt = this.getPlayerCharacterCoordsFromObjectLayer(testTilemap2, "spawnerLayer", "gameTileset");
+        let plrSpawnPt = this.getPlayerCharacterCoordsFromObjectLayer(levelTilemap, "spawnerLayer", "gameTileset");
         this.playerChar = new PlayerCharacter({
         scene: this,
         //x: globalGame.config.width/2,
@@ -77,14 +81,14 @@ class Play extends Phaser.Scene {
 
         // Puzzles
         this.puzMgr = new PuzzleManager(this, {playerChar: this.playerChar});
-        this.puzMgr.createPuzzleFromTilemap(testTilemap2);
+        this.puzMgr.createPuzzleFromTilemap(levelTilemap);
 
         // Enemy spawners
         this.enemyMgr = new EnemyManager(this, {
             playerChar: this.playerChar,
-            tilemap: testTilemap2
+            tilemap: levelTilemap
         });
-        this.enemyMgr.createEnemySpawnersFromTilemap(testTilemap2);
+        this.enemyMgr.createEnemySpawnersFromTilemap(levelTilemap);
         let spawners = this.enemyMgr.getEnemySpawnerGroup();
         this.time.addEvent({
             delay: 2 * 1000,
@@ -194,7 +198,7 @@ class Play extends Phaser.Scene {
 
         // Camera
         this.cameras.main.startFollow(this.playerChar, false, 0.75, 0.75)
-        .setBounds(0, 0, testTilemap2.widthInPixels, testTilemap2.heightInPixels);
+        .setBounds(0, 0, levelTilemap.widthInPixels, levelTilemap.heightInPixels);
     }
 
     update() {
