@@ -118,12 +118,11 @@ class Play extends Phaser.Scene {
                 return;
             }
             
-            this.sound.removeByKey("backgroundMusic");
+            this.fadeOutBGM(500);
+
             this.playerChar.once("deathAnimCompleted", () => {
                 this.restartLevelFromDeath();
             });
-
-            
         });
 
         // Player bullets
@@ -180,6 +179,9 @@ class Play extends Phaser.Scene {
                     else {
                         this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, "MISSION COMPLETED", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
                     }
+
+                    this.fadeOutBGM(1500);
+
                     this.time.delayedCall(2000, () => {
                         this.transitionToNextLevel();
                     });
@@ -206,6 +208,15 @@ class Play extends Phaser.Scene {
         this.input.activePointer.updateWorldPoint(this.cameras.main);        
     }
 
+    // Fade out the background music over the specified amount of milliseconds
+    fadeOutBGM(milliseconds) {
+        this.tweens.add({
+            targets: this.sound.get("backgroundMusic"),
+            volume: 0,
+            duration: milliseconds
+        });
+    }
+
     // Return the x and y of the player spawner as defined in Tiled
     getPlayerCharacterCoordsFromObjectLayer(tilemap, layerName, tilesetName) {
         let objLayer = tilemap.getObjectLayer(layerName);
@@ -219,6 +230,7 @@ class Play extends Phaser.Scene {
     }
 
     restartLevelFromDeath() {
+        this.sound.removeByKey("backgroundMusic");
         this.scene.restart({
             fromRestart: true,
             levelsLeft: this.levelsLeft,
