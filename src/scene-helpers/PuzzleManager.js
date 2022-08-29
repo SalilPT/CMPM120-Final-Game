@@ -55,13 +55,16 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                     return;
                 }
 
+                // Don't pick up puzzle piece if it's not close enough
                 if (Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, closestPuzPiece.getCenter()) > this.maxPickUpDist) {
                     return;
                 }
 
                 this.#pickUpPuzzlePiece(closestPuzPiece);
             }
-            else {
+            // Checking that the ghost puzzle piece is nullish here is to prevent the game from throwing an error from the player focusing elsewhere during the process of picking up and placing a puzzle piece.
+            // For example: pressing the placement button, then focusing elsewhere with the button held, then releasing the button, and then trying to place the held piece while focused on the game would be problematic without this check.
+            else if (this.ghostPuzzlePiece == null) {
                 // Create ghost piece
                 const tempGhostPiecePos = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
                 this.ghostPuzzlePiece = this.parentScene.add.sprite(tempGhostPiecePos.x, tempGhostPiecePos.y, this.currHeldPuzPiece.texture, this.currHeldPuzPiece.frame.name).setOrigin(0); // Pass in the frame name here, NOT the frame itself
@@ -101,8 +104,10 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             this.parentScene.time.removeEvent(this.ghostPuzzlePieceUpdateTimer);
             this.ghostPuzzlePieceUpdateTimer.destroy();
             this.ghostPuzzlePiece.destroy();
+            // Remove reference to the ghost puzzle piece so that it's actually destroyed
+            this.ghostPuzzlePiece = null;
             // Place the currently held piece
-            // If near corresponding hole, place puzzle piece in it
+            // If near corresponding hole and the currently held piece is the next piece in its sequence, place it in the hole
             let correspondingHole = this.getCorrespondingHole(this.currHeldPuzPiece);
             if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceName].nextPieceIndex
                 && Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, correspondingHole.getCenter()) <= this.maxHolePlacementDist) {
@@ -111,7 +116,6 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             else {
                 this.#placePuzzlePiece(this.currHeldPuzPiece);
             }
-        
         }
        
         /*
