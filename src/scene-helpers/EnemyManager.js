@@ -122,7 +122,7 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
         return this.allEnemies;
     }
 
-    getEnemySpawnerGroup() {
+    getEnemySpawnersGroup() {
         return this.enemySpawners;
     }
 

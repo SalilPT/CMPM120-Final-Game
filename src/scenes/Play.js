@@ -89,7 +89,7 @@ class Play extends Phaser.Scene {
             tilemap: levelTilemap
         });
         this.enemyMgr.createEnemySpawnersFromTilemap(levelTilemap);
-        let spawners = this.enemyMgr.getEnemySpawnerGroup();
+        let spawners = this.enemyMgr.getEnemySpawnersGroup();
         this.time.addEvent({
             delay: 2 * 1000,
             callback: () => {
