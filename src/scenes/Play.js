@@ -135,7 +135,7 @@ class Play extends Phaser.Scene {
                 }
 
                 // Don't fire any bullets when player character is dead
-                if (this.playerChar.health <= 0) {
+                if (this.playerChar.isDead()) {
                     return;
                 }
 

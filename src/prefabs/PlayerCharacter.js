@@ -110,7 +110,7 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         this.bodyTop.play("jebTopChargingAnim");
         // Listen for event that's emitted when an attacking animation finishes
         this.bodyTop.on("animationcomplete-jebTopAttackingAnim", () => {
-            if (this.health <= 0) {
+            if (this.isDead()) {
                 return;
             }
             // Switch to last frame of charging animation
@@ -131,6 +131,10 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
     /*
     Public Methods
     */
+
+    isDead() {
+        return this.health <= 0;
+    }
    
     // Returns a reference to this object's corresponding movement manager
     getMovManager() {
