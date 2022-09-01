@@ -74,7 +74,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                 this.ghostPuzzlePiece = this.parentScene.add.sprite(tempGhostPiecePos.x, tempGhostPiecePos.y, this.currHeldPuzPiece.texture, this.currHeldPuzPiece.frame.name).setOrigin(0); // Pass in the frame name here, NOT the frame itself
                 this.ghostPuzzlePiece.setAlpha(0.5);
                 this.ghostPuzzlePieceUpdateTimer = this.parentScene.time.addEvent({
-                    delay: 1000/60,
+                    delay: 1000/globalGame.loop.targetFps,
                     callback: () => {
                         // If near corresponding hole, make ghost puzzle piece automatically be at hole
                         let correspondingHole = this.getCorrespondingHole(this.currHeldPuzPiece);
@@ -230,7 +230,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             holeDebugTextObjs.push(newTextObj);
         }
         this.parentScene.time.addEvent({
-            delay: 1000/60,
+            delay: 1000/globalGame.loop.targetFps,
             callback: () => {
                 for (let i in pieceDebugTextObjs) {
                     pieceDebugTextObjs[i].setPosition(piecesList[i].getCenter().x, piecesList[i].getCenter().y);
