@@ -22,6 +22,9 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         */
 
         let updateListenerFunction = () => {
+            // Update pointer position
+            this.scene.input.activePointer.updateWorldPoint(this.scene.cameras.main);
+
             // Update movement
             let movVector = this.movManager.getMovementVector();
             this.body.setVelocity(movVector.x, movVector.y);

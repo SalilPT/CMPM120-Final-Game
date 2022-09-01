@@ -204,8 +204,7 @@ class Play extends Phaser.Scene {
     }
 
     update() {
-        // Update pointer position
-        this.input.activePointer.updateWorldPoint(this.cameras.main);        
+
     }
 
     // Fade out the background music over the specified amount of milliseconds

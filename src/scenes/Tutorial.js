@@ -89,9 +89,6 @@ class Tutorial extends Phaser.Scene {
     }
 
     update() {
-        // Update pointer position
-        this.input.activePointer.updateWorldPoint(this.cameras.main);     
-
         //simple over lap logic to call the textbox for puzzle piece interaction
         if (this.movementTutorialComplete == true && this.InteractingTutorialComplete == false) {
             for (let puzPiece of this.puzPieceGroup.getChildren()) {
