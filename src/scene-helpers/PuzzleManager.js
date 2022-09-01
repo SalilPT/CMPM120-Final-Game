@@ -335,12 +335,26 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         }
     }
 
+    // Returns an array containing references all of the puzzle holes in this object's puzzle
+    getAllHoles() {
+        // Create array to hold puzzle holes
+        let holesArray = [];
+        // Loop through all sequences and append the holes in each sequence to holesArray
+        for (const seq of Object.values(this.sequences)) {
+            Phaser.Utils.Array.Add(holesArray, seq.holes);
+        }
+        return holesArray;
+    }
+
     // Returns an array containing references all of the puzzle pieces in this object's puzzle
     getAllPieces() {
-        console.error("The getAllPieces() method currently isn't implemented!");
         // Create array to hold puzzle pieces
-        
-        // Loop through all sequences
+        let piecesArray = [];
+        // Loop through all sequences and append the pieces in each sequence to piecesArray
+        for (const seq of Object.values(this.sequences)) {
+            Phaser.Utils.Array.Add(piecesArray, seq.pieces);
+        }
+        return piecesArray;
     }
 
     // Return the closest puzzle piece to the player

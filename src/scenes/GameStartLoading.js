@@ -37,6 +37,10 @@ class GameStartLoading extends Phaser.Scene {
 
 
         */
+
+        // Load tutorial tilemap
+        this.load.tilemapTiledJSON("tutorialMap", "./assets/Tutorial Map v2.json");
+
         // Load the rest of the levels
         this.registry.set("levels", {
             easy: [],
