@@ -8,6 +8,7 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         this.EVENT_EMITTER_KEYS = {
             deathAnimCompleted: "deathAnimCompleted"
         }
+
         /*
         Properties
         */
@@ -48,45 +49,40 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         /*
         Set up animations
         */
-       
+
         this.scene.anims.create({
             key: "jebBottomIdleAnim",
-            frames: this.anims.generateFrameNumbers("jebBottomIdle", {start: 0}),
+            frames: this.anims.generateFrameNumbers("jebBottomIdleSpritesheet", {}),
             frameRate: 8,
             repeat: -1
         });
-
         this.scene.anims.create({
             key: "jebBottomMovingAnim",
-            frames: this.anims.generateFrameNumbers("jebBottomMoving", {start: 0}),
+            frames: this.anims.generateFrameNumbers("jebBottomMovingSpritesheet", {}),
             frameRate: 12,
             repeat: -1
             });
-
         this.scene.anims.create({
             key: "jebRingAnim",
-            frames: this.anims.generateFrameNumbers("jebRings", {start: 0}),
+            frames: this.anims.generateFrameNumbers("jebRingsSpritesheet", {}),
             frameRate: 8,
             repeat: -1
         });
-
         this.scene.anims.create({
             key: "jebTopAttackingAnim",
-            frames: this.anims.generateFrameNumbers("jebTopAttacking", {start: 0}),
+            frames: this.anims.generateFrameNumbers("jebTopAttackingSpritesheet", {}),
             frameRate: 30,
             repeat: 0
         });
-
         this.scene.anims.create({
             key: "jebTopChargingAnim",
-            frames: this.anims.generateFrameNumbers("jebTopCharging", {start: 0}),
+            frames: this.anims.generateFrameNumbers("jebTopChargingSpritesheet", {}),
             frameRate: 8,
             repeat: 0
         });
-
         this.scene.anims.create({
             key: "jebTopDeathAnim",
-            frames: this.anims.generateFrameNumbers("jebTopDeath", {start: 0}),
+            frames: this.anims.generateFrameNumbers("jebTopDeathSpritesheet", {}),
             frameRate: 8,
             repeat: 0
         });
@@ -100,13 +96,13 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         this.bottomRotationTween = this.scene.add.tween({targets: this});
 
         // Add sprites to use for render texture
-        this.bodyMiddle = this.scene.physics.add.sprite(0, 0, "jebRingOff", 0)
+        this.bodyMiddle = this.scene.physics.add.sprite(0, 0, "gameAtlas", "Jeb Ring Off.png")
             .setOrigin(0.5)
             .setAngularVelocity(24) // Give the sprite texture of this a small amount of rotation
         this.#hideBodyPart(this.bodyMiddle);
         this.bodyMiddle.play("jebRingAnim");
 
-        this.bodyTop = this.scene.physics.add.sprite(0, 0, "jebTopStart", 0)
+        this.bodyTop = this.scene.physics.add.sprite(0, 0, "gameAtlas", "Jeb Top Start.png")
             .setOrigin(0.5)
             .setData("initialAngle", -90);
         this.#hideBodyPart(this.bodyTop);

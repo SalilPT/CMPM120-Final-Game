@@ -32,27 +32,16 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.scene.anims.create({
             key: "enemyAnim",
             frameRate: 15,
-            frames: this.scene.anims.generateFrameNames("gameAtlas", {
-                prefix: "Enemy1IdleFrame",
-                suffix: ".png",
-                start: 1,
-                end: 8,
-            }),
+            frames: this.scene.anims.generateFrameNumbers("enemyIdleAnimSpritesheet", {}),
             repeat: -1
         });
-
         this.scene.anims.create({
             key: "enemyDeathAnim",
             frameRate: 15,
-            frames: this.scene.anims.generateFrameNames("gameAtlas", {
-                prefix: "Enemy1deathFrame",
-                suffix: ".png",
-                start: 1,
-                end: 9,
-            }),
+            frames: this.scene.anims.generateFrameNumbers("enemyDeathAnimSpritesheet", {}),
             repeat: 0
         });
-        
+
         this.play("enemyAnim");
 
         this.movementTimer = this.scene.time.addEvent({

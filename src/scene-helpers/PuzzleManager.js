@@ -322,14 +322,11 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             if (propsObj[this.TILEMAP_DATA_NAMES.puzzleObjIdentifier] === this.TILEMAP_DATA_NAMES.puzPieceObjValue) {
                 let newPiece = new PuzzlePiece({scene: this.parentScene, sequenceName: seqName, numInSequence: numInSequence});
                 assignProperties(newPiece);
-                // Play the correct animation
-                newPiece.play(newPiece.ANIMS_KEYS_ARRAY[newPiece.numInSequence - 1]);
                 this.addPuzzlePieceToSeq(newPiece, newPiece.sequenceName);
             }
             else if (propsObj[this.TILEMAP_DATA_NAMES.puzzleObjIdentifier] === this.TILEMAP_DATA_NAMES.puzHoleObjValue) {
                 let newHole = new PuzzleHole({scene: this.parentScene, sequenceName: seqName, numInSequence: numInSequence});
                 assignProperties(newHole);
-                newHole.setSprite();
                 this.addPuzzleHoleToSeq(newHole, newHole.sequenceName);
             }
         }

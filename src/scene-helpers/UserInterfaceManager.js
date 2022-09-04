@@ -8,7 +8,6 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         Constants
         */
         this.USER_INTERFACE_Z_INDEX = 1000;
-        this.HEALTH_ICON_TEXTURE_KEY = "lifeSymbol";
         this.HEALTH_TEXT_CONFIG = {
             fontFamily: "bulletFont",
             fontSize: "36px",
@@ -47,7 +46,7 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         this.healthText = this.parentScene.add.text(x + padAmount, y + padAmount, "HEALTH ", this.HEALTH_TEXT_CONFIG);
         this.healthText.setScrollFactor(0);
         // Get the first frame of the health icon's texture
-        this.healthIconFrame = this.parentScene.textures.get(this.HEALTH_ICON_TEXTURE_KEY).get(0);
+        this.healthIconFrame = this.parentScene.textures.getFrame("gameAtlas", "Life Symbol.png");
         const targetPt = this.healthText.getRightCenter();
         this.healthBoxRenderTexture = this.parentScene.add.renderTexture(targetPt.x, targetPt.y, this.healthIconFrame.width * startingHealth, this.healthIconFrame.height)
             .setOrigin(0, 0.5)
@@ -102,7 +101,7 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         return newButton;
     }
     createNewMenuButton(x, y, scale, text, targetSceneKey, data = null) {
-        let Button = this.parentScene.add.sprite(x, y , "tealButton")
+        let Button = this.parentScene.add.sprite(x, y, "gameAtlas", "tealButton.png")
         .setInteractive({useHandCursor: true})
         .on("pointerdown", () => this.parentScene.scene.start(targetSceneKey, data))
         .setScale(scale);
@@ -121,10 +120,10 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
         this.volumeLabelText = this.parentScene.add.text(x, centerY, "Volume: ", this.MENU_TEXT_CONFIG).setOrigin(0, 0.5);
         // Give the volume text placeholder text for positioning purposes
         this.volumeText = this.parentScene.add.text(this.volumeLabelText.getRightCenter().x, centerY, "100", this.MENU_TEXT_CONFIG).setOrigin(0, 0.5);
-        let volIncreaseArrow = this.parentScene.add.sprite(this.volumeText.getCenter().x, this.volumeText.getTopCenter().y - arrowToValuePadding, "pointing arrow").setOrigin(0.5);
+        let volIncreaseArrow = this.parentScene.add.sprite(this.volumeText.getCenter().x, this.volumeText.getTopCenter().y - arrowToValuePadding, "gameAtlas", "pointing arrow.png").setOrigin(0.5);
         volIncreaseArrow.setAngle(-initArrowAngle - 90);
         volIncreaseArrow.y -= volIncreaseArrow.height/2;
-        let volDecreaseArrow = this.parentScene.add.sprite(this.volumeText.getCenter().x, this.volumeText.getBottomCenter().y + arrowToValuePadding, "pointing arrow").setOrigin(0.5);
+        let volDecreaseArrow = this.parentScene.add.sprite(this.volumeText.getCenter().x, this.volumeText.getBottomCenter().y + arrowToValuePadding, "gameAtlas", "pointing arrow.png").setOrigin(0.5);
         volDecreaseArrow.setAngle(-initArrowAngle + 90);
         volDecreaseArrow.y += volDecreaseArrow.height/2;
         

@@ -48,21 +48,22 @@ class BulletPattern {
          */
         this.BULLET_TYPES = {
             "default": {
-                texture: "enemySprite",
-                frame: 0,
-                bulletScale: 0.5,
+                texture: "gameAtlas",
+                frame: "yellowBullet.png",
+                bulletScale: 3,
                 bodyConfig: {
-                    isRectangle: true
-                }
+                    radius: 4
+                },
+                initTexAngleDeg: -90,
             },
             "orangeBullet": {
-                texture: "orangeBullet",
-                frame: 0,
+                texture: "gameAtlas",
+                frame: "orangeBullet.png",
                 bulletScale: 3
             },
             "purpleBullet": {
-                texture: "purpleBullet",
-                frame: 0,
+                texture: "gameAtlas",
+                frame: "purpleBullet.png",
                 bulletScale: 3,
                 bodyConfig: {
                     radius: 4
@@ -70,8 +71,8 @@ class BulletPattern {
                 initTexAngleDeg: -90
             },
             "yellowBullet": {
-                texture: "yellowBullet",
-                frame: 0,
+                texture: "gameAtlas",
+                frame: "yellowBullet.png",
                 bulletScale: 3,
                 bodyConfig: {
                     radius: 4

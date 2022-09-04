@@ -8,12 +8,13 @@ class Menu extends Phaser.Scene {
 
     create() {
         this.anims.create({
-            key: 'jebTitleAnim',
-            frames: this.anims.generateFrameNames('jebTitle'),
+            key: "jebTitleAnim",
+            frames: this.anims.generateFrameNumbers("jebTitleSpritesheet", {}),
             frameRate: 23,
             yoyo: true,
             repeat: -1
         });
+
         this.userInterfaceMgr = new UserInterfaceManager(this, {});
         const halfGameWidth = globalGameConfig.width/2;
         const halfGameHeight = globalGameConfig.height/2;
@@ -36,8 +37,8 @@ class Menu extends Phaser.Scene {
         this.userInterfaceMgr.createNewMenuButton(halfGameWidth + 160, halfGameHeight + 2*160, 1, "Credits", "creditsScene");
 
         // Title Text
-        this.jebTitle = this.add.sprite(halfGameWidth/1.25, halfGameHeight - 320, 'jebTitle');
-        this.jebTitle.anims.play('jebTitleAnim')
+        this.jebTitle = this.add.sprite(halfGameWidth/1.25, halfGameHeight - 320, "gameAtlas", "jebNameTitleAnim.png");
+        this.jebTitle.anims.play("jebTitleAnim")
         this.add.text(this.jebTitle.x + this.jebTitle.width/2 + (64 * 2.5), halfGameHeight - 300, "Puzzling\n     Mission", 
         {
             fontFamily: "bulletFont",

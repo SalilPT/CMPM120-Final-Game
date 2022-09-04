@@ -36,8 +36,9 @@ class Tutorial extends Phaser.Scene {
             scene: this,
             x: plrSpawnPt.x,
             y: plrSpawnPt.y,
-            texture: "gameAtlas",
-            frame: "JebBottomIdle1.png"
+            // Get the first frame of Jeb's bottom idle spritesheet extracted from gameAtlas
+            texture: "jebBottomIdleSpritesheet",
+            frame: 0
         });
         this.playerChar.getMovManager().setMovSpd(400);
         this.playerChar.body.setCollideWorldBounds(true);

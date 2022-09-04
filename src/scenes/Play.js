@@ -73,8 +73,9 @@ class Play extends Phaser.Scene {
         //y: globalGame.config.height/2,
         x: plrSpawnPt.x,
         y: plrSpawnPt.y,
-        texture: "gameAtlas",
-        frame: "JebBottomIdle1.png"
+        // Get the first frame of Jeb's bottom idle spritesheet extracted from gameAtlas
+        texture: "jebBottomIdleSpritesheet",
+        frame: 0
         });
         this.playerChar.getMovManager().setMovSpd(400);
         this.physics.add.collider(this.playerChar, wallLayer);

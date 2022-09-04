@@ -136,8 +136,9 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
             scene: this.parentScene,
             x: spawnerPos.x,
             y: spawnerPos.y,
-            texture: "gameAtlas",
-            frame: "Enemy1IdleFrame1.png",
+            // Get the first frame of the enemy's idle spritesheet extracted from gameAtlas
+            texture: "enemyIdleAnimSpritesheet",
+            frame: 0, 
             playerChar: this.playerChar,
             parentSceneTilemap: this.parentSceneTilemap,
             parentSceneTilemapCollisionLayer: this.TILEMAP_DATA_NAMES.collisionLayerToUse
