@@ -224,7 +224,7 @@ class Play extends Phaser.Scene {
         for (const tiledObj of objLayer.objects) {
             let propsObj = tileset.getTileProperties(tiledObj.gid);
             if (propsObj["spawnerType"] == "player") {
-                return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y + tiledObj.height/2);
+                return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y - tileset.tileHeight + tiledObj.height/2); // subtract tileHeight here because of Tiled's origin convention of (0, 1)
             }
         }
     }
