@@ -200,8 +200,18 @@ class Play extends Phaser.Scene {
         this.backgroundMusic = this.sound.add("backgroundMusic").play({loop: true});
 
         // Camera
-        this.cameras.main.startFollow(this.playerChar, false, 0.75, 0.75)
-        .setBounds(0, 0, levelTilemap.widthInPixels, levelTilemap.heightInPixels);
+        this.cameras.main.startFollow(this.playerChar, false, 0.75, 0.75);
+        // If the map width is greater than or equal to the game width, have the camera's x center be based on the player character's center and the left and right edges of the map.
+        // Otherwise, horizontally center the camera on the map center.
+        // Similar deal with height
+        let mapWidthGreaterOrEqual = levelTilemap.widthInPixels >= globalGame.config.width;
+        let mapHeightGreaterOrEqual = levelTilemap.heightInPixels >= globalGame.config.height;
+        this.cameras.main.setBounds(
+            mapWidthGreaterOrEqual ? 0 : -(globalGame.config.width - levelTilemap.widthInPixels)/2,
+            mapHeightGreaterOrEqual ? 0 : -(globalGame.config.height - levelTilemap.heightInPixels)/2,
+            mapWidthGreaterOrEqual ? levelTilemap.widthInPixels : globalGame.config.width,
+            mapHeightGreaterOrEqual ? levelTilemap.heightInPixels : globalGame.config.height
+        );
     }
 
     update() {

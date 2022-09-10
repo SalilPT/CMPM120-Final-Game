@@ -59,8 +59,16 @@ class Tutorial extends Phaser.Scene {
         this.puzHoleGroup.addMultiple(this.puzManager.getAllHoles());
 
         // Camera
-        this.cameras.main.startFollow(this.playerChar, false, 0.75, 0.75)
-        .setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+        this.cameras.main.startFollow(this.playerChar, false, 0.75, 0.75);
+        // Camera behavior copied from Play.js
+        let mapWidthGreaterOrEqual = map.widthInPixels >= globalGame.config.width;
+        let mapHeightGreaterOrEqual = map.heightInPixels >= globalGame.config.height;
+        this.cameras.main.setBounds(
+            mapWidthGreaterOrEqual ? 0 : -(globalGame.config.width - map.widthInPixels)/2,
+            mapHeightGreaterOrEqual ? 0 : -(globalGame.config.height - map.heightInPixels)/2,
+            mapWidthGreaterOrEqual ? map.widthInPixels : globalGame.config.width,
+            mapHeightGreaterOrEqual ? map.heightInPixels : globalGame.config.height
+        );
 
         // Glowing Holes Tween
         this.tweens.add({

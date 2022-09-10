@@ -29,9 +29,9 @@ class GameStartLoading extends Phaser.Scene {
             hard: []
         });
         
-        const NUM_EASY_LEVELS = 3;
-        const NUM_MEDIUM_LEVELS = 1;
-        const NUM_HARD_LEVELS = 1;
+        const NUM_EASY_LEVELS = 4;
+        const NUM_MEDIUM_LEVELS = 3;
+        const NUM_HARD_LEVELS = 3;
 
         // Note: A simple try {...} catch {...} doesn't catch HTTP 404 responses.
         // Load easy levels
