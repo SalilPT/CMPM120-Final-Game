@@ -7,6 +7,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.parentSceneTilemap = params.parentSceneTilemap;
         // The name of the layer with tiles that have collision.
         this.parentSceneTilemapCollisionLayer = params.parentSceneTilemapCollisionLayer;
+        // The time in milliseconds between bullet patterns
+        this.bulletPatternCooldown = params.bulletPatternCooldown;
 
         /*
         Constants
@@ -22,9 +24,13 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         /*
         Properties
         */
-        //this.setTexture("gameAtlas", "Enemy1IdleFrame1.png")
         
         this.health = params.health ?? 5;
+
+        // Variables used for enemy spawners
+        // this.hasMoved changes to true once it has lunged toward the player at least once
+        this.parentSpawner = params.parentSpawner;
+        this.hasMoved = false;
 
         // The initial angle of this object's graphics
         this.initAngle = -90;
@@ -45,7 +51,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.play("enemyAnim");
 
         this.movementTimer = this.scene.time.addEvent({
-            delay: 0.75 *1000,
+            delay: 0.75 * 1000,
             callback: () => {
                 this.moveTowardsPlayer();
             },
@@ -64,7 +70,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.takingDamageEffectTimer;
 
         this.bulletPatternTimer = this.scene.time.addEvent({
-            delay: 0.5 * 1000,
+            delay: this.bulletPatternCooldown,
             callback: () => {
                     // Don't spawn bullets from this enemy if it can't see the player character
                     if (!this.#canSeePlayerChar()) {
@@ -111,6 +117,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         let vec = this.scene.physics.velocityFromAngle(angleToPlayer, 200);
         this.body.setVelocity(vec.x, vec.y);
         this.facePlayerChar();
+        
+        // Update variable used for enemy spawners
+        this.hasMoved = true;
+
+        // After a short amount of time, stop moving
         this.scene.time.addEvent({
             delay: 500,
             callback: () => {
@@ -118,7 +129,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                     this.body.setVelocity(0, 0);
                 }
             }
-        })
+        });
     }
     
     takeDamage(damage = 1) {

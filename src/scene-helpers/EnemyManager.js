@@ -5,6 +5,7 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
         this.parentScene = parentScene;
         this.playerChar = config.playerChar;
         this.parentSceneTilemap = config.tilemap; // Passed to enemies that are spawned by this
+        this.enemyBulletPatternCooldown = config.enemyBulletPatternCooldown; // Passed to enemies that are spawned by this
 
         /*
         Constants
@@ -126,6 +127,31 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
         return this.enemySpawners;
     }
 
+    // Choose a spawner at random and spawn an enemy there.
+    // If allowEnemyOverlap is set to false, then it will only choose spawners that don't have an enemy in front of them.
+    // If there are no eligible spawners, then it won't spawn any.
+    spawnEnemyAtRandomSpawner(allowEnemyOverlap = false) {
+        let possibleSpawners = Array.from(this.enemySpawners.getChildren()); // Shallow copy
+
+        if (allowEnemyOverlap) {
+            let s = Phaser.Math.RND.pick(possibleSpawners);
+            this.spawnEnemyAtSpawner(s);
+            return;
+        }
+
+        for (const enemy of this.allEnemies.getChildren()) {
+            if (enemy.hasMoved) {
+                continue;
+            }
+            Phaser.Utils.Array.Remove(possibleSpawners, enemy.parentSpawner);
+        }
+
+        let s = Phaser.Math.RND.pick(possibleSpawners);
+        if (s != null) {
+            this.spawnEnemyAtSpawner(s);
+        }
+    }
+
     spawnEnemyAtSpawner(spawner) {
         // Play spawner animation
         spawner.play("enemySpawnerAnim");
@@ -141,7 +167,9 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
             frame: 0, 
             playerChar: this.playerChar,
             parentSceneTilemap: this.parentSceneTilemap,
-            parentSceneTilemapCollisionLayer: this.TILEMAP_DATA_NAMES.collisionLayerToUse
+            parentSceneTilemapCollisionLayer: this.TILEMAP_DATA_NAMES.collisionLayerToUse,
+            parentSpawner: spawner,
+            bulletPatternCooldown: this.enemyBulletPatternCooldown
         });
         this.allEnemies.add(newEnemy);
 

@@ -22,19 +22,19 @@ class Play extends Phaser.Scene {
         // Figure out what difficulty this map should be
         this.completedLevels = data.completedLevels ?? [];
         let numCompletedLevels = this.completedLevels.length;
-        let difficulty;
+        this.difficulty = undefined;
         if (numCompletedLevels < NUM_EASY_LEVELS_REQUIRED) {
-            difficulty = "easy";
+            this.difficulty = "easy";
         }
         else if (numCompletedLevels < NUM_EASY_LEVELS_REQUIRED + NUM_MEDIUM_LEVELS_REQUIRED) {
-            difficulty = "medium";
+            this.difficulty = "medium";
         }
         else {
-            difficulty = "hard";
+            this.difficulty = "hard";
         }
 
         // Based on the difficulty, get the appropriate level data keys
-        this.possibleLevels = this.registry.values.levels[difficulty];
+        this.possibleLevels = this.registry.values.levels[this.difficulty];
         
         this.possibleLevels = this.possibleLevels.filter((level) => {return !this.completedLevels.includes(level);}); 
     }
@@ -44,6 +44,32 @@ class Play extends Phaser.Scene {
     }
 
     create() {
+        /*
+        Constants
+        */
+        // The maximum amount of enemies concurrently allowed in the current level
+        const MAX_ENEMIES_OBJ = {
+            "easy": 3,
+            "medium": 6,
+            "hard": 12
+        };
+
+        // Object to hold the time, in milliseconds, between the enemy manager's attempts to spawn an enemy
+        const ENEMY_SPAWN_COOLDOWN_TIMES = {
+            "easy": 2000,
+            "medium": 1950,
+            "hard": 1900
+        }
+
+        // Object to hold the time, in milliseconds, between each enemy's attempt to fire a bullet pattern
+        const ENEMY_FIRING_COOLDOWN_TIMES = {
+            "easy": 750,
+            "medium": 625,
+            "hard": 500
+        }
+
+        /*
+        */
         //this.possibleLevels = ["hard1"].filter((level) => {return !this.completedLevels.includes(level)});
         if (this.possibleLevels.length == 0) {
             console.log("No possible levels");
@@ -87,22 +113,28 @@ class Play extends Phaser.Scene {
         // Enemy spawners
         this.enemyMgr = new EnemyManager(this, {
             playerChar: this.playerChar,
-            tilemap: levelTilemap
+            tilemap: levelTilemap,
+            enemyBulletPatternCooldown: ENEMY_FIRING_COOLDOWN_TIMES[this.difficulty]
         });
         this.enemyMgr.createEnemySpawnersFromTilemap(levelTilemap);
-        let spawners = this.enemyMgr.getEnemySpawnersGroup();
         this.time.addEvent({
-            delay: 2 * 1000,
+            delay: ENEMY_SPAWN_COOLDOWN_TIMES[this.difficulty],
             callback: () => {
+                // Don't exceed the maximum amount of enemies
+                if (this.enemyMgr.getEnemiesGroup().getLength() == MAX_ENEMIES_OBJ[this.difficulty]) {
+                    return;
+                }
+
+                // Don't spawn any more enemies after the puzzle is completed
                 if (this.puzMgr.puzzleCompleted()) {
                     return;
                 }
-                let s = Phaser.Math.RND.pick(spawners.getChildren());
-                this.enemyMgr.spawnEnemyAtSpawner(s);
+
+                this.enemyMgr.spawnEnemyAtRandomSpawner();
             },
             loop: true
         });
-        // Move enemies
+        // Enemy collisions with walls
         this.physics.add.collider(this.enemyMgr.getEnemiesGroup(), wallLayer);
 
         
@@ -234,7 +266,7 @@ class Play extends Phaser.Scene {
         for (const tiledObj of objLayer.objects) {
             let propsObj = tileset.getTileProperties(tiledObj.gid);
             if (propsObj["spawnerType"] == "player") {
-                return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y - tileset.tileHeight + tiledObj.height/2); // subtract tileHeight here because of Tiled's origin convention of (0, 1)
+                return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y - tileset.tileHeight + tiledObj.height/2); // Subtract tileHeight here because of Tiled's origin convention of (0, 1)
             }
         }
     }
