@@ -112,9 +112,15 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (!this.#canSeePlayerChar()) {
             return;
         }
+        
+        // Don't move towards player character if too close
+        // This prevents the enemy from going onto the player character and then taking damage from sitting in the same spot as the player character's gun
+        if (Phaser.Math.Distance.BetweenPoints(this.body.center, this.playerChar.body.center) < 64 * 2.5) {
+            return;
+        }
 
         let angleToPlayer = this.#getAngleToPlayerChar();
-        let vec = this.scene.physics.velocityFromAngle(angleToPlayer, 200);
+        let vec = this.scene.physics.velocityFromAngle(angleToPlayer, 192);
         this.body.setVelocity(vec.x, vec.y);
         this.facePlayerChar();
         
