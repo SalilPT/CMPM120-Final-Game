@@ -1,13 +1,9 @@
 {
-    "tutorialEnd": {
-        "message":"GREAT JOB!!\nYou completed the puzzle",
+    "TutorialPart1End": {
+        "message":"Great job!\nYou completed the puzzle.",
         "keyboardInput": "SPACE",
         "SwitchScene":{
-            "shouldSwitch": true,
-            "shouldStopScenes" : true,
-            "sceneToSwitchTo": "demoMenuScene",
-            "scenesToStop": ["tutorialScene"]
-
+            "shouldSwitch": true
         }
     },
     "Wasd":{
@@ -17,18 +13,30 @@
             "shouldSwitch": false
         }
     },
-    "ClickToFire":{
-        "message": "Click to Fire",
-        "keyboardInput": "SPACE",
-        "SwitchScene":{
-            "shouldSwitch": false
-        }
-    },
     "SpaceToInteract":{
         "message":"Press SPACE to pick up/drop\npuzzle pieces, order matters!",
         "keyboardInput": "SPACE",
         "SwitchScene":{
             "shouldSwitch": false
+        }
+    },
+
+    "WatchOutForEnemies": {
+        "message": "Watch out for enemies! Use your mouse to aim\nyour gun at them. Once the puzzle is completed,\nthey'll stop spawning.",
+        "SwitchScene":{
+            "shouldSwitch": false
+        }
+    },
+    "TookTooMuchDamage": {
+        "message": "Oh no, you took too much damage!\n Click your mouse to try again.",
+        "SwitchScene":{
+            "shouldSwitch": true
+        }
+    },
+    "TutorialPart2End": {
+        "message": "Excellent! You're ready to go on a real mission.",
+        "SwitchScene":{
+            "shouldSwitch": true
         }
     }
 }
