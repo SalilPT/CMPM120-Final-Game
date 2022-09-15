@@ -29,7 +29,6 @@ class Menu extends Phaser.Scene {
             }
         });
 
-        this.sound.pauseOnBlur = false;
         this.userInterfaceMgr.createNewMenuButton(halfGameWidth, halfGameHeight, 1, "Play", "playScene", {}) // An empty object is passed as data here to the Play scene's init() method to make level progression work properly.
         .once("pointerdown", () => this.sound.removeByKey("menuBeat"));
         this.userInterfaceMgr.createNewMenuButton(halfGameWidth, halfGameHeight + 1*160, 1, "Tutorial", "tutorialScene");
@@ -47,6 +46,12 @@ class Menu extends Phaser.Scene {
             stroke: "#160F29",
             strokeThickness: 10
         }).setOrigin(0.5);
+
+        // Audio
+
+        // Prevent stacked audio when clicking back in game window
+        // This sound manager is global, so this property will persist across scenes and scene changes
+        this.sound.pauseOnBlur = false;
     }
 
     update() {

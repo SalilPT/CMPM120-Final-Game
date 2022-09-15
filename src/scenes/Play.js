@@ -228,7 +228,6 @@ class Play extends Phaser.Scene {
         this.userInterfaceMgr.createHealthBox(32, 32, this.playerChar.health);
 
         // Audio
-        this.sound.pauseOnBlur = false; // Prevents stacked audio when clicking back in game window
         this.backgroundMusic = this.sound.add("backgroundMusic").play({loop: true});
 
         // Camera
