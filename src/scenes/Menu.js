@@ -44,7 +44,8 @@ class Menu extends Phaser.Scene {
             fontSize: "96px",
             color: "#76c2e8",
             stroke: "#160F29",
-            strokeThickness: 10
+            strokeThickness: 10,
+            resolution: 8
         }).setOrigin(0.5);
 
         // Audio

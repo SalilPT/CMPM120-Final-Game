@@ -28,13 +28,17 @@ class TextBoxes extends Phaser.Scene {
             fontSize: "60px",
             color: "#F7F6F3",
             stroke: "#160F29",
-            strokeThickness: 4
-        }
-        this.exitTextConfig = {fontFamily: "bulletFont",
-        fontSize: "40px",
-        color: "#F7F6F3",
-        stroke: "#160F29",
-        strokeThickness: 3};
+            strokeThickness: 4,
+            resolution: 8
+        };
+        this.exitTextConfig = {
+            fontFamily: "bulletFont",
+            fontSize: "40px",
+            color: "#F7F6F3",
+            stroke: "#160F29",
+            strokeThickness: 3,
+            resolution: 8
+        };
         // create a small text box
         this.textBoxSprite = this.add.sprite(globalGameConfig.width/2, globalGameConfig.height/2, "textBox");
         this.textBoxSprite.setScale(0.05); // initially shrink the text box

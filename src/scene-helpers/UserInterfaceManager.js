@@ -13,14 +13,16 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
             fontSize: "36px",
             color: "#F7F6F3",
             stroke: "#160F29",
-            strokeThickness: 4
+            strokeThickness: 4,
+            resolution: 8
         }
         this.MENU_TEXT_CONFIG = {
             fontFamily: "bulletFont",
             fontSize: "55px",
             color: "#F7F6F3",
             stroke: "#160F29",
-            strokeThickness: 4
+            strokeThickness: 4,
+            resolution: 8
         }
 
         /*

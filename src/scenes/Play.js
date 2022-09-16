@@ -74,7 +74,8 @@ class Play extends Phaser.Scene {
             fontFamily: "bulletFont",
             fontSize: "50px",
             stroke: "black",
-            strokeThickness: 1
+            strokeThickness: 1,
+            resolution: 8
         }
 
         this.TEXT_Z_INDEX = 20;

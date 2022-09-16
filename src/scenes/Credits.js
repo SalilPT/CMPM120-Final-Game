@@ -32,7 +32,8 @@ class Credits extends Phaser.Scene {
             fontSize: "48px",
             color: "#F7F6F3",
             stroke: "#160F29",
-            strokeThickness: 4
+            strokeThickness: 4,
+            resolution: 8
         }).setOrigin(0.5);
     }
 
