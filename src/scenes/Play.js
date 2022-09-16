@@ -278,6 +278,8 @@ class Play extends Phaser.Scene {
             mapWidthGreaterOrEqual ? levelTilemap.widthInPixels : globalGame.config.width,
             mapHeightGreaterOrEqual ? levelTilemap.heightInPixels : globalGame.config.height
         );
+
+        this.cameras.main.setBackgroundColor("#222222");
     }
 
     update() {

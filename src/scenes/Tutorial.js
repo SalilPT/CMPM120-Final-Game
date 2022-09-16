@@ -82,6 +82,8 @@ class Tutorial extends Phaser.Scene {
             mapHeightGreaterOrEqual ? this.map.heightInPixels : globalGame.config.height
         );
 
+        this.cameras.main.setBackgroundColor("#222222");
+
         // Glowing Holes Tween
         this.tweens.add({
             targets: this.puzHoleGroup.getChildren(),
