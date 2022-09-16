@@ -37,6 +37,46 @@ class UserInterfaceManager extends Phaser.GameObjects.GameObject {
     /*
     Public Methods
     */
+    createExtremeModeSetting(centerX, centerY) {
+        // Top text
+        let topText = this.parentScene.add.text(centerX, centerY, "EXTREME MODE", this.MENU_TEXT_CONFIG).setOrigin(0.5);
+
+        // Button
+        let newButton = this.parentScene.add.sprite(centerX, centerY, "gameAtlas", "tealButton.png").setOrigin(0.5);
+        let onOrOffText = globalGame.registry.values.extremeModeOn ? "OFF" : "ON"; // Put after "Turn" on the button
+        let toggleText = this.scene.add.text(newButton.getCenter().x, centerY, "Turn " + onOrOffText, this.MENU_TEXT_CONFIG)
+            .setOrigin(0.5)
+            .setFontSize(48)
+            ;
+
+        newButton.setInteractive({useHandCursor: true})
+            .on("pointerdown", () => {
+                globalGame.registry.values.extremeModeOn = !globalGame.registry.values.extremeModeOn;
+                onOrOffText = globalGame.registry.values.extremeModeOn ? "OFF" : "ON";
+                toggleText.setText("Turn " + onOrOffText);
+            });
+
+        // Bottom text
+        let descriptionText = this.parentScene.add.text(centerX, centerY, "In extreme mode, you have less health, your mission lasts 10 rooms, and it's game over if you die.", this.MENU_TEXT_CONFIG)
+            .setOrigin(0.5)    
+            .setWordWrapWidth(topText.width*2)
+            ;
+
+        // Put the parts in a row and horizontally align them
+        const marginInPx = 8;
+        topText.setPosition(centerX, 256);
+        Phaser.Display.Align.To.BottomCenter(newButton, topText, 0, marginInPx);
+        Phaser.Display.Align.To.BottomCenter(descriptionText, newButton, 0, marginInPx);
+        descriptionText.setX(topText.getCenter().x + 16); // Added a bit of offset here because it looks better
+
+        const centerBeforeCorrection = topText.getTopCenter().y + (descriptionText.getBottomCenter().y - topText.getTopCenter().y)/2;
+        const centerOffset = centerY - centerBeforeCorrection;
+
+        this.scene.add.group([topText, newButton, descriptionText]).incY(centerOffset);
+
+        // Put toggleText back on button
+        toggleText.setPosition(newButton.getCenter().x, newButton.getCenter().y);
+    }
 
     createHealthBox(x, y, startingHealth) {
         // Make surroounding box

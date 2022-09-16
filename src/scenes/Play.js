@@ -5,9 +5,10 @@ class Play extends Phaser.Scene {
 
     init(data) {
         // Constants for game balancing
-        const NUM_EASY_LEVELS_REQUIRED = 3;
-        const NUM_MEDIUM_LEVELS_REQUIRED = 1;
-        const NUM_HARD_LEVELS_REQUIRED = 1;
+        let isNormalPlaythrough = !globalGame.registry.values.extremeModeOn;
+        const NUM_EASY_LEVELS_REQUIRED = (isNormalPlaythrough ? 3 : 4);
+        const NUM_MEDIUM_LEVELS_REQUIRED = (isNormalPlaythrough ? 1 : 3);
+        const NUM_HARD_LEVELS_REQUIRED = (isNormalPlaythrough ? 1 : 3);
         const TOTAL_LEVELS = NUM_EASY_LEVELS_REQUIRED + NUM_HARD_LEVELS_REQUIRED + NUM_HARD_LEVELS_REQUIRED;
 
         // Update the number of levels left
@@ -68,6 +69,16 @@ class Play extends Phaser.Scene {
             "hard": 500
         }
 
+        this.PLAY_SCENE_TEXT_CONFIG = {
+            color: "white",
+            fontFamily: "bulletFont",
+            fontSize: "50px",
+            stroke: "black",
+            strokeThickness: 1
+        }
+
+        this.TEXT_Z_INDEX = 20;
+
         /*
         */
         //this.possibleLevels = ["hard1"].filter((level) => {return !this.completedLevels.includes(level)});
@@ -103,6 +114,11 @@ class Play extends Phaser.Scene {
         texture: "jebBottomIdleSpritesheet",
         frame: 0
         });
+
+        if (globalGame.registry.values.extremeModeOn) {
+            this.playerChar.health = 4;
+        }
+
         this.playerChar.getMovManager().setMovSpd(400);
         this.physics.add.collider(this.playerChar, wallLayer);
 
@@ -154,7 +170,16 @@ class Play extends Phaser.Scene {
             this.fadeOutBGM(500);
 
             this.playerChar.once("deathAnimCompleted", () => {
-                this.restartLevelFromDeath();
+                this.sound.removeByKey("backgroundMusic");
+                // Extreme mode is off; restart the current level
+                if (!globalGame.registry.values.extremeModeOn) {
+                    this.restartLevelFromDeath();
+                }
+                
+                // Extreme mode is on; return to the menu screen
+                else {
+                    this.playExtremeModeLoseSequence();
+                }
             });
         });
 
@@ -207,10 +232,20 @@ class Play extends Phaser.Scene {
                     this.time.removeEvent(gameEndCheck);
                     // Put text at center of screen
                     if (this.levelsLeft >= 1) {
-                        this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, `Room Cleared\n${this.levelsLeft} Remain` + (this.levelsLeft == 1 ? "s ": ""), {align: "center", color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
+                        this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, `Room Cleared\n${this.levelsLeft} Remain` + (this.levelsLeft == 1 ? "s ": ""), this.PLAY_SCENE_TEXT_CONFIG)
+                        .setAlign("center")
+                        .setOrigin(0.5)
+                        .setScrollFactor(0)
+                        .setDepth(this.TEXT_Z_INDEX)
+                        ;
                     }
                     else {
-                        this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, "MISSION COMPLETED", {color: "white", fontFamily: "bulletFont", fontSize: "50px", stroke: "black", strokeThickness: 1}).setOrigin(0.5).setScrollFactor(0);
+                        let completionMessage = !globalGame.registry.values.extremeModeOn ? "MISSION COMPLETED" : "MISSION COMPLETED!";
+                        this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, completionMessage, this.PLAY_SCENE_TEXT_CONFIG)
+                        .setOrigin(0.5)
+                        .setScrollFactor(0)
+                        .setDepth(this.TEXT_Z_INDEX)
+                        ;
                     }
 
                     this.fadeOutBGM(1500);
@@ -268,6 +303,22 @@ class Play extends Phaser.Scene {
                 return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y - tileset.tileHeight + tiledObj.height/2); // Subtract tileHeight here because of Tiled's origin convention of (0, 1)
             }
         }
+    }
+
+    playExtremeModeLoseSequence() {
+        // Game over text
+        this.time.delayedCall(250, () => {
+            this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, "GAME OVER", this.PLAY_SCENE_TEXT_CONFIG)
+                .setOrigin(0.5)
+                .setScrollFactor(0)
+                .setDepth(this.TEXT_Z_INDEX)
+                ;
+        });
+
+        // Return to the menu
+        this.time.delayedCall(2000 + 250, () => {
+            this.scene.start("menuScene");
+        });
     }
 
     restartLevelFromDeath() {

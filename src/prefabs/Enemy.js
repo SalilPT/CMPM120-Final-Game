@@ -81,6 +81,10 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
                         return;
                     }
 
+                    if (this.playerChar.isDead()) {
+                        return;
+                    }
+
                     let randomTarget = new Phaser.Geom.Point(
                         this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64), 
                         this.playerChar.body.center.y + Phaser.Math.RND.integerInRange(-64, 64)

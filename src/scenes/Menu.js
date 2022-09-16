@@ -52,6 +52,9 @@ class Menu extends Phaser.Scene {
         // Prevent stacked audio when clicking back in game window
         // This sound manager is global, so this property will persist across scenes and scene changes
         this.sound.pauseOnBlur = false;
+
+        // Game registry variables
+        globalGame.registry.values.extremeModeOn ??= false;
     }
 
     update() {
