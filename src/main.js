@@ -8,6 +8,7 @@ let globalGameConfig = {
     width: 1600,
     height: 900,
     backgroundColor: 0x646E78,
+    disableContextMenu: true,
     physics: {
         default: "arcade",
         arcade: {
