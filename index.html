@@ -24,11 +24,17 @@
             image-rendering: -webkit-optimize-contrast;
             image-rendering: pixelated;
             image-rendering: crisp-edges;
+
+            /*
+            Center the game and replace default value for margins
+            Not sure why using display: flex works here, but display: block doesn't
+            */
+            display: flex;
+            margin: auto;
         }
 
-        /* Horizontally and vertically center the game */
         canvas {
-            display: block;
+            /* Center the game */
             margin: auto;
         }
 

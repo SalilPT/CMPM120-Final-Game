@@ -15,7 +15,11 @@ let globalGameConfig = {
             debug: false
         }
     },
-    scale: {mode: Phaser.Scale.FIT},
+    scale: {
+        width: 1600,
+        height: 900,
+        mode: Phaser.Scale.FIT
+    },
     scene: [GameStartLoading, Menu, Play, DemoMenu, Credits, Settings, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
 }
 
