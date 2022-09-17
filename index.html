@@ -5,17 +5,36 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jeb's Puzzling Mission</title>
-
     <style>
+        /* learned to include fonts through this guide https://learn.yorkcs.com/2019/09/28/phaser-3-basics-custom-fonts/ */
+        @font-face {
+            font-family: bulletFont;
+            src: url('./assets/fonts/bullet-storm.ttf');
+        }
+
+        body {
+            /* Darken background */
+            background-blend-mode: darken;
+            background-color: rgba(0, 0, 0, 0.55);
+
+            background-image: url("./assets/Metal Plating Background.png");
+            background-repeat: repeat;
+            background-size: calc(128px * 2) calc(128px * 2);
+
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
         /* Horizontally and vertically center the game */
         canvas {
             display: block;
             margin: auto;
         }
-        /* learned to include fonts through this guide https://learn.yorkcs.com/2019/09/28/phaser-3-basics-custom-fonts/ */
-        @font-face {
-            font-family: bulletFont;
-            src: url('./assets/fonts/bullet-storm.ttf');
+
+        html {
+            /* For some reason, this needs to be here for background darkening to work properly on Firefox */
+            background-color: rgba(0, 0, 0, 0.55);
         }
     </style>
     <div style="font-family:bulletFont; position:absolute; left:-1000px; visibility:hidden;">.</div>
