@@ -168,10 +168,9 @@ class Play extends Phaser.Scene {
                 return;
             }
             
-            this.fadeOutBGM(500);
+            this.fadeOutBGM(750);
 
             this.playerChar.once("deathAnimCompleted", () => {
-                this.sound.removeByKey("backgroundMusic");
                 // Extreme mode is off; restart the current level
                 if (!globalGame.registry.values.extremeModeOn) {
                     this.restartLevelFromDeath();
@@ -320,17 +319,20 @@ class Play extends Phaser.Scene {
 
         // Return to the menu
         this.time.delayedCall(2000 + 250, () => {
+            this.sound.removeByKey("backgroundMusic");
             this.scene.start("menuScene");
         });
     }
 
     restartLevelFromDeath() {
-        this.sound.removeByKey("backgroundMusic");
-        this.scene.restart({
-            fromRestart: true,
-            levelsLeft: this.levelsLeft,
-            completedLevels: this.completedLevels,
-            restartLevelName: this.levelThatWasPicked
+        this.time.delayedCall(750, () => {
+            this.sound.removeByKey("backgroundMusic");
+            this.scene.restart({
+                fromRestart: true,
+                levelsLeft: this.levelsLeft,
+                completedLevels: this.completedLevels,
+                restartLevelName: this.levelThatWasPicked
+            });
         });
     }
 
