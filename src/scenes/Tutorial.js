@@ -288,7 +288,10 @@ class Tutorial extends Phaser.Scene {
         let gameEndCheck = this.time.addEvent({
             delay: 1000/globalGame.loop.targetFps,
             callback: () => {
-                if (this.puzMgr.puzzleCompleted() && this.enemyMgr.getEnemiesGroup().getLength() == 0 && this.bltMgr.getEnemyBulletsGroup().getLength() == 0) {
+                if (this.puzMgr.puzzleCompleted()
+                    && this.enemyMgr.getEnemiesGroup().getLength() == 0
+                    && this.bltMgr.getEnemyBulletsGroup().getLength() == 0
+                    && !this.playerChar.isDead()) {
                     this.time.removeEvent(gameEndCheck);
 
                     // Change the init data of this scene so that it resets properly

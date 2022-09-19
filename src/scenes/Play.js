@@ -228,7 +228,10 @@ class Play extends Phaser.Scene {
         let gameEndCheck = this.time.addEvent({
             delay: 1000/globalGame.loop.targetFps,
             callback: () => {
-                if (this.puzMgr.puzzleCompleted() && this.enemyMgr.getEnemiesGroup().getLength() == 0 && this.bltMgr.getEnemyBulletsGroup().getLength() == 0) {
+                if (this.puzMgr.puzzleCompleted()
+                    && this.enemyMgr.getEnemiesGroup().getLength() == 0
+                    && this.bltMgr.getEnemyBulletsGroup().getLength() == 0
+                    && !this.playerChar.isDead()) {
                     this.time.removeEvent(gameEndCheck);
                     // Put text at center of screen
                     if (this.levelsLeft >= 1) {
