@@ -233,6 +233,8 @@ class Play extends Phaser.Scene {
                     && this.bltMgr.getEnemyBulletsGroup().getLength() == 0
                     && !this.playerChar.isDead()) {
                     this.time.removeEvent(gameEndCheck);
+                    let missionCompleted = false;
+
                     // Put text at center of screen
                     if (this.levelsLeft >= 1) {
                         this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, `Room Cleared\n${this.levelsLeft} Remain` + (this.levelsLeft == 1 ? "s ": ""), this.PLAY_SCENE_TEXT_CONFIG)
@@ -243,6 +245,7 @@ class Play extends Phaser.Scene {
                         ;
                     }
                     else {
+                        missionCompleted = true;
                         let completionMessage = !globalGame.registry.values.extremeModeOn ? "MISSION COMPLETED" : "MISSION COMPLETED!";
                         this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, completionMessage, this.PLAY_SCENE_TEXT_CONFIG)
                         .setOrigin(0.5)
@@ -251,9 +254,9 @@ class Play extends Phaser.Scene {
                         ;
                     }
 
-                    this.fadeOutBGM(1500);
+                    this.fadeOutBGM(!missionCompleted ? 1500 : 2500);
 
-                    this.time.delayedCall(2000, () => {
+                    this.time.delayedCall(!missionCompleted ? 2000 : 3000, () => {
                         this.transitionToNextLevel();
                     });
                 }
