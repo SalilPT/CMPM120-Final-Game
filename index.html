@@ -5,17 +5,42 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jeb's Puzzling Mission</title>
-
     <style>
-        /* Horizontally and vertically center the game */
-        canvas {
-            display: block;
-            margin: auto;
-        }
         /* learned to include fonts through this guide https://learn.yorkcs.com/2019/09/28/phaser-3-basics-custom-fonts/ */
         @font-face {
             font-family: bulletFont;
             src: url('./assets/fonts/bullet-storm.ttf');
+        }
+
+        body {
+            /* Darken background */
+            background-blend-mode: darken;
+            background-color: rgba(0, 0, 0, 0.55);
+
+            background-image: url("./assets/Metal Plating Background.png");
+            background-repeat: repeat;
+            background-size: calc(128px * 2) calc(128px * 2);
+
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+
+            /*
+            Center the game and replace default value for margins
+            Not sure why using display: flex works here, but display: block doesn't
+            */
+            display: flex;
+            margin: auto;
+        }
+
+        canvas {
+            /* Center the game */
+            margin: auto;
+        }
+
+        html {
+            /* For some reason, this needs to be here for background darkening to work properly on Firefox */
+            background-color: rgba(0, 0, 0, 0.55);
         }
     </style>
     <div style="font-family:bulletFont; position:absolute; left:-1000px; visibility:hidden;">.</div>
@@ -33,7 +58,6 @@
     <!--Prefabs files-->
     <script src="./src/prefabs/BulletPattern.js"></script>
     <script src="./src/prefabs/Enemy.js"></script>
-    <script src="./src/prefabs/EnemySpawner.js"></script>
     <script src="./src/prefabs/PlayerCharacter.js"></script>
     <script src="./src/prefabs/PlayerMovementManager.js"></script>
     <script src="./src/prefabs/PuzzleHole.js"></script>
@@ -47,15 +71,10 @@
     <script src="./src/scene-helpers/UserInterfaceManager.js"></script>
 
     <!--Scene Files-->
-    <script src="./src/scenes/BulletsDemo.js"></script>
     <script src="./src/scenes/Credits.js"></script>
     <script src="./src/scenes/GameStartLoading.js"></script>
-    <script src="./src/scenes/LevelGenDemo.js"></script>
-    <script src="./src/scenes/DemoMenu.js"></script>
     <script src="./src/scenes/Menu.js"></script>
-    <script src="./src/scenes/MovementAndAimingDemo.js"></script>
     <script src="./src/scenes/Play.js"></script>
-    <script src="./src/scenes/PuzzleDemo.js"></script>
     <script src="./src/scenes/TextBoxes.js"></script>
     <script src="./src/scenes/Tutorial.js"></script>
     <script src="./src/scenes/Settings.js"></script>

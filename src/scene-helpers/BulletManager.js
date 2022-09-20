@@ -54,13 +54,12 @@ class BulletManager extends Phaser.GameObjects.GameObject {
         */
         // Listen to events emitted by the parent scene indicting that a bullet pattern should be created
         let bulletPatternListenerFunction = (patternKey, patternConfig) => {
-            //console.log("shoot", patternKey, patternConfig);
             this.addPattern(patternKey, patternConfig);
         };
         this.scene.events.on("addBulletPattern", bulletPatternListenerFunction, this);
         this.scene.events.once("shutdown", () => {
-            this.scene.events.removeListener("addBulletPattern", bulletPatternListenerFunction, this);});
-       
+            this.scene.events.removeListener("addBulletPattern", bulletPatternListenerFunction, this);
+        });
     }
 
     /*
@@ -81,7 +80,7 @@ class BulletManager extends Phaser.GameObjects.GameObject {
             bulletToSpawn = targetPool.getFirst();
 
             targetPool.remove(bulletToSpawn);
-            
+
             bulletToSpawn.setActive(true);
             bulletToSpawn.setVisible(true);
         }
@@ -90,7 +89,7 @@ class BulletManager extends Phaser.GameObjects.GameObject {
             bulletToSpawn = this.scene.physics.add.sprite(x, y, texture, frame);
             bulletToSpawn.setPushable(false);
             bulletToSpawn.body.setAllowDrag(false)
-                .setBounce(0, 0)    
+                .setBounce(0, 0)
                 .setFriction(0, 0)
                 ;
 
@@ -116,13 +115,13 @@ class BulletManager extends Phaser.GameObjects.GameObject {
             right: true,
             down: true,
             left: true
-        }
+        };
 
         // Circle bodies are positioned from the top-left of its square bounding box and automatically placed on top-left of sprite, so you need to offset it.
         // Adapted from samme's solution here: https://phaser.discourse.group/t/circular-collider-using-setcircle-is-not-centred-properly/8263/4
         // Since the radius here is set to be half the width, the width of the circle takes up the entire width of the sprite and no x offset is needed.
-        // But the y position needs to be offset by half the height (top-left of circle now at left-middle of sprite) minus the radius (center of circle now at center of sprite)
-        bdy.setCircle(bulletToSpawn.width / 2, 0, (bulletToSpawn.height - bulletToSpawn.width) / 2);
+        // But the y position needs to be offset by half the height (top-left of circle now at left-middle of sprite) minus the radius (center of circle now at center of sprite).
+        bdy.setCircle(bulletToSpawn.width/2, 0, (bulletToSpawn.height - bulletToSpawn.width)/2);
 
         // If a body configuration was specified, apply the specified properties to the body
         if (bodyConfig != undefined) {
@@ -131,8 +130,8 @@ class BulletManager extends Phaser.GameObjects.GameObject {
                 bdy.setSize(bodyConfig.width ?? bulletToSpawn.width, bodyConfig.height ?? bulletToSpawn.height);
             }
             else {
-                const radiusToUse = bodyConfig.radius ?? bulletToSpawn.width / 2
-                bdy.setCircle(radiusToUse, bulletToSpawn.width / 2 - radiusToUse, bulletToSpawn.height / 2 - radiusToUse);
+                const radiusToUse = bodyConfig.radius ?? bulletToSpawn.width/2
+                bdy.setCircle(radiusToUse, bulletToSpawn.width/2 - radiusToUse, bulletToSpawn.height/2 - radiusToUse);
             }
         }
         bdy.resetFlags(true);
@@ -149,8 +148,4 @@ class BulletManager extends Phaser.GameObjects.GameObject {
     getEnemyBulletsGroup() {
         return this.enemyActiveBullets;
     }
-
-    /*
-    Private Methods
-    */
 }

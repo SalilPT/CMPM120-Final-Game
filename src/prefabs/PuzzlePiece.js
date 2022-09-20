@@ -3,39 +3,29 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
         super(params.scene, params.x, params.y, params.texture, params.frame);
 
         this.parentScene = params.scene;
-        
+
         /*
         Constants
         */
-        this.ANIMS_KEYS_ARRAY = ["piece1Anim", "piece2Anim", "piece3Anim", "piece4Anim","piece5Anim", "piece6Anim"];
-        this.IN_HOLE_ANIMS_KEYS_ARRAY = ["piece1PlacedAnim", "piece2PlacedAnim", "piece3PlacedAnim", "piece4PlacedAnim", "piece5PlacedAnim", "piece6PlacedAnim"];
+        this.HIGHEST_PIECE_NUMBER = 9;
+
         /*
         Properties
         */
-        for (let i = 0; i < this.ANIMS_KEYS_ARRAY.length; i++) {
+        for (let i = 1; i <= this.HIGHEST_PIECE_NUMBER; i++) {
             this.parentScene.anims.create({
-                key: this.ANIMS_KEYS_ARRAY[i],
+                key: `piece${i}Anim`,
                 frameRate: 8,
-                frames: this.parentScene.anims.generateFrameNames("gameAtlas", {
-                    prefix: "CircuitBoards" + (i + 1) + "Frame",
-                    suffix: ".png",
-                    start: 1,
-                    end: 4,
-                }),
+                frames: this.parentScene.anims.generateFrameNumbers(`piece${i}Spritesheet`, {}),
                 repeat: -1
             });
         }
 
-        for (let i = 0; i < this.ANIMS_KEYS_ARRAY.length; i++) {
+        for (let i = 1; i <= this.HIGHEST_PIECE_NUMBER; i++) {
             this.parentScene.anims.create({
-                key: this.IN_HOLE_ANIMS_KEYS_ARRAY[i],
+                key: `piece${i}PlacedAnim`,
                 frameRate: 8,
-                frames: this.parentScene.anims.generateFrameNames("gameAtlas", {
-                    prefix: "CircuitPlaced" + (i + 1) + "Frame",
-                    suffix: ".png",
-                    start: 1,
-                    end: 4,
-                }),
+                frames: this.parentScene.anims.generateFrameNumbers(`piece${i}PlacedSpritesheet`, {}),
                 repeat: -1
             });
         }
@@ -43,10 +33,12 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
         this.sequenceName = params.sequenceName;
         // The number in the sequence that this piece will represent, NOT the index of its sequence
         this.numInSequence = params.numInSequence;
-        this.play(this.ANIMS_KEYS_ARRAY[this.numInSequence - 1]);
+
         // Has this piece been placed in its corresponding hole?
         this.placedInHole = false;
-        
+
+        this.play(`piece${this.numInSequence}Anim`);
+
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
         params.scene.physics.add.existing(this);
@@ -56,6 +48,6 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
     Public Methods
     */
     changeToInHoleAnim() {
-        this.play(this.IN_HOLE_ANIMS_KEYS_ARRAY[this.numInSequence - 1]);
+        this.play(`piece${this.numInSequence}PlacedAnim`);
     }
 }

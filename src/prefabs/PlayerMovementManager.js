@@ -11,14 +11,14 @@ class PlayerMovementManager extends Phaser.GameObjects.GameObject {
             "right": "left",
             "down": "up",
             "left": "right"
-        }
+        };
 
         this.ACTIONS_TO_VECTORS = {
             "up": Phaser.Math.Vector2.UP,
             "right": Phaser.Math.Vector2.RIGHT,
             "down": Phaser.Math.Vector2.DOWN,
             "left": Phaser.Math.Vector2.LEFT
-        }
+        };
 
         this.DIAG_MOVEMENT_SCALAR = Math.sqrt(2)/2; // Scale diagonal movement by this. Should be very close to sin(45 degrees).
 
@@ -33,8 +33,8 @@ class PlayerMovementManager extends Phaser.GameObjects.GameObject {
             "up": Phaser.Input.Keyboard.KeyCodes.W,
             "right": Phaser.Input.Keyboard.KeyCodes.D,
             "down": Phaser.Input.Keyboard.KeyCodes.S,
-            "left": Phaser.Input.Keyboard.KeyCodes.A,
-        }
+            "left": Phaser.Input.Keyboard.KeyCodes.A
+        };
 
         // Create an object containing movement actions mapped to key objects
         this.movKeyObjects = this.parentScene.input.keyboard.addKeys(this.movKeyKeycodes, true);
@@ -48,8 +48,7 @@ class PlayerMovementManager extends Phaser.GameObjects.GameObject {
     /*
     Public Methods
     */
-
-    // Re-map all of the movement action keycodes to new ones 
+    // Re-map all of the movement action keycodes to new ones
     bindAllMovementKeys(movKeyKeycodesMap, removeOldKeyObjs = true) {
         // Don't need to do anything
         if (this.movKeyKeycodes == movKeyKeycodesMap) {
@@ -66,7 +65,7 @@ class PlayerMovementManager extends Phaser.GameObjects.GameObject {
         this.movKeyKeycodes = movKeyKeycodesMap;
         this.movKeyObjects = this.parentScene.input.keyboard.addKeys(this.movKeyKeycodes, true);
     }
-    
+
     // Prevent all of the selected movement keys from bubbling up the browser
     // This prevents things like scrolling down when SPACE is pressed
     captureMovementKeycodes(keycodesObj) {
@@ -89,8 +88,8 @@ class PlayerMovementManager extends Phaser.GameObjects.GameObject {
             }
         }
 
-        // Scale diagonal vectors to prevent faster movement in diagnonal directions
-        // I technically could've use the normalize() method here, but this is both less intensive and more precise.
+        // Scale diagonal vectors to prevent faster movement in diagonal directions
+        // I technically could've used the normalize() method here, but this is both less intensive and more precise.
         if (numDifferentDirs == 2) {
             resultingVector.scale(this.DIAG_MOVEMENT_SCALAR);
         }

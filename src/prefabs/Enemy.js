@@ -3,64 +3,67 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         super(params.scene, params.x, params.y, params.texture, params.frame);
 
         this.playerChar = params.playerChar;
+        // A reference to the tilemap used by the scene this is in.
+        this.parentSceneTilemap = params.parentSceneTilemap;
+        // The name of the layer with tiles that have collision.
+        this.parentSceneTilemapCollisionLayer = params.parentSceneTilemapCollisionLayer;
+        // The time in milliseconds between bullet patterns.
+        this.bulletPatternCooldown = params.bulletPatternCooldown;
 
         /*
         Constants
         */
         this.EVENT_EMITTER_KEYS = {
             addBulletPattern: "addBulletPattern"
-        }
-        // A reference to the tilemap used by the scene this is in.
-        //this.PARENT_SCENE_TILEMAP = params.parentSceneTilemap;
+        };
 
-        // The amount of time in milliseconds it takes for this enemy to walk into the room.
+        // The amount of time in milliseconds it takes for this enemy to move into the room.
         // After it has entered the room, it will have collisions with the player character's bullets.
         this.SPAWN_IN_TIME = 0.5 * 1000;
 
         /*
         Properties
         */
-        //this.setTexture("gameAtlas", "Enemy1IdleFrame1.png")
-        
         this.health = params.health ?? 5;
+
+        // Variables used for enemy spawners
+        // this.hasMoved changes to true once it has lunged toward the player at least once
+        this.parentSpawner = params.parentSpawner;
+        this.hasMoved = false;
 
         // The initial angle of this object's graphics
         this.initAngle = -90;
 
+        // Variable used to prevent unintended visual effects when this object is damaged
+        this.takingDamageEffectTimer;
+
+        /*
+        Set up animations
+        */
         this.scene.anims.create({
             key: "enemyAnim",
             frameRate: 15,
-            frames: this.scene.anims.generateFrameNames("gameAtlas", {
-                prefix: "Enemy1IdleFrame",
-                suffix: ".png",
-                start: 1,
-                end: 8,
-            }),
+            frames: this.scene.anims.generateFrameNumbers("enemyIdleAnimSpritesheet", {}),
             repeat: -1
         });
-
         this.scene.anims.create({
             key: "enemyDeathAnim",
             frameRate: 15,
-            frames: this.scene.anims.generateFrameNames("gameAtlas", {
-                prefix: "Enemy1deathFrame",
-                suffix: ".png",
-                start: 1,
-                end: 9,
-            }),
+            frames: this.scene.anims.generateFrameNumbers("enemyDeathAnimSpritesheet", {}),
             repeat: 0
         });
-        
+        /*
+        */
+
         this.play("enemyAnim");
 
         this.movementTimer = this.scene.time.addEvent({
-            delay: 0.75 *1000,
+            delay: 0.75 * 1000,
             callback: () => {
-                this.moveTowardsPlayer();
+                this.#moveTowardsPlayerChar();
             },
             loop: true
-        })
-        
+        });
 
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
@@ -70,16 +73,25 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         this.setImmovable(true);
 
-        this.takingDamageEffectTimer;
-
+        // Set up bullet patterns
         this.bulletPatternTimer = this.scene.time.addEvent({
-            delay: 0.5 * 1000,
+            delay: this.bulletPatternCooldown,
             callback: () => {
+                    // Don't spawn bullets from this enemy if it can't see the player character
+                    if (!this.#canSeePlayerChar()) {
+                        return;
+                    }
+
                     if (this.health <= 0) {
                         return;
                     }
+
+                    if (this.playerChar.isDead()) {
+                        return;
+                    }
+
                     let randomTarget = new Phaser.Geom.Point(
-                        this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64), 
+                        this.playerChar.body.center.x + Phaser.Math.RND.integerInRange(-64, 64),
                         this.playerChar.body.center.y + Phaser.Math.RND.integerInRange(-64, 64)
                     );
                     this.scene.events.emit(this.EVENT_EMITTER_KEYS.addBulletPattern, "shootAtTarget", {
@@ -98,30 +110,6 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     /*
     Public Methods
     */
-
-    facePlayerChar() {
-        if (!this.#canSeePlayerChar()) {
-            return;
-        }
-        let angleToPlayer = this.#getAngleToPlayerChar();
-        this.setAngle(-this.initAngle + angleToPlayer);
-    }
-
-    moveTowardsPlayer() {
-        let angleToPlayer = this.#getAngleToPlayerChar();
-        let vec = this.scene.physics.velocityFromAngle(angleToPlayer, 200);
-        this.body.setVelocity(vec.x, vec.y);
-        this.facePlayerChar();
-        this.scene.time.addEvent({
-            delay: 500,
-            callback: () => {
-                if (this.body != undefined) {
-                    this.body.setVelocity(0, 0);
-                }
-            }
-        })
-    }
-    
     takeDamage(damage = 1) {
         this.health -= damage;
         if (this.health <= 0) {
@@ -151,7 +139,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             }
         });
 
-        this.scene.sound.play("enemyGetsHit")
+        this.scene.sound.play("enemyGetsHit");
     }
 
     playSpawningAnim(startPos, endPos) {
@@ -173,20 +161,83 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
             }
         });
     }
-    
+
     /*
     Private Methods
     */
-    // Returns true if an uninterrupted line can be formed from this object's center tothe center of the player character.
+    // Returns true if an uninterrupted line can be formed from this object's center to the center of the player character.
     // Gets all tiles within a rectangular bounding box that has the player character and this object.
     #canSeePlayerChar() {
-        return true; // Placeholder
-       // getTilesWithin
+       let tilemap = this.parentSceneTilemap;
+
+       let myCenter = this.body.center;
+       let plrCenter = this.playerChar.body.center;
+
+       // The line that will be used to determine whether or not this enemy can "see" the player character
+       let traceLine = new Phaser.Geom.Line(myCenter.x, myCenter.y, plrCenter.x, plrCenter.y);
+
+       let tileRectX = Math.min(myCenter.x, plrCenter.x);
+       let tileRectY = Math.min(myCenter.y, plrCenter.y);
+       let tileRectWidth = Math.abs(myCenter.x - plrCenter.x);
+       let tileRectHeight = Math.abs(myCenter.y - plrCenter.y);
+
+       // Select the correct layer for collisions because doing it in the getTilesWithinWorldXY method doesn't seem to work
+       let oldSelectedLayer = tilemap.layer.name;
+       tilemap.setLayer(this.parentSceneTilemapCollisionLayer);
+
+       // Get an array of tiles to check
+       let tilesToCheck = tilemap.getTilesWithinWorldXY(tileRectX, tileRectY, tileRectWidth, tileRectHeight, {isColliding: true});
+
+       // Set the selected layer of the tilemap to what it was before this method was called
+       tilemap.setLayer(oldSelectedLayer);
+
+       for (let tile of tilesToCheck) {
+            let intersectionRect = tile.getBounds(this.scene.cameras.main);
+            let intersectionPoints = Phaser.Geom.Intersects.GetLineToRectangle(traceLine, intersectionRect);
+            if (intersectionPoints.length != 0) {
+                return false;
+            }
+       }
+
+       return true;
     }
 
     #getAngleToPlayerChar() {
         let angleToPlayer = Phaser.Math.Angle.Between(this.body.center.x, this.body.center.y, this.playerChar.body.center.x, this.playerChar.body.center.y);
         angleToPlayer = Phaser.Math.RadToDeg(angleToPlayer);
         return angleToPlayer;
+    }
+
+    #moveTowardsPlayerChar() {
+        // Don't move this enemy if it can't see the player character
+        if (!this.#canSeePlayerChar()) {
+            return;
+        }
+
+        // Don't move towards player character if too close
+        // This prevents the enemy from going onto the player character and then taking damage from sitting in the same spot as the player character's gun
+        if (Phaser.Math.Distance.BetweenPoints(this.body.center, this.playerChar.body.center) < 64 * 2.5) {
+            return;
+        }
+
+        let angleToPlayer = this.#getAngleToPlayerChar();
+        let vec = this.scene.physics.velocityFromAngle(angleToPlayer, 192);
+        this.body.setVelocity(vec.x, vec.y);
+
+        // Face the player character
+        this.setAngle(-this.initAngle + angleToPlayer);
+
+        // Update variable used for enemy spawners
+        this.hasMoved = true;
+
+        // After a short amount of time, stop moving
+        this.scene.time.addEvent({
+            delay: 500,
+            callback: () => {
+                if (this.body != undefined) {
+                    this.body.setVelocity(0, 0);
+                }
+            }
+        });
     }
 }

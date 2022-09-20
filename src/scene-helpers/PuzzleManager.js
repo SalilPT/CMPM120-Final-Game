@@ -21,9 +21,9 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             nextPieceIndex: 0,
             // Is this sequence completed?
             isCompleted: false
-        }
+        };
 
-        // This puzzle manager can generate an entire puzzle using a tilemap exported from Tiled. 
+        // This puzzle manager can generate an entire puzzle using a tilemap exported from Tiled.
         // But it needs to know the names of the properties to look for in the tilemap data.
         // Note that all pieces and holes in Tiled need to also have a "sequenceName" and a "numInSequence" property set in their tileset.
         this.TILEMAP_DATA_NAMES = {
@@ -41,36 +41,42 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             puzPieceObjValue: "piece",
             // The corresponding value for puzzleObjIdentifier if the tile represents a hole
             puzHoleObjValue: "hole"
-        }
+        };
 
         this.PUZZLE_PIECE_Z_INDEX = this.playerChar.depth - 1;
         this.PUZZLE_HOLE_Z_INDEX = this.PUZZLE_PIECE_Z_INDEX - 1;
 
         this.INTERACT_KEY_DOWN_CALLBACK = () => {
+            // Player character is dead
+            if (this.playerChar.isDead()) {
+                return;
+            }
             // Not currently holding a puzzle piece
             if (this.currHeldPuzPiece == null) {
-                let closestPuzPiece = this.getClosestPuzzlePiece();
+                let closestPuzPiece = this.#getClosestPuzzlePiece();
                 // No pieces that can be picked up
                 if (closestPuzPiece == null) {
                     return;
                 }
-
+                // Don't pick up puzzle piece if it's not close enough
                 if (Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, closestPuzPiece.getCenter()) > this.maxPickUpDist) {
                     return;
                 }
 
                 this.#pickUpPuzzlePiece(closestPuzPiece);
             }
-            else {
+            // Checking that the ghost puzzle piece is nullish here is to prevent the game from throwing an error from the player focusing elsewhere during the process of picking up and placing a puzzle piece.
+            // For example: pressing the placement button, then focusing elsewhere with the button held, then releasing the button, and then trying to place the held piece while focused on the game would be problematic without this check.
+            else if (this.ghostPuzzlePiece == null) {
                 // Create ghost piece
                 const tempGhostPiecePos = this.#containingGridCellTopLeft(this.playerChar.body.center.x, this.playerChar.body.center.y);
                 this.ghostPuzzlePiece = this.parentScene.add.sprite(tempGhostPiecePos.x, tempGhostPiecePos.y, this.currHeldPuzPiece.texture, this.currHeldPuzPiece.frame.name).setOrigin(0); // Pass in the frame name here, NOT the frame itself
                 this.ghostPuzzlePiece.setAlpha(0.5);
                 this.ghostPuzzlePieceUpdateTimer = this.parentScene.time.addEvent({
-                    delay: 1000/60,
+                    delay: 1000/globalGame.loop.targetFps,
                     callback: () => {
                         // If near corresponding hole, make ghost puzzle piece automatically be at hole
-                        let correspondingHole = this.getCorrespondingHole(this.currHeldPuzPiece);
+                        let correspondingHole = this.#getCorrespondingHole(this.currHeldPuzPiece);
                         let placementPoint;
                         if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceName].nextPieceIndex
                             && Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, correspondingHole.getCenter()) <= this.maxHolePlacementDist) {
@@ -84,9 +90,13 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                     loop: true
                 });
             }
-        }
+        };
 
         this.INTERACT_KEY_UP_CALLBACK = () => {
+            // Player character is dead
+            if (this.playerChar.isDead()) {
+                return;
+            }
             // Not currently holding a puzzle piece
             if (this.currHeldPuzPiece == null) {
                 return;
@@ -96,14 +106,16 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                 this.canPlaceCurrHeldPiece = true;
                 return;
             }
-        
+
             // Remove ghost piece
             this.parentScene.time.removeEvent(this.ghostPuzzlePieceUpdateTimer);
             this.ghostPuzzlePieceUpdateTimer.destroy();
             this.ghostPuzzlePiece.destroy();
+            // Remove reference to the ghost puzzle piece so that it's actually destroyed
+            this.ghostPuzzlePiece = null;
             // Place the currently held piece
-            // If near corresponding hole, place puzzle piece in it
-            let correspondingHole = this.getCorrespondingHole(this.currHeldPuzPiece);
+            // If near corresponding hole and the currently held piece is the next piece in its sequence, place it in the hole
+            let correspondingHole = this.#getCorrespondingHole(this.currHeldPuzPiece);
             if (this.currHeldPuzPiece.numInSequence - 1 == this.sequences[this.currHeldPuzPiece.sequenceName].nextPieceIndex
                 && Phaser.Math.Distance.BetweenPoints(this.playerChar.body.center, correspondingHole.getCenter()) <= this.maxHolePlacementDist) {
                 this.#placePuzzlePiece(this.currHeldPuzPiece, correspondingHole);
@@ -111,9 +123,8 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             else {
                 this.#placePuzzlePiece(this.currHeldPuzPiece);
             }
-        
-        }
-       
+        };
+
         /*
         Mutable Properties
         */
@@ -132,7 +143,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             intervalGap: 64,
             topLeftX: 0,
             topLeftY: 0,
-        }
+        };
 
         // An array that will hold sequence objects.
         this.sequences = {};
@@ -146,91 +157,6 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
     /*
     Public Methods
     */
-
-    // Adds a group for puzzle pieces to the scene and returns the new object containing the new group
-    addSequence(newSeqName) {
-        // Check whether or not the sequence already exists
-        if (Phaser.Utils.Objects.HasValue(this.sequences, newSeqName)) {
-            console.warn(`A sequence with the name "${newSeqName}" already exists!`);
-            return;
-        }
-        
-        let newSeqGroup = this.parentScene.add.group();
-        // Create a new object that's a copy of the base object
-        let newSeqObj = Phaser.Utils.Objects.DeepCopy(this.SEQUENCE_BASE_OBJECT);
-        newSeqObj.group = newSeqGroup;
-        this.sequences[newSeqName] = newSeqObj;
-        return newSeqObj;
-    }
-
-    addPuzzleHoleToSeq(holeToAdd, seqName) {
-        let holesOfSequence = this.sequences[seqName].holes;
-        for (const hole of holesOfSequence) {
-            if (hole.numInSequence == holeToAdd.numInSequence) {
-                console.warn(`Puzzle hole was not added to sequence with name "${seqName}" because of conflicting numbers in sequence!`,
-                "Puzzle hole: " + pieceToAdd);
-                return;
-            }
-        }
-
-        Phaser.Utils.Array.Add(holesOfSequence, holeToAdd);
-        // Sort the holes array of the sequence in ascending order of each hole's number in the sequence
-        holesOfSequence.sort((hole1, hole2) => {return hole1.numInSequence - hole2.numInSequence});
-
-        holeToAdd.sequenceName = seqName;
-        holeToAdd.body.checkCollision.none = true;
-        holeToAdd.setDepth(this.PUZZLE_HOLE_Z_INDEX);
-    }
-
-    addPuzzlePieceToSeq(pieceToAdd, seqName) {
-        let groupOfSequence = this.sequences[seqName].group;
-        let piecesOfSequence = this.sequences[seqName].pieces;
-        // Check whether or not a piece with the same sequence number already exists in the group
-        for (const piece of piecesOfSequence) {
-            if (piece.numInSequence == pieceToAdd.numInSequence) {
-                console.warn(`Puzzle piece was not added to sequence group with name ${seqName} because of conflicting sequence numbers!`,
-                "Puzzle piece: " + pieceToAdd);
-                return;
-            }
-        }
-
-        groupOfSequence.add(pieceToAdd);
-        Phaser.Utils.Array.Add(piecesOfSequence, pieceToAdd);
-        // Sort the pieces array of the sequence in ascending order of each piece's number in the sequence
-        piecesOfSequence.sort((piece1, piece2) => {return piece1.numInSequence - piece2.numInSequence});
-
-        pieceToAdd.sequenceName = seqName;
-        pieceToAdd.body.checkCollision.none = true;
-        pieceToAdd.setDepth(this.PUZZLE_PIECE_Z_INDEX);
-    }
-    
-    attachDebugTextToSeq(seqName) {
-        let pieceDebugTextObjs = [];
-        let holeDebugTextObjs = [];
-        const piecesList = this.sequences[seqName].pieces;
-        for (const piece of piecesList) {
-            const newTextObj = this.parentScene.add.text(piece.getCenter().x, piece.getCenter().y, `[PIECE]\nseqName: ${piece.sequenceName}\nnumInSequence: ${piece.numInSequence}`, {color: "white", fontFamily: "Verdana", fontSize: "24px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
-            pieceDebugTextObjs.push(newTextObj);
-        }
-        const holesList = this.sequences[seqName].holes;
-        for (const hole of holesList) {
-            const newTextObj = this.parentScene.add.text(hole.getCenter().x, hole.getCenter().y, `[HOLE]\nseqName: ${hole.sequenceName}\nnumInSequence: ${hole.numInSequence}`, {color: "white", fontFamily: "Verdana", fontSize: "24px", stroke: "black", strokeThickness: 1}).setOrigin(0.5);
-            holeDebugTextObjs.push(newTextObj);
-        }
-        this.parentScene.time.addEvent({
-            delay: 1000/60,
-            callback: () => {
-                for (let i in pieceDebugTextObjs) {
-                    pieceDebugTextObjs[i].setPosition(piecesList[i].getCenter().x, piecesList[i].getCenter().y);
-                }
-                for (let i in holeDebugTextObjs) {
-                    holeDebugTextObjs[i].setPosition(holesList[i].getCenter().x, holesList[i].getCenter().y);
-                }
-            },
-            loop: true
-        });
-    }
-
     bindAndListenForInteractKey(newKeycode, removeOldKeyObj = true) {
         // Remove the old event listeners that had a context of "this"
         if (this.interactKeyObj != undefined) {
@@ -274,65 +200,136 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
                 targetObj.y += (targetObj.originY - 1) * tiledObj.height;
 
                 targetObj.setVisible(tiledObj.visible);
-                // Apply the correct texture to this object using its tileset image
-                /*
-                let textureUVCoords = tileset.getTileTextureCoordinates(tiledObj.gid);
 
-                // Get an object with all the frames of the tileset
-                let tilesetFrames = tileset.image.frames;
-
-                // Get the frame object that corresponds to this TiledObject
-                let correspondingFrame = Object.values(tilesetFrames).find((f) => {
-                    return f.cutX == textureUVCoords.x && f.cutY == textureUVCoords.y
-                    && f.cutWidth == tiledObj.width && f.cutHeight == tiledObj.height;
-                });
-
-                // Set the correct texture on this object
-                targetObj.setTexture(tileset.image);
-                targetObj.setFrame(correspondingFrame.name, true, false); // Update the size but not the origin
-                targetObj.setDisplaySize(correspondingFrame.width, correspondingFrame.height);
                 // Note: origin convention for puzzle pieces and holes is (0, 0)
-                */
                 targetObj.setOrigin(0);
                 // Change the x and y positions to account for the change in origin
                 targetObj.x -= targetObj.width/2;
                 targetObj.y -= targetObj.height/2;
-            }
+            };
 
             // Custom properties
             let seqName = Phaser.Utils.Objects.GetValue(propsObj, "sequenceName", undefined);
             let numInSequence = Phaser.Utils.Objects.GetValue(propsObj, "numInSequence", undefined);
             // If a sequence with the object's sequence name doesn't yet exist, create it
             if (!Phaser.Utils.Objects.HasValue(this.sequences, seqName)) {
-                this.addSequence(seqName);
+                this.#addSequence(seqName);
             }
             // Check whether the current object is a puzzle piece or a puzzle hole
             if (propsObj[this.TILEMAP_DATA_NAMES.puzzleObjIdentifier] === this.TILEMAP_DATA_NAMES.puzPieceObjValue) {
                 let newPiece = new PuzzlePiece({scene: this.parentScene, sequenceName: seqName, numInSequence: numInSequence});
                 assignProperties(newPiece);
-                // Play the correct animation
-                newPiece.play(newPiece.ANIMS_KEYS_ARRAY[newPiece.numInSequence - 1]);
-                this.addPuzzlePieceToSeq(newPiece, newPiece.sequenceName);
+                this.#addPuzzlePieceToSeq(newPiece, newPiece.sequenceName);
             }
             else if (propsObj[this.TILEMAP_DATA_NAMES.puzzleObjIdentifier] === this.TILEMAP_DATA_NAMES.puzHoleObjValue) {
                 let newHole = new PuzzleHole({scene: this.parentScene, sequenceName: seqName, numInSequence: numInSequence});
                 assignProperties(newHole);
-                newHole.setSprite();
-                this.addPuzzleHoleToSeq(newHole, newHole.sequenceName);
+                this.#addPuzzleHoleToSeq(newHole, newHole.sequenceName);
             }
         }
     }
 
+    // Returns an array containing references all of the puzzle holes in this object's puzzle
+    getAllHoles() {
+        // Create array to hold puzzle holes
+        let holesArray = [];
+        // Loop through all sequences and append the holes in each sequence to holesArray
+        for (const seq of Object.values(this.sequences)) {
+            Phaser.Utils.Array.Add(holesArray, seq.holes);
+        }
+        return holesArray;
+    }
+
     // Returns an array containing references all of the puzzle pieces in this object's puzzle
     getAllPieces() {
-        console.error("The getAllPieces() method currently isn't implemented!");
         // Create array to hold puzzle pieces
-        
-        // Loop through all sequences
+        let piecesArray = [];
+        // Loop through all sequences and append the pieces in each sequence to piecesArray
+        for (const seq of Object.values(this.sequences)) {
+            Phaser.Utils.Array.Add(piecesArray, seq.pieces);
+        }
+        return piecesArray;
+    }
+
+    // Returns true if this puzzle is completed. Else, it returns false.
+    puzzleCompleted() {
+        for (const sequence of Object.values(this.sequences)) {
+            if (sequence.isCompleted == false) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /*
+    Private Methods
+    */
+    #addPuzzleHoleToSeq(holeToAdd, seqName) {
+        let holesOfSequence = this.sequences[seqName].holes;
+        for (const hole of holesOfSequence) {
+            if (hole.numInSequence == holeToAdd.numInSequence) {
+                console.warn(`Puzzle hole was not added to sequence with name "${seqName}" because of conflicting numbers in sequence!`,
+                "Puzzle hole: " + pieceToAdd);
+                return;
+            }
+        }
+
+        Phaser.Utils.Array.Add(holesOfSequence, holeToAdd);
+        // Sort the holes array of the sequence in ascending order of each hole's number in the sequence
+        holesOfSequence.sort((hole1, hole2) => {return hole1.numInSequence - hole2.numInSequence});
+
+        holeToAdd.sequenceName = seqName;
+        holeToAdd.body.checkCollision.none = true;
+        holeToAdd.setDepth(this.PUZZLE_HOLE_Z_INDEX);
+    }
+
+    #addPuzzlePieceToSeq(pieceToAdd, seqName) {
+        let groupOfSequence = this.sequences[seqName].group;
+        let piecesOfSequence = this.sequences[seqName].pieces;
+        // Check whether or not a piece with the same sequence number already exists in the group
+        for (const piece of piecesOfSequence) {
+            if (piece.numInSequence == pieceToAdd.numInSequence) {
+                console.warn(`Puzzle piece was not added to sequence group with name ${seqName} because of conflicting sequence numbers!`,
+                "Puzzle piece: " + pieceToAdd);
+                return;
+            }
+        }
+
+        groupOfSequence.add(pieceToAdd);
+        Phaser.Utils.Array.Add(piecesOfSequence, pieceToAdd);
+        // Sort the pieces array of the sequence in ascending order of each piece's number in the sequence
+        piecesOfSequence.sort((piece1, piece2) => {return piece1.numInSequence - piece2.numInSequence});
+
+        pieceToAdd.sequenceName = seqName;
+        pieceToAdd.body.checkCollision.none = true;
+        pieceToAdd.setDepth(this.PUZZLE_PIECE_Z_INDEX);
+    }
+
+    // Adds a sequence to be kept track of by this object
+    #addSequence(newSeqName) {
+        // Check whether or not the sequence already exists
+        if (Phaser.Utils.Objects.HasValue(this.sequences, newSeqName)) {
+            console.warn(`A sequence with the name "${newSeqName}" already exists!`);
+            return;
+        }
+
+        let newSeqGroup = this.parentScene.add.group();
+        // Create a new object that's a copy of the base object
+        let newSeqObj = Phaser.Utils.Objects.DeepCopy(this.SEQUENCE_BASE_OBJECT);
+        newSeqObj.group = newSeqGroup;
+        this.sequences[newSeqName] = newSeqObj;
+        return newSeqObj;
+    }
+
+    // Returns a Phaser.Geom.Point object for the top left point of the grid cell that contains the point.
+    #containingGridCellTopLeft(x, y) {
+        let pointX = Phaser.Math.Snap.Floor(x, this.gridProperties.intervalGap, this.gridProperties.topLeftX);
+        let pointY = Phaser.Math.Snap.Floor(y, this.gridProperties.intervalGap, this.gridProperties.topLeftY);
+        return new Phaser.Geom.Point(pointX, pointY);
     }
 
     // Return the closest puzzle piece to the player
-    getClosestPuzzlePiece(excludePiecesInHoles = true) {
+    #getClosestPuzzlePiece(excludePiecesInHoles = true) {
         let piecesList = [];
         for (const seq of Object.values(this.sequences)) {
             Phaser.Utils.Array.Add(piecesList, seq.pieces);
@@ -346,7 +343,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         return closestPiece;
     }
 
-    getCorrespondingHole(puzPiece) {
+    #getCorrespondingHole(puzPiece) {
         const result = this.sequences[puzPiece.sequenceName].holes[puzPiece.numInSequence - 1];
         if (result == undefined) {
             console.warn("The corresponding hole for that piece doesn't exist!");
@@ -359,36 +356,10 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         return result;
     }
 
-    getCurrentlyHeldPiece() {
-        return this.currHeldPuzPiece;
-    }
-
-    // Returns true if this puzzle is completed. Else, it returns false.
-    puzzleCompleted() {
-        for (const sequence of Object.values(this.sequences)) {
-            if (sequence.isCompleted == false) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /*
-    Private Methods
-    */
-    // Returns a Phaser.Geom.Point object for the top left point of the grid cell that contains the point.
-    #containingGridCellTopLeft(x, y) {
-        let pointX = Phaser.Math.Snap.Floor(x, this.gridProperties.intervalGap, this.gridProperties.topLeftX);
-        let pointY = Phaser.Math.Snap.Floor(y, this.gridProperties.intervalGap, this.gridProperties.topLeftY);
-        return new Phaser.Geom.Point(pointX, pointY);
-    }
-
     #pickUpPuzzlePiece(puzPiece) {
         puzPiece.setVisible(false);
         this.currHeldPuzPiece = puzPiece;
         this.parentScene.sound.play("collectSFX");
-        // TODO: maybe want to emit event that piece was picked up to alert the UI and sound managers
     }
 
     #placePuzzlePiece(puzPiece, targetHole = null) {
@@ -396,7 +367,7 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
             puzPiece.setPosition(targetHole.getTopLeft().x, targetHole.getTopLeft().y);
             puzPiece.changeToInHoleAnim();
             puzPiece.placedInHole = true;
-            
+
             let parentSeq = this.sequences[puzPiece.sequenceName];
             parentSeq.nextPieceIndex += 1;
             // If this piece was the last in the sequence, update the isCompleted property of the sequence
@@ -412,6 +383,5 @@ class PuzzleManager extends Phaser.GameObjects.GameObject {
         puzPiece.setVisible(true);
         this.currHeldPuzPiece = null;
         this.canPlaceCurrHeldPiece = false;
-        // TODO: maybe want to emit event that piece was placed to alert the UI and sound managers
     }
 }

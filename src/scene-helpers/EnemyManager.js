@@ -4,6 +4,8 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
 
         this.parentScene = parentScene;
         this.playerChar = config.playerChar;
+        this.parentSceneTilemap = config.tilemap; // Passed to enemies that are spawned by this
+        this.enemyBulletPatternCooldown = config.enemyBulletPatternCooldown; // Passed to enemies that are spawned by this
 
         /*
         Constants
@@ -21,19 +23,19 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
             // The key of the custom property in Tiled that's used to get a spawner's enemy types array
             // Going unused for now since there's only one enemy type
             keyOfEnemyTypes: "enemyTypes",
-            // The key of the custom property in Tiled that's used to get a spawner's enemy spawning direction. 
+            // The key of the custom property in Tiled that's used to get a spawner's enemy spawning direction.
             keyOfSpawnDirection: "spawnDirection",
             // The name of the tilemap layers to use for enemy spawners' dummy tile collision
             collisionLayerToUse: "walls"
-        }
+        };
 
         this.DIRECTIONS_TO_VECTORS = {
             "up": Phaser.Math.Vector2.UP,
             "right": Phaser.Math.Vector2.RIGHT,
             "down": Phaser.Math.Vector2.DOWN,
             "left": Phaser.Math.Vector2.LEFT
-        }
-        
+        };
+
         this.GRID_SQUARE_LENGTH = 64;
 
         // The initial rotation angle of the enemy spawner graphic
@@ -48,7 +50,6 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
 
         // Group holding all enemies
         this.allEnemies = this.parentScene.add.group({});
-        //this.parentScene.physics.add.collider(this.playerChar, this.allEnemies, () => {});
 
         // Make animation for enemy spawners
         this.parentScene.anims.create({
@@ -58,7 +59,7 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
                 prefix: "metal door ",
                 suffix: ".png",
                 start: 1,
-                end: 6,
+                end: 6
             }),
             yoyo: true
         });
@@ -103,14 +104,14 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
                 collisionDummyTile.collideRight = true;
                 collisionDummyTile.collideDown = true;
                 collisionDummyTile.collideLeft = true;
-                
+
                 tilemap.setCollision(tiledObj.gid, true, true, this.TILEMAP_DATA_NAMES.collisionLayerToUse);
-            }
+            };
             // Ignore anything on the object layer that isn't an enemy spawner
             if (propsObj[this.TILEMAP_DATA_NAMES.keyOfSpawnerType] != "enemy") {
                 continue;
             }
-            
+
             let newEnemySpawner = this.parentScene.add.sprite(undefined, undefined, "gameAtlas", "metal door 1.png");
             assignProperties(newEnemySpawner);
             this.enemySpawners.add(newEnemySpawner);
@@ -121,8 +122,29 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
         return this.allEnemies;
     }
 
-    getEnemySpawnerGroup() {
-        return this.enemySpawners;
+    // Choose a spawner at random and spawn an enemy there.
+    // If allowEnemyOverlap is set to false, then it will only choose spawners that don't have an enemy in front of them.
+    // If there are no eligible spawners, then it won't spawn any.
+    spawnEnemyAtRandomSpawner(allowEnemyOverlap = false) {
+        let possibleSpawners = Array.from(this.enemySpawners.getChildren()); // Shallow copy
+
+        if (allowEnemyOverlap) {
+            let s = Phaser.Math.RND.pick(possibleSpawners);
+            this.spawnEnemyAtSpawner(s);
+            return;
+        }
+
+        for (const enemy of this.allEnemies.getChildren()) {
+            if (enemy.hasMoved) {
+                continue;
+            }
+            Phaser.Utils.Array.Remove(possibleSpawners, enemy.parentSpawner);
+        }
+
+        let s = Phaser.Math.RND.pick(possibleSpawners);
+        if (s != null) {
+            this.spawnEnemyAtSpawner(s);
+        }
     }
 
     spawnEnemyAtSpawner(spawner) {
@@ -135,9 +157,14 @@ class EnemyManager extends Phaser.GameObjects.GameObject {
             scene: this.parentScene,
             x: spawnerPos.x,
             y: spawnerPos.y,
-            texture: "gameAtlas",
-            frame: "Enemy1IdleFrame1.png",
-            playerChar: this.playerChar
+            // Get the first frame of the enemy's idle spritesheet extracted from gameAtlas
+            texture: "enemyIdleAnimSpritesheet",
+            frame: 0,
+            playerChar: this.playerChar,
+            parentSceneTilemap: this.parentSceneTilemap,
+            parentSceneTilemapCollisionLayer: this.TILEMAP_DATA_NAMES.collisionLayerToUse,
+            parentSpawner: spawner,
+            bulletPatternCooldown: this.enemyBulletPatternCooldown
         });
         this.allEnemies.add(newEnemy);
 

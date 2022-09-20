@@ -3,20 +3,15 @@ class CustomSceneUtils {
         this.parentScene = parentScene;
     }
 
-    // Function to create timer to animate tileSprite Game Objects
-    // Returns a reference to the newly added timer
-    createTileSpriteAnimTimer(obj, numTotalAnimFrames, fps = 4) {
-        obj.setData("currAnimFrame", 0);
-        let newTimer = this.parentScene.time.addEvent(
-            {
-                delay: 1000 / fps,
-                callback: () => {
-                    obj.setData("currAnimFrame", (obj.getData("currAnimFrame") + 1) % numTotalAnimFrames);
-                    obj.setFrame(obj.getData("currAnimFrame"));
-                },
-                loop: true
+    // Return the x and y of the player spawner as defined in Tiled
+    static getPlayerCharacterCoordsFromObjectLayer(tilemap, layerName, tilesetName) {
+        let objLayer = tilemap.getObjectLayer(layerName);
+        let tileset = tilemap.getTileset(tilesetName);
+        for (const tiledObj of objLayer.objects) {
+            let propsObj = tileset.getTileProperties(tiledObj.gid);
+            if (propsObj["spawnerType"] == "player") {
+                return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y - tileset.tileHeight + tiledObj.height/2); // Subtract tileHeight here because of Tiled's origin convention of (0, 1)
             }
-        );
-        return newTimer;
+        }
     }
 }

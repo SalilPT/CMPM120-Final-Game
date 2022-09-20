@@ -4,49 +4,32 @@ class GameStartLoading extends Phaser.Scene {
     }
 
     preload() {
-        // Load almost-complete game atlas
-        this.load.atlas("gameAtlas", "./assets/gameAtlas.png", "./assets/gameAtlas.json");
-        
-        // Load player character images and spritesheets
-        this.load.spritesheet("jebBottomIdle", "./assets/Jeb Bottom Idle Spritesheet.png", {frameWidth: 64});
-        this.load.spritesheet("jebBottomMoving", "./assets/Jeb Bottom Moving Spritesheet.png", {frameWidth: 64});
-        this.load.image("jebRingOff", "./assets/Jeb Ring Off.png");
-        this.load.spritesheet("jebRings", "./assets/Jeb Rings Spritesheet.png", {frameWidth: 64});
-        this.load.spritesheet("jebTopAttacking", "./assets/Jeb Top Attcking Spritesheet.png", {frameWidth: 64});
-        this.load.spritesheet("jebTopCharging", "./assets/Jeb Top Charging Spritesheet.png", {frameWidth: 64});
-        this.load.spritesheet("jebTopDeath", "./assets/Jeb Top Death Spritesheet.png", {frameWidth: 64});
-        this.load.image("jebTopStart", "./assets/Jeb Top Start.png");
-        this.load.spritesheet("jebTitle", "./assets/jebNameTitleAnim.png", {frameWidth: 383.9, frameHeight:256});
+        /*
+        Loading Atlases
+        */
+        // Load game atlas
+        this.load.atlas("gameAtlas", "./assets/gameAtlas v2.png", "./assets/gameAtlas v2.json");
 
-        // Load Puzzle-Related Graphics
-        this.load.image("hole1Sprite", "./assets/Circuit Boards Slot 1.png");
-        this.load.image("hole2Sprite", "./assets/Circuit Boards Slot 2.png");
-        this.load.image("hole3Sprite", "./assets/Circuit Boards Slot 3.png");
-        this.load.image("hole4Sprite", "./assets/Circuit Boards Slot 4.png");
-        this.load.image("hole5Sprite", "./assets/Circuit Boards Slot 5.png");
-        this.load.image("hole6Sprite", "./assets/Circuit Boards Slot 6.png");
-        this.load.image("hole7Sprite", "./assets/Circuit Boards Slot 7.png");
-        this.load.image("hole8Sprite", "./assets/Circuit Boards Slot 8.png");
-        this.load.image("hole9Sprite", "./assets/Circuit Boards Slot 9.png");
-
-        // Testing tilemap
-        this.load.tilemapTiledJSON("testTilemap3", "./assets/Template Level Example 3.json");
+        // Load atlas for tilemap textures
         this.load.atlas("gameTilesetAtlas", "./assets/gameTilesetAtlas.png", "./assets/gameTilesetAtlas.json");
 
         /*
-
-
+        Loading Tilemaps
         */
+        // Load tutorial tilemaps
+        this.load.tilemapTiledJSON("tutorialMap", "./assets/levels/Tutorial Map v2.json");
+        this.load.tilemapTiledJSON("tutorialMapPart2", "./assets/levels/Tutorial Map v2 Part 2.json");
+
         // Load the rest of the levels
         this.registry.set("levels", {
             easy: [],
             medium: [],
             hard: []
         });
-        
-        const NUM_EASY_LEVELS = 3;
-        const NUM_MEDIUM_LEVELS = 1;
-        const NUM_HARD_LEVELS = 1;
+
+        const NUM_EASY_LEVELS = 4;
+        const NUM_MEDIUM_LEVELS = 3;
+        const NUM_HARD_LEVELS = 3;
 
         // Note: A simple try {...} catch {...} doesn't catch HTTP 404 responses.
         // Load easy levels
@@ -54,7 +37,7 @@ class GameStartLoading extends Phaser.Scene {
             this.load.tilemapTiledJSON(`easy${i}`, `./assets/levels/easy/easy${i}.json`);
             this.registry.values.levels.easy.push(`easy${i}`);
         }
-        
+
         // Load medium levels
         for (let i = 1; i <= NUM_MEDIUM_LEVELS; i++) {
             this.load.tilemapTiledJSON(`medium${i}`, `./assets/levels/medium/medium${i}.json`);
@@ -66,27 +49,16 @@ class GameStartLoading extends Phaser.Scene {
             this.load.tilemapTiledJSON(`hard${i}`, `./assets/levels/hard/hard${i}.json`);
             this.registry.values.levels.hard.push(`hard${i}`);
         }
+
         /*
-
-
+        Loading Text Box Data
         */
+        this.load.json("text", "./assets/textData.json");
 
-        // Load bullets
-        this.load.image("orangeBullet", "./assets/orangeBullet.png");
-        this.load.image("purpleBullet", "./assets/purpleBullet.png");
-        this.load.image("yellowBullet", "./assets/yellowBullet.png");
-
-        // Load health icon
-        this.load.image("lifeSymbol", "./assets/Life Symbol.png");
-
-        // Load miscellaneous assets
-        this.load.image("pointing arrow", "./assets/pointing arrow.png");
-        this.load.image('tealButton', './assets/tealButton.png')
-
-        // Load All Audio
+        /*
+        Loading Audio
+        */
         this.load.audio("backgroundMusic", "./assets/audio/finalGameMusic.mp3");
-        this.load.audio("shooting_sfx", "./assets/audio/shooting_sfx.wav");
-
         this.load.audio("collectSFX", "./assets/audio/collect_sfx.wav");
         this.load.audio("enemyDeath", "./assets/audio/enemyDeath.wav");
         this.load.audio("enemyGetsHit", "./assets/audio/enemyGetsHit.wav");
@@ -94,9 +66,87 @@ class GameStartLoading extends Phaser.Scene {
         this.load.audio("jebHurt", "./assets/audio/jebHurt.wav");
         this.load.audio("jebShoot", "./assets/audio/jebShoot.wav");
         this.load.audio("menuBeat", "./assets/audio/menuBeat.mp3");
+        this.load.audio("shooting_sfx", "./assets/audio/shooting_sfx.wav");
     }
 
     create() {
+        /*
+        Loading spritesheets from gameAtlas
+        */
+        // The addSpriteSheetFromAtlas method calls here need to be in create() or else they won't work as expected
+
+        // Load title animation spritesheet
+        this.textures.addSpriteSheetFromAtlas("jebTitleSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "jebNameTitleAnim.png",
+            frameWidth: 383.9,
+            frameHeight: 256
+        });
+
+        // Load player character spritesheets
+        this.textures.addSpriteSheetFromAtlas("jebBottomIdleSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "Jeb Bottom Idle Spritesheet.png",
+            frameWidth: 64
+        });
+        this.textures.addSpriteSheetFromAtlas("jebBottomMovingSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "Jeb Bottom Moving Spritesheet.png",
+            frameWidth: 64
+        });
+        this.textures.addSpriteSheetFromAtlas("jebRingsSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "Jeb Rings Spritesheet.png",
+            frameWidth: 64
+        });
+        this.textures.addSpriteSheetFromAtlas("jebTopAttackingSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "Jeb Top Attcking Spritesheet.png",
+            frameWidth: 64
+        });
+        this.textures.addSpriteSheetFromAtlas("jebTopChargingSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "Jeb Top Charging Spritesheet.png",
+            frameWidth: 64
+        });
+        this.textures.addSpriteSheetFromAtlas("jebTopDeathSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "Jeb Top Death Spritesheet.png",
+            frameWidth: 64
+        });
+
+        // Load enemy spritesheets
+        this.textures.addSpriteSheetFromAtlas("enemyIdleAnimSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "Enemy 1 Idle Spritesheet.png",
+            frameWidth: 64
+        });
+        this.textures.addSpriteSheetFromAtlas("enemyDeathAnimSpritesheet", {
+            atlas: "gameAtlas",
+            frame: "Enemy 1 Death Spritesheet.png",
+            frameWidth: 64
+        });
+
+        // Load puzzle-related graphics
+        // Puzzle piece numbers range from 1 to 9 (inclusive)
+        for (let i = 1; i <= 9; i++) {
+            this.textures.addSpriteSheetFromAtlas(`piece${i}Spritesheet`, {
+                atlas: "gameAtlas",
+                frame: `Circuit Boards Spritesheet ${i}.png`, // The value of filename in the atlas's JSON data corresponding to the current spritesheet
+                frameWidth: 64
+            });
+        }
+        for (let i = 1; i <= 9; i++) {
+            this.textures.addSpriteSheetFromAtlas(`piece${i}PlacedSpritesheet`, {
+                atlas: "gameAtlas",
+                frame: `Circuit Boards Spritesheet placed ${i}.png`, // The value of filename in the atlas's JSON data corresponding to the current spritesheet
+                frameWidth: 64
+            });
+        }
+        /*
+        */
+
+        // Start the Menu scene
         this.scene.start("menuScene");
     }
 }
