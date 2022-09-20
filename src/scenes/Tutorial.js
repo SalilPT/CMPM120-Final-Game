@@ -2,13 +2,13 @@ class Tutorial extends Phaser.Scene {
     constructor() {
         super("tutorialScene");
     }
-    
+
     init(data) {
         // A bit of code to determine which part of the tutorial is currently being played
         this.part1Active = true;
         if (data.part2Active) {
             this.part1Active = false;
-            this.part2Active = true;            
+            this.part2Active = true;
         }
 
         /*
@@ -30,28 +30,22 @@ class Tutorial extends Phaser.Scene {
         }
     }
 
-    preload() {
-
-    }
-
     create() {
         // mainly followed Nathan Altice's mappy example for collisions using tile maps
         this.map = this.add.tilemap(this.part1Active ? "tutorialMap" : "tutorialMapPart2");
         // set a tileset for the map and its corresponding layers
         const tileset = this.map.addTilesetImage("gameTileset", "gameTilesetAtlas");
-        const floorLayer = this.map.createLayer("floor", tileset, 0, 0).setDepth(-100);
+        this.map.createLayer("floor", tileset, 0, 0).setDepth(-100);
         this.wallLayer = this.map.createLayer("walls", tileset, 0, 0).setDepth(-99);
         // set collision based on the "collision" property that is set in the Tiled software
-        this.wallLayer.setCollisionByProperty({
-            collides: true
-        });
+        this.wallLayer.setCollisionByProperty({collides: true});
 
-        //groups
+        // groups
         this.puzPieceGroup = this.physics.add.group(); // group to house the puzzle pieces
         this.puzHoleGroup = this.physics.add.group(); // group to house the puzzle holes
 
         // create a player
-        let plrSpawnPt = this.getPlayerCharacterCoordsFromObjectLayer(this.map, "spawnerLayer", "gameTileset");
+        let plrSpawnPt = CustomSceneUtils.getPlayerCharacterCoordsFromObjectLayer(this.map, "spawnerLayer", "gameTileset");
         this.playerChar = new PlayerCharacter({
             scene: this,
             x: plrSpawnPt.x,
@@ -90,7 +84,7 @@ class Tutorial extends Phaser.Scene {
             alpha: {from: 0.5, to: 1},
             duration: 500,
             repeat: -1,
-            yoyo: true,
+            yoyo: true
         });
 
         // Set up parts 1 and 2 in tutorial
@@ -113,7 +107,7 @@ class Tutorial extends Phaser.Scene {
                 }
 
                 this.scene.launch("textBoxesScene", {
-                    textChain:["SpaceToInteract"],
+                    textChain: ["SpaceToInteract"],
                     scenesToPauseAtStart: ["tutorialScene"],
                     scenesToResumeAtEnd: ["tutorialScene"]
                 });
@@ -123,37 +117,23 @@ class Tutorial extends Phaser.Scene {
     }
 
     checkForPart1Completion() {
-        
         if (!this.puzMgr.puzzleCompleted()) {
             return;
         }
-        
+
         this.fullTutorialComplete = true;
         // Change the init data of this scene
         this.scene.settings.data.part2Active = true;
 
         // Launch text box for end of part 1
         this.scene.launch("textBoxesScene", {
-            textChain:["TutorialPart1End"],
+            textChain: ["TutorialPart1End"],
             scenesToPauseAtStart: ["tutorialScene"],
             scenesToStopAtEnd: ["tutorialScene"],
             scenesToStartAtEnd: ["tutorialScene"]
         });
 
         this.sound.removeByKey("menuBeat");
-    }
-
-    // Return the x and y of the player spawner as defined in Tiled
-    // Copied from Play.js
-    getPlayerCharacterCoordsFromObjectLayer(tilemap, layerName, tilesetName) {
-        let objLayer = tilemap.getObjectLayer(layerName);
-        let tileset = tilemap.getTileset(tilesetName);
-        for (const tiledObj of objLayer.objects) {
-            let propsObj = tileset.getTileProperties(tiledObj.gid);
-            if (propsObj["spawnerType"] == "player") {
-                return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y - tileset.tileHeight + tiledObj.height/2); // subtract tileHeight here because of Tiled's origin convention of (0, 1)
-            }
-        }
     }
 
     // Set up events for part 1 of the tutorial
@@ -163,7 +143,7 @@ class Tutorial extends Phaser.Scene {
             this.scene.launch("textBoxesScene", {
                 textChain: ["Wasd"],
                 scenesToPauseAtStart: ["tutorialScene"],
-                scenesToResumeAtEnd: ["tutorialScene"],             
+                scenesToResumeAtEnd: ["tutorialScene"]
             });
             this.movementTutorialComplete = true;
         });
@@ -180,7 +160,6 @@ class Tutorial extends Phaser.Scene {
         // Code below is heavily copied from Play.js
 
         // Prevent bullets from sometimes going through walls
-        // Code copied from Play.js
         this.physics.world.TILE_BIAS = Math.max(this.map.getLayer("walls").tileWidth, this.map.getLayer("walls").tileHeight);
 
         // Enemy spawners
@@ -231,7 +210,7 @@ class Tutorial extends Phaser.Scene {
 
                 // Restart level
                 this.scene.launch("textBoxesScene", {
-                    textChain:["TookTooMuchDamage"],
+                    textChain: ["TookTooMuchDamage"],
                     scenesToPauseAtStart: ["tutorialScene"],
                     scenesToStopAtEnd: ["tutorialScene"],
                     scenesToStartAtEnd: ["tutorialScene"]
@@ -267,12 +246,12 @@ class Tutorial extends Phaser.Scene {
         });
 
         this.physics.add.collider(this.bltMgr.getPlayerBulletsGroup(), this.enemyMgr.getEnemiesGroup(), (bullet, enemy) => {
-            this.bltMgr.getPlayerBulletsGroup().remove(bullet)
+            this.bltMgr.getPlayerBulletsGroup().remove(bullet);
             enemy.takeDamage();
         });
 
         this.physics.add.collider(this.bltMgr.getPlayerBulletsGroup(), this.wallLayer, (bullet) => {
-            this.bltMgr.getPlayerBulletsGroup().remove(bullet)
+            this.bltMgr.getPlayerBulletsGroup().remove(bullet);
         });
 
         // Enemy bullets
@@ -298,7 +277,7 @@ class Tutorial extends Phaser.Scene {
                     this.scene.settings.data.part2Active = undefined;
 
                     this.scene.launch("textBoxesScene", {
-                        textChain:["TutorialPart2End"],
+                        textChain: ["TutorialPart2End"],
                         scenesToPauseAtStart: ["tutorialScene"],
                         scenesToStopAtEnd: ["tutorialScene"],
                         scenesToStartAtEnd: ["menuScene"]
@@ -314,7 +293,7 @@ class Tutorial extends Phaser.Scene {
                 this.scene.launch("textBoxesScene", {
                     textChain: ["WatchOutForEnemies"],
                     scenesToPauseAtStart: ["tutorialScene"],
-                    scenesToResumeAtEnd: ["tutorialScene"],             
+                    scenesToResumeAtEnd: ["tutorialScene"]
                 });
                 this.combatTutorialComplete = true;
             });

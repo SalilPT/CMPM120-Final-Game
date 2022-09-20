@@ -2,40 +2,40 @@
     "TutorialPart1End": {
         "message":"Great job!\nYou completed the puzzle.",
         "keyboardInput": "SPACE",
-        "SwitchScene":{
+        "SwitchScene": {
             "shouldSwitch": true
         }
     },
-    "Wasd":{
+    "Wasd": {
         "message":"USE WASD KEYS TO MOVE",
         "keyboardInput": "W",
-        "SwitchScene":{
+        "SwitchScene": {
             "shouldSwitch": false
         }
     },
-    "SpaceToInteract":{
+    "SpaceToInteract": {
         "message":"Press SPACE to pick up/drop\npuzzle pieces, order matters!",
         "keyboardInput": "SPACE",
-        "SwitchScene":{
+        "SwitchScene": {
             "shouldSwitch": false
         }
     },
 
     "WatchOutForEnemies": {
         "message": "Watch out for enemies! Use your mouse to aim\nyour gun at them. Once the puzzle is completed,\nthey'll stop spawning.",
-        "SwitchScene":{
+        "SwitchScene": {
             "shouldSwitch": false
         }
     },
     "TookTooMuchDamage": {
         "message": "Oh no, you took too much damage!\n Click your mouse to try again.",
-        "SwitchScene":{
+        "SwitchScene": {
             "shouldSwitch": true
         }
     },
     "TutorialPart2End": {
         "message": "Excellent! You're ready to go on a real mission.",
-        "SwitchScene":{
+        "SwitchScene": {
             "shouldSwitch": true
         }
     }

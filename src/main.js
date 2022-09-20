@@ -11,16 +11,13 @@ let globalGameConfig = {
     disableContextMenu: true,
     physics: {
         default: "arcade",
-        arcade: {
-            debug: false
-        }
     },
     scale: {
         width: 1600,
         height: 900,
         mode: Phaser.Scale.FIT
     },
-    scene: [GameStartLoading, Menu, Play, DemoMenu, Credits, Settings, Tutorial, TextBoxes, MovementAndAimingDemo, LevelGenDemo, PuzzleDemo, BulletsDemo]
-}
+    scene: [GameStartLoading, Menu, Play, Credits, Settings, Tutorial, TextBoxes]
+};
 
 let globalGame = new Phaser.Game(globalGameConfig);

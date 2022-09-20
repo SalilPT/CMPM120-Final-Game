@@ -13,17 +13,17 @@ class BulletPattern {
         // A mapping of pattern keys to the corresponding function that executes the pattern
         // This allows for arbitrary (and potentially insane) patterns and easy addition/removal of them.
         this.PATTERNS = {
-            "shootAtTarget": this.#shootAtTarget,
-        }
+            "shootAtTarget": this.#shootAtTarget
+        };
 
         /**
          * PATTERN CONFIGURATION PROPERTIES EXPLANATION
-         * 
+         *
          * @property {String | Array.<String>} bulletType - a string or array of strings representing what bullet type(s) to use in the pattern.
          * The bullet type's predefined properties will be applied to a copy of the pattern's config object.
-         * @property {Number | Array.<Number>} bulletScale - Used a parameter to setScale() on every bullet if only one bullet type was specified. 
+         * @property {Number | Array.<Number>} bulletScale - Used a parameter to setScale() on every bullet if only one bullet type was specified.
          * If multiple bullet types were specified, then this needs to be an array which holds the intended scale values for every bullet instance of the bullet type at the corresponding index in the bullet types array.
-         * @property {Number | Array.<Number>} initTexAngleDeg - the initial angle in degrees of the texture of the bullet type. 
+         * @property {Number | Array.<Number>} initTexAngleDeg - the initial angle in degrees of the texture of the bullet type.
          * If this is an array, it holds the angle for each bullet type with the corresponding index in the bullet types array.
          * Note that Arcade physics doesn't allow for rotated rectangular bodies.
          * @property {String | Array.<String>} texture - A cache key for the texture to use for the bullet. Can also be an array of cache keys. Overrides the texture property of a bullet type.
@@ -31,10 +31,10 @@ class BulletPattern {
          * Overrides the frame property of a bullet type.
         */
 
-        // Default properties to be applied to bullets when not specfied in a pattern's config object
+        // Default properties to be applied to bullets when not specified in a pattern's config object
         this.BULLET_DEFAULTS = {
-            bulletSpd: 100,
-        }
+            bulletSpd: 100
+        };
 
         // Put predefined bullet type properties here
         // Intended for getting the texture, frame, properties relating to physics body, and initial angle of the texture relative to 0 degrees (right)
@@ -54,7 +54,7 @@ class BulletPattern {
                 bodyConfig: {
                     radius: 4
                 },
-                initTexAngleDeg: -90,
+                initTexAngleDeg: -90
             },
             "orangeBullet": {
                 texture: "gameAtlas",
@@ -77,10 +77,9 @@ class BulletPattern {
                 bodyConfig: {
                     radius: 4
                 },
-                initTexAngleDeg: -90,
+                initTexAngleDeg: -90
             }
-        }
-
+        };
         /*
         */
        this.parentScene = bulletManager.scene;
@@ -119,7 +118,7 @@ class BulletPattern {
 
         return resultAngle;
     }
-    
+
     // Returns the angle from a source point to a target point
     // Returns in degrees by default
     #angleFromSrcPtToTgtPt(srcPt, tgtPt, useDegrees = true) {
@@ -194,5 +193,5 @@ class BulletPattern {
         // Set the angle of the new bullet
         newBullet.angle += fireAngle;
         return newBullet;
-    };
+    }
 }

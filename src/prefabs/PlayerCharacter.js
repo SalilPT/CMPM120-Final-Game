@@ -7,21 +7,20 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         */
         this.EVENT_EMITTER_KEYS = {
             deathAnimCompleted: "deathAnimCompleted"
-        }
+        };
 
         /*
         Properties
         */
-
         // The health points of the player
         this.health = 5;
+
         // Movement manager
         this.movManager = new PlayerMovementManager(params.scene);
 
         /*
         Things to do when the scene when the parent scene calls update()
         */
-
         let updateListenerFunction = () => {
             // Update pointer position
             this.scene.input.activePointer.updateWorldPoint(this.scene.cameras.main);
@@ -31,7 +30,7 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
             this.body.setVelocity(movVector.x, movVector.y);
         }
         this.scene.events.on("update", updateListenerFunction, this);
-        let postUpdateListenerFunction = () => {this.updateGraphics();}
+        let postUpdateListenerFunction = () => {this.#updateGraphics();}
         this.scene.events.on("postupdate", postUpdateListenerFunction, this);
         this.once("destroy", () => {
             this.scene.events.removeListener("update", updateListenerFunction, this);
@@ -49,7 +48,6 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         /*
         Set up animations
         */
-
         this.scene.anims.create({
             key: "jebBottomIdleAnim",
             frames: this.anims.generateFrameNumbers("jebBottomIdleSpritesheet", {}),
@@ -61,7 +59,7 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
             frames: this.anims.generateFrameNumbers("jebBottomMovingSpritesheet", {}),
             frameRate: 12,
             repeat: -1
-            });
+        });
         this.scene.anims.create({
             key: "jebRingAnim",
             frames: this.anims.generateFrameNumbers("jebRingsSpritesheet", {}),
@@ -86,6 +84,8 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
             frameRate: 8,
             repeat: 0
         });
+        /*
+        */
 
         // This object actually controls the bottom part of Jeb's body
         this.play("jebBottomIdleAnim");
@@ -99,12 +99,14 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         this.bodyMiddle = this.scene.physics.add.sprite(0, 0, "gameAtlas", "Jeb Ring Off.png")
             .setOrigin(0.5)
             .setAngularVelocity(24) // Give the sprite texture of this a small amount of rotation
+            ;
         this.#hideBodyPart(this.bodyMiddle);
         this.bodyMiddle.play("jebRingAnim");
 
         this.bodyTop = this.scene.physics.add.sprite(0, 0, "gameAtlas", "Jeb Top Start.png")
             .setOrigin(0.5)
-            .setData("initialAngle", -90);
+            .setData("initialAngle", -90)
+            ;
         this.#hideBodyPart(this.bodyTop);
         this.bodyTop.play("jebTopChargingAnim");
         // Listen for event that's emitted when an attacking animation finishes
@@ -130,30 +132,66 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
     /*
     Public Methods
     */
-
     isDead() {
         return this.health <= 0;
     }
-   
+
     // Returns a reference to this object's corresponding movement manager
     getMovManager() {
         return this.movManager;
     }
 
-    updateGraphics() {
+    playAttackAnim() {
+        this.bodyTop.play("jebTopAttackingAnim");
+    }
+
+    takeDamage(damage = 1) {
+        this.health -= damage;
         if (this.health <= 0) {
-            this.bodyRenderTexture.clear()
-                .draw(this.bodyTop, this.width/2, this.height/2)
-                ;
+            this.scene.sound.play("jebDeath");
+            this.body.checkCollision.none = true;
+            this.movManager.setMovSpd(0);
+            this.#playDeathAnim();
+            return;
+        }
+
+        // Play regular damage sound instead
+        this.scene.sound.play("jebHurt");
+    }
+
+    /*
+    Private Methods
+    */
+    #hideBodyPart(part) {
+        part.setVisible(false); // Don't show this in the world
+        part.body.checkCollision = {
+            none: true,
+            up: false,
+            right: false,
+            down: false,
+            left: false
+        };
+    }
+
+    #playDeathAnim() {
+        this.bodyTop.play("jebTopDeathAnim");
+        this.bodyTop.once("animationcomplete-jebTopDeathAnim", () => {
+            this.emit(this.EVENT_EMITTER_KEYS.deathAnimCompleted);
+        });
+    }
+
+    #updateGraphics() {
+        if (this.health <= 0) {
+            this.bodyRenderTexture.clear().draw(this.bodyTop, this.width/2, this.height/2);
             return;
         }
 
         // Update the bottom
         let movVector = this.movManager.getMovementVector();
-        //console.log("movVector:", movVector.length() == 0);
         if (this.bottomRotationTween.paused) {
-            this.bottomRotationTween.resume()
-        };
+            this.bottomRotationTween.resume();
+        }
+
         // If the player character isn't moving, pause the rotation tween and set the bottom to use its idle animation
         let movVecIsZero = movVector.equals(Phaser.Math.Vector2.ZERO);
         if (movVecIsZero) {
@@ -193,46 +231,7 @@ class PlayerCharacter extends Phaser.Physics.Arcade.Sprite {
         this.bodyRenderTexture.clear()
             .setPosition(this.x, this.y)
             .draw(this.bodyMiddle, this.width/2, this.height/2)
-            .draw(this.bodyTop, this.width/2, this.height/2);
+            .draw(this.bodyTop, this.width/2, this.height/2)
             ;
     }
-
-    playAttackAnim() {
-        this.bodyTop.play("jebTopAttackingAnim");
-    }
-
-    playDeathAnim() {
-        this.bodyTop.play("jebTopDeathAnim");
-        this.bodyTop.once("animationcomplete-jebTopDeathAnim", () => {
-            this.emit(this.EVENT_EMITTER_KEYS.deathAnimCompleted);
-        });
-    }
-
-    takeDamage(damage = 1) {
-        this.health -= damage;
-        if (this.health <= 0) {
-            this.scene.sound.play("jebDeath");
-            this.body.checkCollision.none = true;
-            this.movManager.setMovSpd(0);
-            this.playDeathAnim();
-            return;
-        }
-
-        // Play regular damage sound instead
-        this.scene.sound.play("jebHurt");
-    }
-
-    /*
-    Private Methods
-    */
-    #hideBodyPart(part) {
-        part.setVisible(false); // Don't show this in the world
-        part.body.checkCollision = {
-            none: true,
-            up: false,
-            right: false,
-            down: false,
-            left: false
-        };
-   }
 }

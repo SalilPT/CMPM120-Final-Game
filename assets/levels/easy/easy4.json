@@ -196,7 +196,7 @@
         {
          "columns":9,
          "firstgid":1,
-         "image":"..\/..\/..\/..\/Tiled Projects\/gameTilesetAtlas.png",
+         "image":"gameTilesetAtlas.png",
          "imageheight":256,
          "imagewidth":576,
          "margin":0,

@@ -3,7 +3,7 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
         super(params.scene, params.x, params.y, params.texture, params.frame);
 
         this.parentScene = params.scene;
-        
+
         /*
         Constants
         */
@@ -38,7 +38,7 @@ class PuzzlePiece extends Phaser.GameObjects.Sprite {
         this.placedInHole = false;
 
         this.play(`piece${this.numInSequence}Anim`);
-        
+
         // Add graphics that's displayed and the physics body
         params.scene.add.existing(this);
         params.scene.physics.add.existing(this);

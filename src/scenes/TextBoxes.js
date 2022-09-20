@@ -2,8 +2,9 @@ class TextBoxes extends Phaser.Scene {
     constructor() {
         super("textBoxesScene");
     }
-    init(data){
-        // assign to empty arrays if nothing was given for each, this prevents errors for parsing undefined varibles later in the code
+
+    init(data) {
+        // assign to empty arrays if nothing was given for each, this prevents errors for parsing undefined variables later in the code
         this.textChain = data.textChain == null ? [] : data.textChain;
         this.scenesToPauseAtStart = data.scenesToPauseAtStart == null ? [] : data.scenesToPauseAtStart;
         this.scenesToStopAtStart = data.scenesToStopAtStart == null ? [] : data.scenesToStopAtStart;
@@ -13,15 +14,13 @@ class TextBoxes extends Phaser.Scene {
         this.scenesToStartAtEnd = data.scenesToStartAtEnd == null ? [] : data.scenesToStartAtEnd;
         this.scenesToResumeAtEnd = data.scenesToResumeAtEnd ==  null ? [] : data.scenesToResumeAtEnd;
     }
-    preload(){
-        this.load.json("text", "./assets/textData.json");
-        this.load.image("textBox", "./assets/textBox.png");
-    }
-    create(){
+
+    create() {
         this.parsedText = this.cache.json.get("text"); // contains the parsed json file
         this.currentMessage = 0; // keeps track of which index of this.textChain is being displayed
         this.nextMessage = 1; // keeps track of which index of this.textChain will be displayed next
         this.scene.bringToTop();
+
         // text configuration
         this.messageConfig = {
             fontFamily: "bulletFont",
@@ -31,6 +30,7 @@ class TextBoxes extends Phaser.Scene {
             strokeThickness: 4,
             resolution: 8
         };
+
         this.exitTextConfig = {
             fontFamily: "bulletFont",
             fontSize: "40px",
@@ -39,31 +39,34 @@ class TextBoxes extends Phaser.Scene {
             strokeThickness: 3,
             resolution: 8
         };
+
         // create a small text box
-        this.textBoxSprite = this.add.sprite(globalGameConfig.width/2, globalGameConfig.height/2, "textBox");
+        this.textBoxSprite = this.add.sprite(globalGameConfig.width/2, globalGameConfig.height/2, "gameAtlas", "textBox.png");
         this.textBoxSprite.setScale(0.05); // initially shrink the text box
         // tween to scale up the text box
         this.tweens.add({
             targets: this.textBoxSprite,
             duration: 100,
             scaleX: 0.90,
-            scaleY: 0.90,
+            scaleY: 0.90
         });
+
         // pause the given scenes
         for (let pauseSceneName of this.scenesToPauseAtStart) {
             this.scene.pause(pauseSceneName);
         }
         for (let stopSceneName of this.scenesToStopAtStart) {
             this.scene.stop(stopSceneName);
-        } 
+        }
+
         // stop the given scenes
         // Display the first message
-        this.time.delayedCall(100, ()=>{
+        this.time.delayedCall(100, () => {
             this.displayMessage(this.parsedText[this.textChain[this.currentMessage]].message); // display the first message
         });
     }
 
-    displayMessage(message){
+    displayMessage(message) {
         if (this.currentMessage < 1) { //if first time calling then created the text
             this.message = this.add.text(globalGameConfig.width/2, globalGameConfig.height/2, message, this.messageConfig).setOrigin(0.5);
         } else { //subsequent calls will update the message in the text box
@@ -73,7 +76,7 @@ class TextBoxes extends Phaser.Scene {
         this.currentMessage++;
         this.nextMessage++;
         // wait to show the exit text
-        this.time.delayedCall (1000, ()=> {
+        this.time.delayedCall (1000, () => {
             // display message to let the player continue the text sequence
             this.displayContinueMessage();
             this.input.once("pointerdown" , () => {
@@ -89,7 +92,7 @@ class TextBoxes extends Phaser.Scene {
         });
     }
 
-    displayContinueMessage() { 
+    displayContinueMessage() {
         this.exitMessage = this.add.text(this.textBoxSprite.x + this.textBoxSprite.displayWidth/2.3, this.textBoxSprite.y + this.textBoxSprite.displayHeight/3, "Click Mouse", this.exitTextConfig).setOrigin(1, 0.5);
         this.exitMessage.setAlpha(0.25);
         this.tweens.add({
@@ -101,7 +104,7 @@ class TextBoxes extends Phaser.Scene {
         });
     }
 
-    sceneExitSequence(){
+    sceneExitSequence() {
         // pause the given scenes
         for (let pauseSceneName of this.scenesToPauseAtEnd) {
             this.scene.pause(pauseSceneName);
@@ -122,16 +125,16 @@ class TextBoxes extends Phaser.Scene {
         for (let startSceneName of this.scenesToStartAtEnd) {
             this.scene.start(startSceneName);
         }
-        // zoom out tween for text box 
+        // zoom out tween for text box
         this.message.destroy();
         this.tweens.add({
             targets: this.textBoxSprite,
             duration: 100,
             scaleX: 0.05,
-            scaleY: 0.05,
+            scaleY: 0.05
         });
         // wait for tween to end
-        this.time.delayedCall(100, ()=> {
+        this.time.delayedCall(100, () => {
             this.scene.stop();
         });
     }

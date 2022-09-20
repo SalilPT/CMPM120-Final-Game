@@ -16,12 +16,9 @@ class GameStartLoading extends Phaser.Scene {
         /*
         Loading Tilemaps
         */
-        // Testing tilemap TODO: remove this
-        this.load.tilemapTiledJSON("testTilemap3", "./assets/Template Level Example 3.json");        
-
-        // Load tutorial tilemap
-        this.load.tilemapTiledJSON("tutorialMap", "./assets/Tutorial Map v2.json");
-        this.load.tilemapTiledJSON("tutorialMapPart2", "./assets/Tutorial Map v2 Part 2.json");
+        // Load tutorial tilemaps
+        this.load.tilemapTiledJSON("tutorialMap", "./assets/levels/Tutorial Map v2.json");
+        this.load.tilemapTiledJSON("tutorialMapPart2", "./assets/levels/Tutorial Map v2 Part 2.json");
 
         // Load the rest of the levels
         this.registry.set("levels", {
@@ -29,7 +26,7 @@ class GameStartLoading extends Phaser.Scene {
             medium: [],
             hard: []
         });
-        
+
         const NUM_EASY_LEVELS = 4;
         const NUM_MEDIUM_LEVELS = 3;
         const NUM_HARD_LEVELS = 3;
@@ -40,7 +37,7 @@ class GameStartLoading extends Phaser.Scene {
             this.load.tilemapTiledJSON(`easy${i}`, `./assets/levels/easy/easy${i}.json`);
             this.registry.values.levels.easy.push(`easy${i}`);
         }
-        
+
         // Load medium levels
         for (let i = 1; i <= NUM_MEDIUM_LEVELS; i++) {
             this.load.tilemapTiledJSON(`medium${i}`, `./assets/levels/medium/medium${i}.json`);
@@ -54,11 +51,14 @@ class GameStartLoading extends Phaser.Scene {
         }
 
         /*
+        Loading Text Box Data
+        */
+        this.load.json("text", "./assets/textData.json");
+
+        /*
         Loading Audio
         */
         this.load.audio("backgroundMusic", "./assets/audio/finalGameMusic.mp3");
-        this.load.audio("shooting_sfx", "./assets/audio/shooting_sfx.wav");
-
         this.load.audio("collectSFX", "./assets/audio/collect_sfx.wav");
         this.load.audio("enemyDeath", "./assets/audio/enemyDeath.wav");
         this.load.audio("enemyGetsHit", "./assets/audio/enemyGetsHit.wav");
@@ -66,6 +66,7 @@ class GameStartLoading extends Phaser.Scene {
         this.load.audio("jebHurt", "./assets/audio/jebHurt.wav");
         this.load.audio("jebShoot", "./assets/audio/jebShoot.wav");
         this.load.audio("menuBeat", "./assets/audio/menuBeat.mp3");
+        this.load.audio("shooting_sfx", "./assets/audio/shooting_sfx.wav");
     }
 
     create() {
@@ -111,22 +112,22 @@ class GameStartLoading extends Phaser.Scene {
         this.textures.addSpriteSheetFromAtlas("jebTopDeathSpritesheet", {
             atlas: "gameAtlas",
             frame: "Jeb Top Death Spritesheet.png",
-            frameWidth: 64,
+            frameWidth: 64
         });
 
         // Load enemy spritesheets
         this.textures.addSpriteSheetFromAtlas("enemyIdleAnimSpritesheet", {
             atlas: "gameAtlas",
             frame: "Enemy 1 Idle Spritesheet.png",
-            frameWidth: 64,
+            frameWidth: 64
         });
         this.textures.addSpriteSheetFromAtlas("enemyDeathAnimSpritesheet", {
             atlas: "gameAtlas",
             frame: "Enemy 1 Death Spritesheet.png",
-            frameWidth: 64,
+            frameWidth: 64
         });
 
-        // Load Puzzle-Related Graphics
+        // Load puzzle-related graphics
         // Puzzle piece numbers range from 1 to 9 (inclusive)
         for (let i = 1; i <= 9; i++) {
             this.textures.addSpriteSheetFromAtlas(`piece${i}Spritesheet`, {
@@ -142,6 +143,10 @@ class GameStartLoading extends Phaser.Scene {
                 frameWidth: 64
             });
         }
+        /*
+        */
+
+        // Start the Menu scene
         this.scene.start("menuScene");
     }
 }

@@ -36,12 +36,8 @@ class Play extends Phaser.Scene {
 
         // Based on the difficulty, get the appropriate level data keys
         this.possibleLevels = this.registry.values.levels[this.difficulty];
-        
-        this.possibleLevels = this.possibleLevels.filter((level) => {return !this.completedLevels.includes(level);}); 
-    }
 
-    preload() {
-        
+        this.possibleLevels = this.possibleLevels.filter((level) => {return !this.completedLevels.includes(level);});
     }
 
     create() {
@@ -60,14 +56,14 @@ class Play extends Phaser.Scene {
             "easy": 2000,
             "medium": 1950,
             "hard": 1900
-        }
+        };
 
         // Object to hold the time, in milliseconds, between each enemy's attempt to fire a bullet pattern
         const ENEMY_FIRING_COOLDOWN_TIMES = {
             "easy": 750,
             "medium": 625,
             "hard": 500
-        }
+        };
 
         this.PLAY_SCENE_TEXT_CONFIG = {
             color: "white",
@@ -76,15 +72,14 @@ class Play extends Phaser.Scene {
             stroke: "black",
             strokeThickness: 1,
             resolution: 8
-        }
+        };
 
         this.TEXT_Z_INDEX = 20;
 
         /*
         */
-        //this.possibleLevels = ["hard1"].filter((level) => {return !this.completedLevels.includes(level)});
         if (this.possibleLevels.length == 0) {
-            console.log("No possible levels");
+            console.warn("No possible levels");
             this.scene.start("menuScene");
             return;
         }
@@ -93,27 +88,25 @@ class Play extends Phaser.Scene {
         this.levelThatWasPicked = Phaser.Math.RND.pick(this.possibleLevels);
         let levelTilemap = this.add.tilemap(this.levelThatWasPicked);
         const levelTilemapTileset = levelTilemap.addTilesetImage("gameTileset", "gameTilesetAtlas");
-        const floorLayer = levelTilemap.createLayer("floor", levelTilemapTileset, 0, 0).setDepth(-100);
-        const wallLayer = levelTilemap.createLayer("walls", levelTilemapTileset, 0, 0).setDepth(-99);
-        wallLayer.setCollisionByProperty({
-            collides: true
-        });
+        levelTilemap.createLayer("floor", levelTilemapTileset, 0, 0).setDepth(-100);
+        const wallLayer = levelTilemap.createLayer("walls", levelTilemapTileset, 0, 0)
+            .setDepth(-99)
+            .setCollisionByProperty({collides: true})
+            ;
 
         // Prevent bullets from sometimes going through walls
         // Thanks to samme for their answer here: https://www.html5gamedevs.com/topic/36294-small-arcade-sprite-and-tilemap-collision-bug/?do=findComment&comment=208136
         this.physics.world.TILE_BIAS = Math.max(levelTilemap.getLayer("walls").tileWidth, levelTilemap.getLayer("walls").tileHeight);
 
         // Player character
-        let plrSpawnPt = this.getPlayerCharacterCoordsFromObjectLayer(levelTilemap, "spawnerLayer", "gameTileset");
+        let plrSpawnPt = CustomSceneUtils.getPlayerCharacterCoordsFromObjectLayer(levelTilemap, "spawnerLayer", "gameTileset");
         this.playerChar = new PlayerCharacter({
-        scene: this,
-        //x: globalGame.config.width/2,
-        //y: globalGame.config.height/2,
-        x: plrSpawnPt.x,
-        y: plrSpawnPt.y,
-        // Get the first frame of Jeb's bottom idle spritesheet extracted from gameAtlas
-        texture: "jebBottomIdleSpritesheet",
-        frame: 0
+            scene: this,
+            x: plrSpawnPt.x,
+            y: plrSpawnPt.y,
+            // Get the first frame of Jeb's bottom idle spritesheet extracted from gameAtlas
+            texture: "jebBottomIdleSpritesheet",
+            frame: 0
         });
 
         if (globalGame.registry.values.extremeModeOn) {
@@ -151,10 +144,10 @@ class Play extends Phaser.Scene {
             },
             loop: true
         });
+
         // Enemy collisions with walls
         this.physics.add.collider(this.enemyMgr.getEnemiesGroup(), wallLayer);
 
-        
         // Bullets
         this.bltMgr = new BulletManager(this);
 
@@ -167,7 +160,7 @@ class Play extends Phaser.Scene {
             if (player.health != 0) {
                 return;
             }
-            
+
             this.fadeOutBGM(750);
 
             this.playerChar.once("deathAnimCompleted", () => {
@@ -175,7 +168,7 @@ class Play extends Phaser.Scene {
                 if (!globalGame.registry.values.extremeModeOn) {
                     this.restartLevelFromDeath();
                 }
-                
+
                 // Extreme mode is on; return to the menu screen
                 else {
                     this.playExtremeModeLoseSequence();
@@ -211,12 +204,12 @@ class Play extends Phaser.Scene {
         });
 
         this.physics.add.collider(this.bltMgr.getPlayerBulletsGroup(), this.enemyMgr.getEnemiesGroup(), (bullet, enemy) => {
-            this.bltMgr.getPlayerBulletsGroup().remove(bullet)
+            this.bltMgr.getPlayerBulletsGroup().remove(bullet);
             enemy.takeDamage();
         });
 
         this.physics.add.collider(this.bltMgr.getPlayerBulletsGroup(), wallLayer, (bullet) => {
-            this.bltMgr.getPlayerBulletsGroup().remove(bullet)
+            this.bltMgr.getPlayerBulletsGroup().remove(bullet);
         });
 
         // Enemy bullets
@@ -238,20 +231,20 @@ class Play extends Phaser.Scene {
                     // Put text at center of screen
                     if (this.levelsLeft >= 1) {
                         this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, `Room Cleared\n${this.levelsLeft} Remain` + (this.levelsLeft == 1 ? "s ": ""), this.PLAY_SCENE_TEXT_CONFIG)
-                        .setAlign("center")
-                        .setOrigin(0.5)
-                        .setScrollFactor(0)
-                        .setDepth(this.TEXT_Z_INDEX)
-                        ;
+                            .setAlign("center")
+                            .setOrigin(0.5)
+                            .setScrollFactor(0)
+                            .setDepth(this.TEXT_Z_INDEX)
+                            ;
                     }
                     else {
                         missionCompleted = true;
                         let completionMessage = !globalGame.registry.values.extremeModeOn ? "MISSION COMPLETED" : "MISSION COMPLETED!";
                         this.add.text(this.cameras.main.x + this.cameras.main.width/2, this.cameras.main.y + this.cameras.main.height/2, completionMessage, this.PLAY_SCENE_TEXT_CONFIG)
-                        .setOrigin(0.5)
-                        .setScrollFactor(0)
-                        .setDepth(this.TEXT_Z_INDEX)
-                        ;
+                            .setOrigin(0.5)
+                            .setScrollFactor(0)
+                            .setDepth(this.TEXT_Z_INDEX)
+                            ;
                     }
 
                     this.fadeOutBGM(!missionCompleted ? 1500 : 2500);
@@ -262,7 +255,7 @@ class Play extends Phaser.Scene {
                 }
             },
             loop: true
-        })
+        });
 
         // User Interface
         this.userInterfaceMgr = new UserInterfaceManager(this, {});
@@ -288,10 +281,6 @@ class Play extends Phaser.Scene {
         this.cameras.main.setBackgroundColor("#222222");
     }
 
-    update() {
-
-    }
-
     // Fade out the background music over the specified amount of milliseconds
     fadeOutBGM(milliseconds) {
         this.tweens.add({
@@ -299,18 +288,6 @@ class Play extends Phaser.Scene {
             volume: 0,
             duration: milliseconds
         });
-    }
-
-    // Return the x and y of the player spawner as defined in Tiled
-    getPlayerCharacterCoordsFromObjectLayer(tilemap, layerName, tilesetName) {
-        let objLayer = tilemap.getObjectLayer(layerName);
-        let tileset = tilemap.getTileset(tilesetName);
-        for (const tiledObj of objLayer.objects) {
-            let propsObj = tileset.getTileProperties(tiledObj.gid);
-            if (propsObj["spawnerType"] == "player") {
-                return new Phaser.Geom.Point(tiledObj.x + tiledObj.width/2, tiledObj.y - tileset.tileHeight + tiledObj.height/2); // Subtract tileHeight here because of Tiled's origin convention of (0, 1)
-            }
-        }
     }
 
     playExtremeModeLoseSequence() {
@@ -353,5 +330,4 @@ class Play extends Phaser.Scene {
             completedLevels: this.completedLevels.concat([this.levelThatWasPicked])
         });
     }
-
 }
